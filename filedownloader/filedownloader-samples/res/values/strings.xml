@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string name="app_name">filedownloader-samples</string>
+	<string name="action_settings">Settings</string>
+	<string name="hello_world">Hello world!</string>
+    <string name="success">成功</string>
+    <string name="error">失败</string>
+    <string name="sdcarderror">sdcard 错误</string>
+
+</resources>
