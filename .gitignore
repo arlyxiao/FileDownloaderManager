@@ -32,7 +32,9 @@ coverage/
 project.properties
 
 filedownloader/filedownloader-samples/target/
+filedownloader/filedownloader-samples/filedownloader-samples.iml
 filedownloader/filedownloader/target/
+filedownloader/filedownloader/filedownloader.iml
 filedownloader/filedownloader-parent.iml
 
 *DS_*
