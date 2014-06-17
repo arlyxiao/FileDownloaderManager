@@ -11,10 +11,10 @@ import android.database.sqlite.SQLiteDatabase;
  *
  */
 public class FileRecord {
-    private DBOpenHelper openHelper;
+    private DBOpenHelper db_open_helper;
 
     public FileRecord(Context context) {
-        openHelper = new DBOpenHelper(context);
+        db_open_helper = new DBOpenHelper(context);
     }
     /**
      * 获取每条线程已经下载的文件长度
@@ -22,7 +22,7 @@ public class FileRecord {
      * @return
      */
     public Map<Integer, Integer> get_data(String path){
-        SQLiteDatabase db = openHelper.getReadableDatabase();
+        SQLiteDatabase db = db_open_helper.getReadableDatabase();
         Cursor cursor = db.rawQuery("select threadid, downlength from filedownlog where downpath=?", new String[]{path});
         Map<Integer, Integer> data = new HashMap<Integer, Integer>();
         while(cursor.moveToNext()){
@@ -38,7 +38,7 @@ public class FileRecord {
      * @param map
      */
     public void save(String path,  Map<Integer, Integer> map){//int threadid, int position
-        SQLiteDatabase db = openHelper.getWritableDatabase();
+        SQLiteDatabase db = db_open_helper.getWritableDatabase();
         db.beginTransaction();
         try{
             for(Map.Entry<Integer, Integer> entry : map.entrySet()){
@@ -57,7 +57,7 @@ public class FileRecord {
      * @param map
      */
     public void update(String path, Map<Integer, Integer> map){
-        SQLiteDatabase db = openHelper.getWritableDatabase();
+        SQLiteDatabase db = db_open_helper.getWritableDatabase();
         db.beginTransaction();
         try{
             for(Map.Entry<Integer, Integer> entry : map.entrySet()){
@@ -75,7 +75,7 @@ public class FileRecord {
      * @param path
      */
     public void delete(String path){
-        SQLiteDatabase db = openHelper.getWritableDatabase();
+        SQLiteDatabase db = db_open_helper.getWritableDatabase();
         db.execSQL("delete from filedownlog where downpath=?", new Object[]{path});
         db.close();
     }
