@@ -28,7 +28,7 @@ public class FileDownloader {
     /* 本地保存文件 */
     private File save_file;
     /* 缓存各线程下载的长度*/
-    private Map<Integer, Integer> data = new ConcurrentHashMap<Integer, Integer>();
+    private Map<Integer, Integer> thread_data = new ConcurrentHashMap<Integer, Integer>();
     /* 每条线程下载的长度 */
     private int block;
     /* 下载路径  */
@@ -50,8 +50,8 @@ public class FileDownloader {
     }
 
     protected synchronized void update(int thread_id, int pos) {
-        this.data.put(thread_id, pos);
-        this.file_record.update(this.download_url, this.data);
+        this.thread_data.put(thread_id, pos);
+        this.file_record.update(this.download_url, this.thread_data);
     }
 
 
@@ -84,11 +84,11 @@ public class FileDownloader {
                 Map<Integer, Integer> logdata = file_record.get_data(download_url);
                 if(logdata.size()>0){
                     for(Map.Entry<Integer, Integer> entry : logdata.entrySet())
-                        data.put(entry.getKey(), entry.getValue());
+                        thread_data.put(entry.getKey(), entry.getValue());
                 }
-                if(this.data.size()==this.threads.length){
+                if(this.thread_data.size()==this.threads.length){
                     for (int i = 0; i < this.threads.length; i++) {
-                        this.downloaded_size += this.data.get(i+1);
+                        this.downloaded_size += this.thread_data.get(i+1);
                     }
                     print("已经下载的长度 "+ this.downloaded_size);
                 }
@@ -129,23 +129,23 @@ public class FileDownloader {
             if(this.file_size >0) rand_out.setLength(this.file_size);
             rand_out.close();
             URL url = new URL(this.download_url);
-            if(this.data.size() != this.threads.length){
-                this.data.clear();
+            if(this.thread_data.size() != this.threads.length){
+                this.thread_data.clear();
                 for (int i = 0; i < this.threads.length; i++) {
-                    this.data.put(i+1, 0);
+                    this.thread_data.put(i+1, 0);
                 }
             }
             for (int i = 0; i < this.threads.length; i++) {
-                int downLength = this.data.get(i+1);
+                int downLength = this.thread_data.get(i+1);
                 if(downLength < this.block && this.downloaded_size <this.file_size){
-                    this.threads[i] = new DownloadThread(this, url, this.save_file, this.block, this.data.get(i+1), i+1);
+                    this.threads[i] = new DownloadThread(this, url, this.save_file, this.block, this.thread_data.get(i+1), i+1);
                     this.threads[i].setPriority(7);
                     this.threads[i].start();
                 }else{
                     this.threads[i] = null;
                 }
             }
-            this.file_record.save(this.download_url, this.data);
+            this.file_record.save(this.download_url, this.thread_data);
             boolean not_finish = true;
             while (not_finish) {
                 Thread.sleep(900);
@@ -154,7 +154,7 @@ public class FileDownloader {
                     if (this.threads[i] != null && !this.threads[i].is_finish()) {
                         not_finish = true;
                         if(this.threads[i].get_downloaded_length() == -1){
-                            this.threads[i] = new DownloadThread(this, url, this.save_file, this.block, this.data.get(i+1), i+1);
+                            this.threads[i] = new DownloadThread(this, url, this.save_file, this.block, this.thread_data.get(i+1), i+1);
                             this.threads[i].setPriority(7);
                             this.threads[i].start();
                         }
