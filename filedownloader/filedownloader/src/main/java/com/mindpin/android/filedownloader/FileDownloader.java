@@ -18,21 +18,21 @@ import android.util.Log;
 public class FileDownloader {
     private static final String TAG = "FileDownloader";
     private Context context;
-    private FileRecord fileService;
+    private FileRecord file_record;
     /* 已下载文件长度 */
-    private int downloadSize = 0;
+    private int download_size = 0;
     /* 原始文件长度 */
     private int file_size = 0;
     /* 线程数 */
     private DownloadThread[] threads;
     /* 本地保存文件 */
-    private File saveFile;
+    private File save_file;
     /* 缓存各线程下载的长度*/
     private Map<Integer, Integer> data = new ConcurrentHashMap<Integer, Integer>();
     /* 每条线程下载的长度 */
     private int block;
     /* 下载路径  */
-    private String downloadUrl;
+    private String download_url;
     /**
      * 获取线程数
      */
@@ -51,7 +51,7 @@ public class FileDownloader {
      * @param size
      */
     protected synchronized void append(int size) {
-        downloadSize += size;
+        download_size += size;
     }
     /**
      * 更新指定线程最后下载的位置
@@ -60,29 +60,29 @@ public class FileDownloader {
      */
     protected synchronized void update(int threadId, int pos) {
         this.data.put(threadId, pos);
-        this.fileService.update(this.downloadUrl, this.data);
+        this.file_record.update(this.download_url, this.data);
     }
     /**
      * 构建文件下载器
-     * @param downloadUrl 下载路径
-     * @param fileSaveDir 文件保存目录
-     * @param threadNum 下载线程数
+     * @param download_url 下载路径
+     * @param file_save_dir 文件保存目录
+     * @param thread_num 下载线程数
      */
-    public FileDownloader(Context context, String downloadUrl, File fileSaveDir, int threadNum) {
+    public FileDownloader(Context context, String download_url, File file_save_dir, int thread_num) {
         try {
-            Log.i("下载的 URL ", downloadUrl);
+            Log.i("下载的 URL ", download_url);
             this.context = context;
-            this.downloadUrl = downloadUrl;
-            fileService = new FileRecord(this.context);
-            URL url = new URL(this.downloadUrl);
-            if(!fileSaveDir.exists()) fileSaveDir.mkdirs();
-            this.threads = new DownloadThread[threadNum];
+            this.download_url = download_url;
+            file_record = new FileRecord(this.context);
+            URL url = new URL(this.download_url);
+            if(!file_save_dir.exists()) file_save_dir.mkdirs();
+            this.threads = new DownloadThread[thread_num];
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(5*1000);
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
             conn.setRequestProperty("Accept-Language", "zh-CN");
-            conn.setRequestProperty("Referer", downloadUrl);
+            conn.setRequestProperty("Referer", download_url);
             conn.setRequestProperty("Charset", "UTF-8");
             conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
             conn.setRequestProperty("Connection", "Keep-Alive");
@@ -93,17 +93,17 @@ public class FileDownloader {
                 if (this.file_size <= 0) throw new RuntimeException("Unkown file size ");
 
                 String filename = get_file_name(conn);//获取文件名称
-                this.saveFile = new File(fileSaveDir, filename);//构建保存文件
-                Map<Integer, Integer> logdata = fileService.get_data(downloadUrl);//获取下载记录
+                this.save_file = new File(file_save_dir, filename);//构建保存文件
+                Map<Integer, Integer> logdata = file_record.get_data(download_url);//获取下载记录
                 if(logdata.size()>0){//如果存在下载记录
                     for(Map.Entry<Integer, Integer> entry : logdata.entrySet())
                         data.put(entry.getKey(), entry.getValue());//把各条线程已经下载的数据长度放入data中
                 }
                 if(this.data.size()==this.threads.length){//下面计算所有线程已经下载的数据长度
                     for (int i = 0; i < this.threads.length; i++) {
-                        this.downloadSize += this.data.get(i+1);
+                        this.download_size += this.data.get(i+1);
                     }
-                    print("已经下载的长度"+ this.downloadSize);
+                    print("已经下载的长度"+ this.download_size);
                 }
                 //计算每条线程下载的数据长度
                 this.block = (this.file_size % this.threads.length)==0? this.file_size / this.threads.length : this.file_size / this.threads.length + 1;
@@ -120,7 +120,7 @@ public class FileDownloader {
      * 获取文件名
      */
     private String get_file_name(HttpURLConnection conn) {
-        String filename = this.downloadUrl.substring(this.downloadUrl.lastIndexOf('/') + 1);
+        String filename = this.download_url.substring(this.download_url.lastIndexOf('/') + 1);
         if(filename==null || "".equals(filename.trim())){//如果获取不到文件名称
             for (int i = 0;; i++) {
                 String mine = conn.getHeaderField(i);
@@ -143,10 +143,10 @@ public class FileDownloader {
      */
     public int download(ProgressUpdateListener listener) throws Exception{
         try {
-            RandomAccessFile randOut = new RandomAccessFile(this.saveFile, "rw");
+            RandomAccessFile randOut = new RandomAccessFile(this.save_file, "rw");
             if(this.file_size >0) randOut.setLength(this.file_size);
             randOut.close();
-            URL url = new URL(this.downloadUrl);
+            URL url = new URL(this.download_url);
             if(this.data.size() != this.threads.length){
                 this.data.clear();
                 for (int i = 0; i < this.threads.length; i++) {
@@ -155,15 +155,15 @@ public class FileDownloader {
             }
             for (int i = 0; i < this.threads.length; i++) {//开启线程进行下载
                 int downLength = this.data.get(i+1);
-                if(downLength < this.block && this.downloadSize<this.file_size){//判断线程是否已经完成下载,否则继续下载
-                    this.threads[i] = new DownloadThread(this, url, this.saveFile, this.block, this.data.get(i+1), i+1);
+                if(downLength < this.block && this.download_size <this.file_size){//判断线程是否已经完成下载,否则继续下载
+                    this.threads[i] = new DownloadThread(this, url, this.save_file, this.block, this.data.get(i+1), i+1);
                     this.threads[i].setPriority(7);
                     this.threads[i].start();
                 }else{
                     this.threads[i] = null;
                 }
             }
-            this.fileService.save(this.downloadUrl, this.data);
+            this.file_record.save(this.download_url, this.data);
             boolean notFinish = true;//下载未完成
             while (notFinish) {// 循环判断所有线程是否完成下载
                 Thread.sleep(900);
@@ -172,20 +172,20 @@ public class FileDownloader {
                     if (this.threads[i] != null && !this.threads[i].is_finish()) {//如果发现线程未完成下载
                         notFinish = true;//设置标志为下载没有完成
                         if(this.threads[i].get_down_length() == -1){//如果下载失败,再重新下载
-                            this.threads[i] = new DownloadThread(this, url, this.saveFile, this.block, this.data.get(i+1), i+1);
+                            this.threads[i] = new DownloadThread(this, url, this.save_file, this.block, this.data.get(i+1), i+1);
                             this.threads[i].setPriority(7);
                             this.threads[i].start();
                         }
                     }
                 }
-                if(listener!=null) listener.on_update(this.downloadSize);//通知目前已经下载完成的数据长度
+                if(listener!=null) listener.on_update(this.download_size);//通知目前已经下载完成的数据长度
             }
-            fileService.delete(this.downloadUrl);
+            file_record.delete(this.download_url);
         } catch (Exception e) {
             print(e.toString());
             throw new Exception("file download fail");
         }
-        return this.downloadSize;
+        return this.download_size;
     }
     /**
      * 获取Http响应头字段

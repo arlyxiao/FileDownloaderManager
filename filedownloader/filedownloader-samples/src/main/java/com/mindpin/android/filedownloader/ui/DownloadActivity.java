@@ -89,11 +89,11 @@ public class DownloadActivity extends Activity {
                 try {
                     loader.download(new ProgressUpdateListener() {
                         @Override
-                        public void on_update(int size) {//实时获知文件已经下载的数据长度
+                        public void on_update(int downloaded_size) {//实时获知文件已经下载的数据长度
                             Message msg = new Message();
                             msg.what = 1;
-                            msg.getData().putInt("size", size);
-                            Log.i("已经下载了多大 ", Integer.toString(size));
+                            msg.getData().putInt("size", downloaded_size);
+                            Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
                             handler.sendMessage(msg);//发送消息
                         }
                     });
