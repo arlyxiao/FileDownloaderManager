@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -11,10 +12,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -28,8 +31,11 @@ public class FileDownloader {
     public int downloaded_size = 0;
     /* 原始文件长度 */
     public int file_size = 0;
+
     /* 线程数 */
     public DownloadThread[] threads;
+    public int thread_num;
+
     /* 本地保存文件 */
     public File save_file;
     /* 缓存各线程下载的长度*/
@@ -40,6 +46,8 @@ public class FileDownloader {
     public String download_url;
 
     ProgressUpdateListener listener;
+
+    public FileDownloader current = this;
 
 
     public int get_thread_size() {
@@ -62,7 +70,23 @@ public class FileDownloader {
     }
 
 
-    public FileDownloader(Context context, String download_url, File file_save_dir, int thread_num) {
+    public FileDownloader(Context context,
+                          String download_url,
+                          File file_save_dir,
+                          int thread_num) {
+
+
+        this.context = context;
+        this.download_url = download_url;
+        this.save_file = file_save_dir;
+        this.thread_num = thread_num;
+    }
+
+
+    private void init_connection(Context context,
+                                 String download_url,
+                                 File file_save_dir,
+                                 int thread_num) {
         try {
             Log.i("下载的 URL ", download_url);
             this.context = context;
@@ -100,7 +124,9 @@ public class FileDownloader {
                     print("已经下载的长度 "+ this.downloaded_size);
                 }
                 //计算每条线程下载的数据长度
-                this.block = (this.file_size % this.threads.length)==0? this.file_size / this.threads.length : this.file_size / this.threads.length + 1;
+                this.block = (this.file_size % this.threads.length)==0?
+                        this.file_size / this.threads.length :
+                        this.file_size / this.threads.length + 1;
             }else{
                 throw new RuntimeException("server no response ");
             }
@@ -155,18 +181,25 @@ public class FileDownloader {
 
 
 
-    public void download(ProgressUpdateListener listener) throws Exception{
-        this.listener = listener;
+    public void download(final ProgressUpdateListener listener) throws Exception{
+         new Thread(new Runnable() {
+            @Override
+            public void run() {
+                init_connection(context, download_url, save_file, thread_num);
+                FileDownloader.this.listener = listener;
 
-        Intent download_service = new Intent(context, DownloadService.class);
-        context.startService(download_service);
-        context.bindService(download_service, mConnection, Context.BIND_AUTO_CREATE);
+                Intent download_service = new Intent(context, DownloadService.class);
+                context.startService(download_service);
+                context.bindService(download_service, mConnection, Context.BIND_AUTO_CREATE);
+
+            }
+        }).start();
     }
 
 
     DownloadService m_service;
     boolean m_bound = false;
-    FileDownloader current = this;
+
 
     private ServiceConnection mConnection = new ServiceConnection() {
 

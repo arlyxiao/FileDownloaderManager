@@ -182,28 +182,23 @@ public class DownloadActivity extends Activity {
     }
 
     private void download(final String path, final File savedir) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                FileDownloader fd = new FileDownloader(DownloadActivity.this, path, savedir, 8);
-                progress_bar.setMax(fd.get_file_size());
-                downloaded_file = fd.get_file_name();
-                try {
-                    fd.download(new ProgressUpdateListener() {
-                        @Override
-                        public void on_update(int downloaded_size) {
-                            Message msg = new Message();
-                            msg.what = 1;
-                            msg.getData().putInt("size", downloaded_size);
-                            Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
-                            handler.sendMessage(msg);
-                        }
-                    });
-                } catch (Exception e) {
-                    handler.obtainMessage(-1).sendToTarget();
-                    Log.i("下载错误 ", e.getMessage());
+        FileDownloader fd = new FileDownloader(DownloadActivity.this, path, savedir, 8);
+        progress_bar.setMax(fd.get_file_size());
+        downloaded_file = fd.get_file_name();
+        try {
+            fd.download(new ProgressUpdateListener() {
+                @Override
+                public void on_update(int downloaded_size) {
+                    Message msg = new Message();
+                    msg.what = 1;
+                    msg.getData().putInt("size", downloaded_size);
+                    Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
+                    handler.sendMessage(msg);
                 }
-            }
-        }).start();
+            });
+        } catch (Exception e) {
+            handler.obtainMessage(-1).sendToTarget();
+            Log.i("下载错误 ", e.getMessage());
+        }
     }
 }
