@@ -11,29 +11,35 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.util.Log;
 
 
 public class FileDownloader {
-    private HttpURLConnection conn;
-    private static final String TAG = "FileDownloader";
-    private Context context;
-    private FileRecord file_record;
+    public HttpURLConnection conn;
+    public static final String TAG = "FileDownloader";
+    public Context context;
+    public FileRecord file_record;
     /* 已下载文件长度 */
-    private int downloaded_size = 0;
+    public int downloaded_size = 0;
     /* 原始文件长度 */
-    private int file_size = 0;
+    public int file_size = 0;
     /* 线程数 */
-    private DownloadThread[] threads;
+    public DownloadThread[] threads;
     /* 本地保存文件 */
-    private File save_file;
+    public File save_file;
     /* 缓存各线程下载的长度*/
-    private Map<Integer, Integer> thread_data = new ConcurrentHashMap<Integer, Integer>();
+    public Map<Integer, Integer> thread_data = new ConcurrentHashMap<Integer, Integer>();
     /* 每条线程下载的长度 */
-    private int block;
+    public int block;
     /* 下载路径  */
-    private String download_url;
+    public String download_url;
+
+    ProgressUpdateListener listener;
 
 
     public int get_thread_size() {
@@ -124,54 +130,6 @@ public class FileDownloader {
 
 
 
-    public int download(ProgressUpdateListener listener) throws Exception{
-        try {
-            RandomAccessFile rand_out = new RandomAccessFile(this.save_file, "rw");
-            if(this.file_size >0) rand_out.setLength(this.file_size);
-            rand_out.close();
-            URL url = new URL(this.download_url);
-            if(this.thread_data.size() != this.threads.length){
-                this.thread_data.clear();
-                for (int i = 0; i < this.threads.length; i++) {
-                    this.thread_data.put(i+1, 0);
-                }
-            }
-            for (int i = 0; i < this.threads.length; i++) {
-                int downLength = this.thread_data.get(i+1);
-                if(downLength < this.block && this.downloaded_size <this.file_size){
-                    this.threads[i] = new DownloadThread(this, url, this.save_file, this.block, this.thread_data.get(i+1), i+1);
-                    this.threads[i].setPriority(7);
-                    this.threads[i].start();
-                }else{
-                    this.threads[i] = null;
-                }
-            }
-            this.file_record.save(this.download_url, this.thread_data);
-            boolean not_finish = true;
-            while (not_finish) {
-                Thread.sleep(900);
-                not_finish = false;
-                for (int i = 0; i < this.threads.length; i++){
-                    if (this.threads[i] != null && !this.threads[i].is_finish()) {
-                        not_finish = true;
-                        if(this.threads[i].get_downloaded_length() == -1){
-                            this.threads[i] = new DownloadThread(this, url, this.save_file, this.block, this.thread_data.get(i+1), i+1);
-                            this.threads[i].setPriority(7);
-                            this.threads[i].start();
-                        }
-                    }
-                }
-                if(listener!=null) listener.on_update(this.downloaded_size);
-            }
-            file_record.delete(this.download_url);
-        } catch (Exception e) {
-            print(e.getMessage());
-            throw new Exception("file download fail");
-        }
-        return this.downloaded_size;
-    }
-
-
     public static Map<String, String> get_http_response_header(HttpURLConnection http) {
         Map<String, String> header = new LinkedHashMap<String, String>();
         for (int i = 0;; i++) {
@@ -194,4 +152,42 @@ public class FileDownloader {
     private static void print(String msg){
         Log.i(TAG, msg);
     }
+
+
+
+    public void download(ProgressUpdateListener listener) throws Exception{
+        this.listener = listener;
+
+        Intent download_service = new Intent(context, DownloadService.class);
+        context.startService(download_service);
+        context.bindService(download_service, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+
+    DownloadService m_service;
+    boolean m_bound = false;
+    FileDownloader current = this;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
+            m_service = binder.getService();
+            try {
+                m_service.download(current, current.listener);
+            } catch (Exception e) {
+                Log.i("下载有问题 ", e.getMessage());
+            }
+
+            m_bound = true;
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            m_bound = false;
+        }
+    };
 }
