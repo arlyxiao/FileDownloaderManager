@@ -72,7 +72,7 @@ public class DownloadThread extends Thread {
                 this.finish = true;
             } catch (Exception e) {
                 this.downloaded_length = -1;
-                print("线程 "+ this.thread_id + ":"+ e.getMessage());
+                print("线程错误 "+ this.thread_id + ":"+ e.getMessage());
             }
         }
     }

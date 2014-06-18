@@ -1,12 +1,15 @@
 package com.mindpin.android.filedownloader.ui;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -17,13 +20,15 @@ import com.mindpin.android.filedownloader.ProgressUpdateListener;
 import com.mindpin.android.filedownloader.R;
 
 import java.io.File;
-
-
+import java.util.Scanner;
 
 
 public class DownloadActivity extends Activity {
     private TextView result_view;
+    private TextView downloaded_file_view;
     private ProgressBar progress_bar;
+    String downloaded_file;
+    String stored_dir;
 
     String path_less_100kb = "http://esharedev.oss-cn-hangzhou.aliyuncs.com/file/%E9%80%9A%E7%94%A8LOADING%E6%8F%90%E7%A4%BA%E7%BB%84%E4%BB%B6.png";
     String path_less_1mb = "http://esharedev.oss-cn-hangzhou.aliyuncs.com/file/%E5%A4%B4%E5%83%8F%E6%88%AA%E5%8F%96.png";
@@ -48,6 +53,20 @@ public class DownloadActivity extends Activity {
                     result_view.setText(result + "%");
                     if(progress_bar.getProgress()== progress_bar.getMax()){
                         Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
+                        downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
+
+
+                        try {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            File file = new File(stored_dir + "/" + downloaded_file);
+                            intent.setAction(android.content.Intent.ACTION_VIEW);
+                            intent.setDataAndType(Uri.fromFile(file),getMimeType(file.getAbsolutePath()));
+                            startActivity(intent);
+                        } catch (Exception e) {
+                            Log.i("文件打开错误 ", e.getMessage());
+                        }
+
+
                     }
                     break;
 
@@ -58,21 +77,37 @@ public class DownloadActivity extends Activity {
         }
     };
 
+    private String getMimeType(String url)
+    {
+        String parts[]=url.split("\\.");
+        String extension=parts[parts.length-1];
+        String type = null;
+        if (extension != null) {
+            MimeTypeMap mime = MimeTypeMap.getSingleton();
+            type = mime.getMimeTypeFromExtension(extension);
+        }
+        return type;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        stored_dir = Environment.getExternalStorageDirectory().toString();
+
 
         progress_bar = (ProgressBar) this.findViewById(R.id.downloadbar);
         result_view = (TextView) this.findViewById(R.id.result);
+        downloaded_file_view = (TextView) this.findViewById(R.id.downloaded_file);
+
         Button button = (Button) this.findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String path = path_less_100kb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-                    Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
+                    Log.i("存储的路径 ", stored_dir);
                     download(path, Environment.getExternalStorageDirectory());
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
@@ -150,17 +185,18 @@ public class DownloadActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                FileDownloader loader = new FileDownloader(DownloadActivity.this, path, savedir, 8);
-                progress_bar.setMax(loader.get_file_size());
+                FileDownloader fd = new FileDownloader(DownloadActivity.this, path, savedir, 8);
+                progress_bar.setMax(fd.get_file_size());
+                downloaded_file = fd.get_file_name();
                 try {
-                    loader.download(new ProgressUpdateListener() {
+                    fd.download(new ProgressUpdateListener() {
                         @Override
                         public void on_update(int downloaded_size) {
                             Message msg = new Message();
                             msg.what = 1;
                             msg.getData().putInt("size", downloaded_size);
                             Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
-                            handler.sendMessage(msg);//发送消息
+                            handler.sendMessage(msg);
                         }
                     });
                 } catch (Exception e) {

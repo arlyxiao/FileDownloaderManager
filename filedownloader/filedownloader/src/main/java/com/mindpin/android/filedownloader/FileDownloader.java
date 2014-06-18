@@ -16,6 +16,7 @@ import android.util.Log;
 
 
 public class FileDownloader {
+    private HttpURLConnection conn;
     private static final String TAG = "FileDownloader";
     private Context context;
     private FileRecord file_record;
@@ -64,7 +65,7 @@ public class FileDownloader {
             URL url = new URL(this.download_url);
             if(!file_save_dir.exists()) file_save_dir.mkdirs();
             this.threads = new DownloadThread[thread_num];
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(5*1000);
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
@@ -79,7 +80,7 @@ public class FileDownloader {
                 this.file_size = conn.getContentLength();
                 if (this.file_size <= 0) throw new RuntimeException("Unkown file size ");
 
-                String filename = get_file_name(conn);
+                String filename = get_file_name();
                 this.save_file = new File(file_save_dir, filename);
                 Map<Integer, Integer> logdata = file_record.get_data(download_url);
                 if(logdata.size()>0){
@@ -105,7 +106,7 @@ public class FileDownloader {
     }
 
 
-    private String get_file_name(HttpURLConnection conn) {
+    public String get_file_name() {
         String filename = this.download_url.substring(this.download_url.lastIndexOf('/') + 1);
         if(filename==null || "".equals(filename.trim())){
             for (int i = 0;; i++) {
