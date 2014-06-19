@@ -24,9 +24,9 @@ import java.util.Scanner;
 
 
 public class DownloadActivity extends Activity {
-    private TextView result_view;
+    public TextView result_view;
     private TextView downloaded_file_view;
-    private ProgressBar progress_bar;
+    public ProgressBar progress_bar;
     String downloaded_file;
     String stored_dir;
 
@@ -43,28 +43,26 @@ public class DownloadActivity extends Activity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 1:
-                    progress_bar.setProgress(msg.getData().getInt("size"));
-                    Log.i("正在进行的进度条大小0 ", Integer.toString(msg.getData().getInt("size")));
-                    Log.i("正在进行的进度条大小1 ", Integer.toString(progress_bar.getProgress()));
-                    Log.i("进度条最大大小 ", Integer.toString(progress_bar.getMax()));
 
                     float num = (float) progress_bar.getProgress()/(float) progress_bar.getMax();
                     int result = (int)(num*100);
-                    result_view.setText(result + "%");
+                    Log.i("百分比 ", Integer.toString(result));
+                    result_view.setText(Integer.toString(result) + "%");
+
                     if(progress_bar.getProgress()== progress_bar.getMax()){
                         Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
                         downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
 
 
-                        try {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            File file = new File(stored_dir + "/" + downloaded_file);
-                            intent.setAction(android.content.Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.fromFile(file),getMimeType(file.getAbsolutePath()));
-                            startActivity(intent);
-                        } catch (Exception e) {
-                            Log.i("文件打开错误 ", e.getMessage());
-                        }
+//                        try {
+//                            Intent intent = new Intent(Intent.ACTION_VIEW);
+//                            File file = new File(stored_dir + "/" + downloaded_file);
+//                            intent.setAction(android.content.Intent.ACTION_VIEW);
+//                            intent.setDataAndType(Uri.fromFile(file),getMimeType(file.getAbsolutePath()));
+//                            startActivity(intent);
+//                        } catch (Exception e) {
+//                            Log.i("文件打开错误 ", e.getMessage());
+//                        }
 
 
                     }
@@ -98,7 +96,7 @@ public class DownloadActivity extends Activity {
 
 
         progress_bar = (ProgressBar) this.findViewById(R.id.downloadbar);
-        result_view = (TextView) this.findViewById(R.id.result);
+        result_view = (TextView) this.findViewById(R.id.result_view);
         downloaded_file_view = (TextView) this.findViewById(R.id.downloaded_file);
 
         Button button = (Button) this.findViewById(R.id.button);
@@ -182,17 +180,28 @@ public class DownloadActivity extends Activity {
     }
 
     private void download(final String path, final File savedir) {
-        FileDownloader fd = new FileDownloader(DownloadActivity.this, path, savedir, 8);
-        progress_bar.setMax(fd.get_file_size());
+        final FileDownloader fd = new FileDownloader(DownloadActivity.this, path, savedir, 1);
+
+
         downloaded_file = fd.get_file_name();
         try {
             fd.download(new ProgressUpdateListener() {
                 @Override
                 public void on_update(int downloaded_size) {
+                    Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
+                    Log.i("文件总大小 ", Integer.toString(fd.get_file_size()));
+
+                    progress_bar.setMax(fd.get_file_size());
+                    progress_bar.setProgress(downloaded_size);
+
+                    Log.i("正在进行的进度条大小 ", Integer.toString(progress_bar.getProgress()));
+                    Log.i("进度条最大大小 ", Integer.toString(progress_bar.getMax()));
+
+
+
                     Message msg = new Message();
                     msg.what = 1;
                     msg.getData().putInt("size", downloaded_size);
-                    Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
                     handler.sendMessage(msg);
                 }
             });

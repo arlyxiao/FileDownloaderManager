@@ -83,59 +83,60 @@ public class FileDownloader {
     }
 
 
-    private void init_connection(Context context,
-                                 String download_url,
-                                 File file_save_dir,
-                                 int thread_num) {
-        try {
-            Log.i("下载的 URL ", download_url);
-            this.context = context;
-            this.download_url = download_url;
-            file_record = new FileRecord(this.context);
-            URL url = new URL(this.download_url);
-            if(!file_save_dir.exists()) file_save_dir.mkdirs();
-            this.threads = new DownloadThread[thread_num];
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(5*1000);
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
-            conn.setRequestProperty("Accept-Language", "zh-CN");
-            conn.setRequestProperty("Referer", download_url);
-            conn.setRequestProperty("Charset", "UTF-8");
-            conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
-            conn.setRequestProperty("Connection", "Keep-Alive");
-            conn.connect();
-            print_response_header(conn);
-            if (conn.getResponseCode()==200) {
-                this.file_size = conn.getContentLength();
-                if (this.file_size <= 0) throw new RuntimeException("Unkown file size ");
-
-                String filename = get_file_name();
-                this.save_file = new File(file_save_dir, filename);
-                Map<Integer, Integer> logdata = file_record.get_data(download_url);
-                if(logdata.size()>0){
-                    for(Map.Entry<Integer, Integer> entry : logdata.entrySet())
-                        thread_data.put(entry.getKey(), entry.getValue());
-                }
-                if(this.thread_data.size()==this.threads.length){
-                    for (int i = 0; i < this.threads.length; i++) {
-                        this.downloaded_size += this.thread_data.get(i+1);
-                    }
-                    print("已经下载的长度 "+ this.downloaded_size);
-                }
-                //计算每条线程下载的数据长度
-                this.block = (this.file_size % this.threads.length)==0?
-                        this.file_size / this.threads.length :
-                        this.file_size / this.threads.length + 1;
-            }else{
-                throw new RuntimeException("server no response ");
-            }
-        } catch (Exception e) {
-            print(e.toString());
-            Log.i("下载错误 ", e.getMessage());
-            throw new RuntimeException("don't connection this url");
-        }
-    }
+//    private void init_connection(Context context,
+//                                 String download_url,
+//                                 File file_save_dir,
+//                                 int thread_num) {
+//        try {
+//            Log.i("下载的 URL ", download_url);
+//            this.context = context;
+//            this.download_url = download_url;
+//            file_record = new FileRecord(this.context);
+//            URL url = new URL(this.download_url);
+//            if(!file_save_dir.exists()) file_save_dir.mkdirs();
+//            this.threads = new DownloadThread[thread_num];
+//            conn = (HttpURLConnection) url.openConnection();
+//            conn.setConnectTimeout(5*1000);
+//            conn.setRequestMethod("GET");
+//            conn.setRequestProperty("Accept", "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
+//            conn.setRequestProperty("Accept-Language", "zh-CN");
+//            conn.setRequestProperty("Referer", download_url);
+//            conn.setRequestProperty("Charset", "UTF-8");
+//            conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
+//            conn.setRequestProperty("Connection", "Keep-Alive");
+//            conn.connect();
+//            print_response_header(conn);
+//            if (conn.getResponseCode()==200) {
+//                this.file_size = conn.getContentLength();
+//                Log.i("初始化连接 文件大小 ", Integer.toString(file_size));
+//                if (this.file_size <= 0) throw new RuntimeException("Unkown file size ");
+//
+//                String filename = get_file_name();
+//                this.save_file = new File(file_save_dir, filename);
+//                Map<Integer, Integer> logdata = file_record.get_data(download_url);
+//                if(logdata.size()>0){
+//                    for(Map.Entry<Integer, Integer> entry : logdata.entrySet())
+//                        thread_data.put(entry.getKey(), entry.getValue());
+//                }
+//                if(this.thread_data.size()==this.threads.length){
+//                    for (int i = 0; i < this.threads.length; i++) {
+//                        this.downloaded_size += this.thread_data.get(i+1);
+//                    }
+//                    print("已经下载的长度 "+ this.downloaded_size);
+//                }
+//                //计算每条线程下载的数据长度
+//                this.block = (this.file_size % this.threads.length)==0?
+//                        this.file_size / this.threads.length :
+//                        this.file_size / this.threads.length + 1;
+//            }else{
+//                throw new RuntimeException("server no response ");
+//            }
+//        } catch (Exception e) {
+//            print(e.toString());
+//            Log.i("下载错误 ", e.getMessage());
+//            throw new RuntimeException("don't connection this url");
+//        }
+//    }
 
 
     public String get_file_name() {
@@ -175,25 +176,18 @@ public class FileDownloader {
         }
     }
 
-    private static void print(String msg){
+    public static void print(String msg){
         Log.i(TAG, msg);
     }
 
 
 
     public void download(final ProgressUpdateListener listener) throws Exception{
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-                init_connection(context, download_url, save_file, thread_num);
-                FileDownloader.this.listener = listener;
+        FileDownloader.this.listener = listener;
 
-                Intent download_service = new Intent(context, DownloadService.class);
-                context.startService(download_service);
-                context.bindService(download_service, mConnection, Context.BIND_AUTO_CREATE);
-
-            }
-        }).start();
+        Intent download_service = new Intent(context, DownloadService.class);
+        context.startService(download_service);
+        context.bindService(download_service, mConnection, Context.BIND_AUTO_CREATE);
     }
 
 
@@ -209,7 +203,28 @@ public class FileDownloader {
             DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
             m_service = binder.getService();
             try {
-                m_service.download(current, current.listener);
+                new AsyncTask<Void, Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground(Void... objects) {
+                        try {
+                            m_service.download(current, current.listener);
+                        } catch (Exception e) {
+                            Log.i("下载有问题1 ", e.getMessage());
+                        }
+
+
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void obj) {
+                        super.onPostExecute(obj);
+
+
+                    }
+                }.execute();
+
             } catch (Exception e) {
                 Log.i("下载有问题 ", e.getMessage());
             }
