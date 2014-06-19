@@ -3,5 +3,6 @@
 
 	<string name="lib_name">filedownloader</string>
 	<string name="lib_version">0.1</string>
+    <string name="foreground_service_started"></string>
 
 </resources>

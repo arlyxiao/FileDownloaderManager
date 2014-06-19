@@ -1,15 +1,23 @@
 package com.mindpin.android.filedownloader;
 
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -21,6 +29,7 @@ public class DownloadService extends Service {
     @Override
     public void onCreate() {
         Log.i("开始运行 download service ", "true");
+
     }
 
     public class LocalBinder extends Binder {
@@ -50,6 +59,8 @@ public class DownloadService extends Service {
                 file_downloader.download_url,
                 file_downloader.save_file,
                 file_downloader.thread_num);
+
+
 
         try {
             RandomAccessFile rand_out = new RandomAccessFile(this.file_downloader.save_file, "rw");
@@ -98,6 +109,13 @@ public class DownloadService extends Service {
                         }
                     }
                 }
+
+//                Intent in = new Intent("app.action.update_progress");
+//                in.putExtra("downloaded_size", file_downloader.downloaded_size);
+//                getApplicationContext().sendBroadcast(in);
+
+                handleCommand(file_downloader);
+
                 if(listener!=null) listener.on_update(this.file_downloader.downloaded_size);
             }
             this.file_downloader.file_record.delete(this.file_downloader.download_url);
@@ -105,6 +123,12 @@ public class DownloadService extends Service {
             Log.i("文件下载错误 ", e.getMessage());
             throw new Exception("file download fail");
         }
+
+
+
+
+
+
         return this.file_downloader.downloaded_size;
     }
 
@@ -173,4 +197,87 @@ public class DownloadService extends Service {
     }
 
     private final IBinder m_binder = new LocalBinder();
+
+
+
+
+
+
+    private static final Class[] mStartForegroundSignature = new Class[] {
+            int.class, Notification.class};
+    private static final Class[] mStopForegroundSignature = new Class[] {
+            boolean.class};
+
+    private NotificationManager mNM;
+    private Method mStartForeground;
+    private Method mStopForeground;
+    private Object[] mStartForegroundArgs = new Object[2];
+    private Object[] mStopForegroundArgs = new Object[1];
+    Notification notification;
+    RemoteViews contentView;
+
+
+    public void startForegroundCompat(int id, Notification notification) {
+        // If we have the new startForeground API, then use it.
+        if (mStartForeground != null) {
+            mStartForegroundArgs[0] = Integer.valueOf(id);
+            mStartForegroundArgs[1] = notification;
+            try {
+                mStartForeground.invoke(this, mStartForegroundArgs);
+            } catch (InvocationTargetException e) {
+                // Should not happen.
+                Log.w("ApiDemos", "Unable to invoke startForeground", e);
+            } catch (IllegalAccessException e) {
+                // Should not happen.
+                Log.w("ApiDemos", "Unable to invoke startForeground", e);
+            }
+            return;
+        }
+
+        // Fall back on the old API.
+        // setForeground(true);
+        mNM.notify(id, notification);
+    }
+
+
+    void handleCommand(FileDownloader file_downloader) {
+
+        mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        try {
+            mStartForeground = getClass().getMethod("startForeground",
+                    mStartForegroundSignature);
+            mStopForeground = getClass().getMethod("stopForeground",
+                    mStopForegroundSignature);
+        } catch (NoSuchMethodException e) {
+            // Running on an older platform.
+            mStartForeground = mStopForeground = null;
+        }
+
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
+        mBuilder.setContentTitle("Download")
+                .setContentText(Integer.toString(file_downloader.downloaded_size))
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setWhen(System.currentTimeMillis());
+        notification = mBuilder.getNotification();
+
+        contentView = new RemoteViews(getPackageName(), R.layout.custom_notification_layout);
+        contentView.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
+        contentView.setTextViewText(R.id.progress_title_text, "hello world");
+        contentView.setTextViewText(R.id.progress_percentage, Integer.toString(file_downloader.downloaded_size));
+        Log.i("显示正在下载的大小 ", Integer.toString(file_downloader.downloaded_size));
+        contentView.setProgressBar(R.id.download_progressbar_in_service,
+                file_downloader.get_file_size(),
+                file_downloader.downloaded_size, false);
+
+        notification.contentView = contentView;
+
+        Intent notificationIntent = new Intent("");
+        PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+        notification.contentIntent = contentIntent;
+
+
+        startForegroundCompat(R.string.foreground_service_started, notification);
+    }
+
 }

@@ -1,31 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:id="@+id/layout"
-android:layout_width="fill_parent"
-android:layout_height="fill_parent"
-android:padding="10dp" >
-<ImageView android:id="@+id/image"
-    android:layout_width="wrap_content"
-    android:layout_height="fill_parent"
-    android:layout_alignParentLeft="true"
-    android:layout_marginRight="10dp" />
-<TextView android:id="@+id/title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_toRightOf="@id/image"
-    style="Custom Notification Title" />
-<TextView android:id="@+id/text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_toRightOf="@id/image"
-    android:layout_below="@id/title"
-    style="Custom Notification Text" />
-
-<ProgressBar
-    style="?android:attr/progressBarStyleHorizontal"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/download_progressbar_in_service"
-    android:layout_gravity="center_horizontal" />
+    android:layout_height="fill_parent">
+
+    <ImageView android:id="@+id/progress_notify_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+    </ImageView>
+
+    <RelativeLayout android:id="@+id/progress_content_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_toRightOf="@+id/progress_notify_image">
+
+        <TextView android:id="@+id/progress_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Title Content"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:textColor="#000000">
+        </TextView>
+
+        <TextView android:id="@+id/progress_percentage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="5dp"
+            android:text="100 / 100"
+            android:textStyle="normal"
+            android:textSize="15sp"
+            android:textColor="#000000">
+        </TextView>
+
+        <ProgressBar android:id="@+id/download_progressbar_in_service"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/progress_title_text"
+            android:layout_marginTop="3dp"
+            android:indeterminate="false"
+            android:max="10"
+            android:padding="4dip">
+        </ProgressBar>
+
+    </RelativeLayout>
+
 </RelativeLayout>
