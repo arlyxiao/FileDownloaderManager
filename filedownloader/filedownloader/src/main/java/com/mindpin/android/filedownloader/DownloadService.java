@@ -242,6 +242,14 @@ public class DownloadService extends Service {
 
     void handleCommand(FileDownloader file_downloader) {
 
+        String downloaded_size = show_human_size(file_downloader.downloaded_size);
+        String file_size = show_human_size(file_downloader.file_size);
+
+        float num = (float) file_downloader.downloaded_size/
+                (float) file_downloader.file_size;
+        int result = (int)(num*100);
+        String percentage = Integer.toString(result);
+
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         try {
             mStartForeground = getClass().getMethod("startForeground",
@@ -263,8 +271,9 @@ public class DownloadService extends Service {
 
         contentView = new RemoteViews(getPackageName(), R.layout.custom_notification_layout);
         contentView.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
-        contentView.setTextViewText(R.id.progress_title_text, "hello world");
-        contentView.setTextViewText(R.id.progress_percentage, Integer.toString(file_downloader.downloaded_size));
+        contentView.setTextViewText(R.id.progress_title_text,
+                file_downloader.get_file_name().substring(0,7) + " " + percentage + "%");
+        contentView.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
         Log.i("显示正在下载的大小 ", Integer.toString(file_downloader.downloaded_size));
         contentView.setProgressBar(R.id.download_progressbar_in_service,
                 file_downloader.get_file_size(),
@@ -278,6 +287,15 @@ public class DownloadService extends Service {
 
 
         startForegroundCompat(R.string.foreground_service_started, notification);
+    }
+
+    public String show_human_size(long bytes) {
+        Boolean si = true;
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
 }

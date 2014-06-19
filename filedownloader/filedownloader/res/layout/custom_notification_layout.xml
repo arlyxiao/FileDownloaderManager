@@ -12,17 +12,17 @@
 
     <RelativeLayout android:id="@+id/progress_content_layout"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:layout_marginTop="10dp"
         android:layout_toRightOf="@+id/progress_notify_image">
 
         <TextView android:id="@+id/progress_title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Title Content"
+            android:text="Title"
             android:textStyle="bold"
-            android:textSize="15sp"
-            android:textColor="#000000">
+            android:textSize="15dp"
+            android:textColor="#fff">
         </TextView>
 
         <TextView android:id="@+id/progress_percentage"
@@ -33,8 +33,9 @@
             android:text="100 / 100"
             android:textStyle="normal"
             android:textSize="15sp"
-            android:textColor="#000000">
+            android:textColor="#fff">
         </TextView>
+
 
         <ProgressBar android:id="@+id/download_progressbar_in_service"
             style="?android:attr/progressBarStyleHorizontal"
@@ -43,7 +44,6 @@
             android:layout_below="@+id/progress_title_text"
             android:layout_marginTop="3dp"
             android:indeterminate="false"
-            android:max="10"
             android:padding="4dip">
         </ProgressBar>
 
