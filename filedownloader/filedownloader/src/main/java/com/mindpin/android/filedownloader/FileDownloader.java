@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -44,6 +45,9 @@ public class FileDownloader {
     public int block;
     /* 下载路径  */
     public String download_url;
+
+    Class activity_class;
+    Bundle intent_extras;
 
     ProgressUpdateListener listener;
 
@@ -80,6 +84,12 @@ public class FileDownloader {
         this.download_url = download_url;
         this.save_file = file_save_dir;
         this.thread_num = thread_num;
+    }
+
+
+    public void set_notification(Class activity_class, Bundle intent_extras) {
+        this.activity_class = activity_class;
+        this.intent_extras = intent_extras;
     }
 
 

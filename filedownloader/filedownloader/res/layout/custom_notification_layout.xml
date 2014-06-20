@@ -32,7 +32,7 @@
             android:layout_marginRight="5dp"
             android:text="100 / 100"
             android:textStyle="normal"
-            android:textSize="15sp"
+            android:textSize="15dp"
             android:textColor="#fff">
         </TextView>
 

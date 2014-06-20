@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
@@ -281,8 +282,19 @@ public class DownloadService extends Service {
 
         notification.contentView = contentView;
 
-        Intent notificationIntent = new Intent("");
-        PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+        final ComponentName receiver = new ComponentName(file_downloader.context,
+                file_downloader.activity_class);
+        Intent notice_intent = new Intent(file_downloader.context.getClass().getName() +
+                System.currentTimeMillis());
+        notice_intent.setComponent(receiver);
+
+
+        String param_name1 = file_downloader.intent_extras.getString("param_name1");
+        Log.i("测试值 ", param_name1);
+        notice_intent.putExtras(file_downloader.intent_extras);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(file_downloader.context,
+                0, notice_intent, PendingIntent.FLAG_UPDATE_CURRENT);
         notification.contentIntent = contentIntent;
 
 
