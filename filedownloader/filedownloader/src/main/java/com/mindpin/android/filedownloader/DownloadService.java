@@ -240,6 +240,28 @@ public class DownloadService extends Service {
         mNM.notify(id, notification);
     }
 
+    void stopForegroundCompat(int id) {
+        // If we have the new stopForeground API, then use it.
+        if (mStopForeground != null) {
+            mStopForegroundArgs[0] = Boolean.TRUE;
+            try {
+                mStopForeground.invoke(this, mStopForegroundArgs);
+            } catch (InvocationTargetException e) {
+                // Should not happen.
+                Log.w("ApiDemos", "Unable to invoke stopForeground", e);
+            } catch (IllegalAccessException e) {
+                // Should not happen.
+                Log.w("ApiDemos", "Unable to invoke stopForeground", e);
+            }
+            return;
+        }
+
+        // Fall back on the old API.  Note to cancel BEFORE changing the
+        // foreground state, since we could be killed at that point.
+        mNM.cancel(id);
+        // setForeground(false);
+    }
+
 
     void handleCommand(FileDownloader file_downloader) {
 
@@ -267,6 +289,7 @@ public class DownloadService extends Service {
         mBuilder.setContentTitle("Download")
                 .setContentText(Integer.toString(file_downloader.downloaded_size))
                 .setSmallIcon(R.drawable.ic_launcher)
+                .setAutoCancel(true)
                 .setWhen(System.currentTimeMillis());
         notification = mBuilder.getNotification();
 
@@ -282,6 +305,7 @@ public class DownloadService extends Service {
 
         notification.contentView = contentView;
 
+
         final ComponentName receiver = new ComponentName(file_downloader.context,
                 file_downloader.activity_class);
         Intent notice_intent = new Intent(file_downloader.context.getClass().getName() +
@@ -294,7 +318,7 @@ public class DownloadService extends Service {
         notice_intent.putExtras(file_downloader.intent_extras);
 
         PendingIntent contentIntent = PendingIntent.getActivity(file_downloader.context,
-                0, notice_intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
         notification.contentIntent = contentIntent;
 
 
