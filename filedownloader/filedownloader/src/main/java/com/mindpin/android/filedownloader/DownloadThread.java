@@ -50,6 +50,8 @@ public class DownloadThread extends Thread {
                 int end_pos = block * thread_id -1;
 
                 //设置获取实体数据的范围
+                Log.i("线程开始点 ", Integer.toString(start_pos));
+                Log.i("线程结束点 ", Integer.toString(end_pos));
                 http.setRequestProperty("Range", "bytes=" + start_pos + "-"+ end_pos);
                 http.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
                 http.setRequestProperty("Connection", "Keep-Alive");
@@ -61,6 +63,7 @@ public class DownloadThread extends Thread {
                 RandomAccessFile threadfile = new RandomAccessFile(this.save_file, "rwd");
                 threadfile.seek(start_pos);
                 while ((offset = inStream.read(buffer, 0, 1024)) != -1) {
+                    Log.i("线程 loop size ", "true");
                     threadfile.write(buffer, 0, offset);
                     downloaded_length += offset;
                     downloader.update(this.thread_id, downloaded_length);

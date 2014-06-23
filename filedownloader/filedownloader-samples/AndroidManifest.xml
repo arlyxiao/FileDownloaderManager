@@ -36,6 +36,15 @@
 
         </receiver>
 
+        <receiver
+            android:name=".TargetWidget"
+            android:label="TargetWidget" >
+            <intent-filter>
+                <action android:name="app.action.target_widget" />
+            </intent-filter>
+
+        </receiver>
+
     </application>
 
 </manifest>

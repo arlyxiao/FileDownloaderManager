@@ -1,10 +1,7 @@
 package com.mindpin.android.filedownloader;
 
 import java.io.File;
-import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -12,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -193,11 +189,11 @@ public class FileDownloader {
 
 
     public void download(final ProgressUpdateListener listener) throws Exception{
-        FileDownloader.this.listener = listener;
+        this.listener = listener;
 
         Intent download_service = new Intent(context, DownloadService.class);
         context.startService(download_service);
-        context.bindService(download_service, mConnection, Context.BIND_AUTO_CREATE);
+        context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
     }
 
 
@@ -205,7 +201,7 @@ public class FileDownloader {
     boolean m_bound = false;
 
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private ServiceConnection m_connection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
@@ -230,8 +226,6 @@ public class FileDownloader {
                     @Override
                     protected void onPostExecute(Void obj) {
                         super.onPostExecute(obj);
-
-
                     }
                 }.execute();
 

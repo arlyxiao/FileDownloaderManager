@@ -8,4 +8,19 @@
 		android:minSdkVersion="8"
 		android:targetSdkVersion="19" />
 
+
+    <application
+        android:allowBackup="true">
+
+        <receiver
+            android:name=".TargetWidget"
+            android:label="TargetWidget" >
+            <intent-filter>
+                <action android:name="app.action.target_widget" />
+            </intent-filter>
+
+        </receiver>
+
+    </application>
+
 </manifest>

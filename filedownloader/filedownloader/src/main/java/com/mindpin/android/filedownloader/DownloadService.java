@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 public class DownloadService extends Service {
     FileDownloader file_downloader;
+    boolean not_finish = true;
 
     @Override
     public void onCreate() {
@@ -43,11 +45,37 @@ public class DownloadService extends Service {
     public int onStartCommand(final Intent intent, int flags, int startId) {
         Log.i("服务开始启动了 ", "true");
 
+
+        Boolean should_stop_foreground = intent.getBooleanExtra("should_stop_foreground", false);
+        if (should_stop_foreground) {
+            Log.i("需要把服务放到后台运行 ", "true");
+
+            Intent i = new Intent(file_downloader.context, file_downloader.activity_class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.putExtras(file_downloader.intent_extras);
+            startActivity(i);
+
+
+            stopForegroundCompat(R.string.foreground_service_started);
+            if (!not_finish) {
+                Log.i("已经下载完成 停止服务 ", "true");
+
+                NotificationManager notice_manager =
+                        (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+                notice_manager.cancelAll();
+
+                stopSelf();
+            }
+
+
+        }
+
         return START_REDELIVER_INTENT;
     }
 
     @Override
     public void onDestroy() {
+        Log.i("下载服务关闭 ", "true");
     }
 
 
@@ -93,7 +121,8 @@ public class DownloadService extends Service {
             }
             this.file_downloader.file_record.save(this.file_downloader.download_url,
                     this.file_downloader.thread_data);
-            boolean not_finish = true;
+
+            not_finish = true;
             while (not_finish) {
                 Thread.sleep(900);
                 not_finish = false;
@@ -115,23 +144,24 @@ public class DownloadService extends Service {
 //                in.putExtra("downloaded_size", file_downloader.downloaded_size);
 //                getApplicationContext().sendBroadcast(in);
 
-                handleCommand(file_downloader);
+                handle_command(file_downloader);
 
                 if(listener!=null) listener.on_update(this.file_downloader.downloaded_size);
             }
             this.file_downloader.file_record.delete(this.file_downloader.download_url);
+            // this.file_downloader = null;
+
+            not_finish = false;
+
         } catch (Exception e) {
             Log.i("文件下载错误 ", e.getMessage());
             throw new Exception("file download fail");
         }
 
 
-
-
-
-
         return this.file_downloader.downloaded_size;
     }
+
 
 
     private void init_connection(FileDownloader file_downloader,
@@ -215,7 +245,7 @@ public class DownloadService extends Service {
     private Object[] mStartForegroundArgs = new Object[2];
     private Object[] mStopForegroundArgs = new Object[1];
     Notification notification;
-    RemoteViews contentView;
+    RemoteViews content_view;
 
 
     public void startForegroundCompat(int id, Notification notification) {
@@ -227,10 +257,10 @@ public class DownloadService extends Service {
                 mStartForeground.invoke(this, mStartForegroundArgs);
             } catch (InvocationTargetException e) {
                 // Should not happen.
-                Log.w("ApiDemos", "Unable to invoke startForeground", e);
+                Log.i("无法启动前台服务 ", e.getMessage());
             } catch (IllegalAccessException e) {
                 // Should not happen.
-                Log.w("ApiDemos", "Unable to invoke startForeground", e);
+                Log.i("无法启动前台服务 ", e.getMessage());
             }
             return;
         }
@@ -240,7 +270,7 @@ public class DownloadService extends Service {
         mNM.notify(id, notification);
     }
 
-    void stopForegroundCompat(int id) {
+    public void stopForegroundCompat(int id) {
         // If we have the new stopForeground API, then use it.
         if (mStopForeground != null) {
             mStopForegroundArgs[0] = Boolean.TRUE;
@@ -248,10 +278,10 @@ public class DownloadService extends Service {
                 mStopForeground.invoke(this, mStopForegroundArgs);
             } catch (InvocationTargetException e) {
                 // Should not happen.
-                Log.w("ApiDemos", "Unable to invoke stopForeground", e);
+                Log.i("无法关掉前台服务 ", e.getMessage());
             } catch (IllegalAccessException e) {
                 // Should not happen.
-                Log.w("ApiDemos", "Unable to invoke stopForeground", e);
+                Log.i("无法关掉前台服务 ", e.getMessage());
             }
             return;
         }
@@ -263,7 +293,7 @@ public class DownloadService extends Service {
     }
 
 
-    void handleCommand(FileDownloader file_downloader) {
+    public void handle_command(FileDownloader file_downloader) {
 
         String downloaded_size = show_human_size(file_downloader.downloaded_size);
         String file_size = show_human_size(file_downloader.file_size);
@@ -293,34 +323,41 @@ public class DownloadService extends Service {
                 .setWhen(System.currentTimeMillis());
         notification = mBuilder.getNotification();
 
-        contentView = new RemoteViews(getPackageName(), R.layout.custom_notification_layout);
-        contentView.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
-        contentView.setTextViewText(R.id.progress_title_text,
-                file_downloader.get_file_name().substring(0,7) + " " + percentage + "%");
-        contentView.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
+        content_view = new RemoteViews(getPackageName(), R.layout.custom_notification_layout);
+        content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
+        content_view.setTextViewText(R.id.progress_title_text,
+                file_downloader.get_file_name().substring(0, 7) + " " + percentage + "%");
+        content_view.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
         Log.i("显示正在下载的大小 ", Integer.toString(file_downloader.downloaded_size));
-        contentView.setProgressBar(R.id.download_progressbar_in_service,
+        content_view.setProgressBar(R.id.download_progressbar_in_service,
                 file_downloader.get_file_size(),
                 file_downloader.downloaded_size, false);
 
-        notification.contentView = contentView;
 
 
+
+//        final ComponentName receiver = new ComponentName(file_downloader.context,
+//                file_downloader.activity_class);
         final ComponentName receiver = new ComponentName(file_downloader.context,
-                file_downloader.activity_class);
+                TargetWidget.class);
         Intent notice_intent = new Intent(file_downloader.context.getClass().getName() +
                 System.currentTimeMillis());
         notice_intent.setComponent(receiver);
 
 
-        String param_name1 = file_downloader.intent_extras.getString("param_name1");
-        Log.i("测试值 ", param_name1);
+//        String param_name1 = file_downloader.intent_extras.getString("param_name1");
+//        Log.i("测试值 ", param_name1);
         notice_intent.putExtras(file_downloader.intent_extras);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(file_downloader.context,
+//        PendingIntent p_intent = PendingIntent.getActivity(file_downloader.context,
+//                0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent p_intent = PendingIntent.getBroadcast(file_downloader.context,
                 0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        notification.contentIntent = contentIntent;
+        notification.contentIntent = p_intent;
 
+        content_view.setOnClickPendingIntent(R.id.progress_content_layout, p_intent);
+
+        notification.contentView = content_view;
 
         startForegroundCompat(R.string.foreground_service_started, notification);
     }
