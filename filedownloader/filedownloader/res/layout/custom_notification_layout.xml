@@ -6,7 +6,7 @@
 
     <ImageView android:id="@+id/progress_notify_image"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="400dp"
         android:layout_margin="10dp">
     </ImageView>
 
@@ -36,12 +36,24 @@
             android:textColor="#fff">
         </TextView>
 
+        <TextView android:id="@+id/download_filename"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/progress_title_text"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="5dp"
+            android:text=""
+            android:textStyle="normal"
+            android:textSize="15dp"
+            android:textColor="#fff">
+        </TextView>
+
 
         <ProgressBar android:id="@+id/download_progressbar_in_service"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/progress_title_text"
+            android:layout_height="fill_parent"
+            android:layout_below="@+id/download_filename"
             android:layout_marginTop="3dp"
             android:indeterminate="false"
             android:padding="4dip">

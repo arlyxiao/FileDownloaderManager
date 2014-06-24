@@ -325,8 +325,12 @@ public class DownloadService extends Service {
 
         content_view = new RemoteViews(getPackageName(), R.layout.custom_notification_layout);
         content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
+
         content_view.setTextViewText(R.id.progress_title_text,
-                file_downloader.get_file_name().substring(0, 7) + " " + percentage + "%");
+                file_downloader.get_file_name().substring(0, 15));
+
+        content_view.setTextViewText(R.id.download_filename, "");
+
         content_view.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
         Log.i("显示正在下载的大小 ", Integer.toString(file_downloader.downloaded_size));
         content_view.setProgressBar(R.id.download_progressbar_in_service,
