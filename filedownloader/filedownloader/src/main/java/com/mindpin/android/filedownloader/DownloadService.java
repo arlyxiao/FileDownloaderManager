@@ -345,6 +345,7 @@ public class DownloadService extends Service {
         notice_intent.setComponent(receiver);
 
 
+
 //        String param_name1 = file_downloader.intent_extras.getString("param_name1");
 //        Log.i("测试值 ", param_name1);
         notice_intent.putExtras(file_downloader.intent_extras);

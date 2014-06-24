@@ -63,7 +63,7 @@ public class DownloadThread extends Thread {
                 RandomAccessFile threadfile = new RandomAccessFile(this.save_file, "rwd");
                 threadfile.seek(start_pos);
                 while ((offset = inStream.read(buffer, 0, 1024)) != -1) {
-                    Log.i("线程 loop size ", "true");
+                    // Log.i("线程 loop size ", "true");
                     threadfile.write(buffer, 0, offset);
                     downloaded_length += offset;
                     downloader.update(this.thread_id, downloaded_length);
