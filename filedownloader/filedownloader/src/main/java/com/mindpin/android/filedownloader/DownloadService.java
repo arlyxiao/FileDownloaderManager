@@ -9,6 +9,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -79,84 +80,185 @@ public class DownloadService extends Service {
     }
 
 
-    public int download(FileDownloader file_downloader, ProgressUpdateListener listener)
+    public int download(final FileDownloader file_downloader, final ProgressUpdateListener listener)
             throws Exception{
 
-        this.file_downloader = file_downloader;
-        init_connection(file_downloader,
-                file_downloader.context,
-                file_downloader.download_url,
-                file_downloader.save_file,
-                file_downloader.thread_num);
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... objects) {
+                try {
+                    DownloadService.this.file_downloader = file_downloader;
+                    init_connection(file_downloader,
+                            file_downloader.context,
+                            file_downloader.download_url,
+                            file_downloader.save_file,
+                            file_downloader.thread_num);
 
 
 
-        try {
-            RandomAccessFile rand_out = new RandomAccessFile(this.file_downloader.save_file, "rw");
-            if(this.file_downloader.file_size >0) rand_out.setLength(this.file_downloader.file_size);
-            rand_out.close();
-            URL url = new URL(this.file_downloader.download_url);
-            if(this.file_downloader.thread_data.size() != this.file_downloader.threads.length){
-                this.file_downloader.thread_data.clear();
-                for (int i = 0; i < this.file_downloader.threads.length; i++) {
-                    this.file_downloader.thread_data.put(i+1, 0);
-                }
-            }
-            for (int i = 0; i < this.file_downloader.threads.length; i++) {
-                int downLength = this.file_downloader.thread_data.get(i+1);
-                if(downLength < this.file_downloader.block && this.file_downloader.downloaded_size <this.file_downloader.file_size){
-                    this.file_downloader.threads[i] = new DownloadThread(
-                            this.file_downloader,
-                            url,
-                            this.file_downloader.save_file,
-                            this.file_downloader.block,
-                            this.file_downloader.thread_data.get(i+1),
-                            i+1);
-
-                    this.file_downloader.threads[i].setPriority(7);
-                    this.file_downloader.threads[i].start();
-                }else{
-                    this.file_downloader.threads[i] = null;
-                }
-            }
-            this.file_downloader.file_record.save(this.file_downloader.download_url,
-                    this.file_downloader.thread_data);
-
-            not_finish = true;
-            while (not_finish) {
-                Thread.sleep(900);
-                not_finish = false;
-                for (int i = 0; i < this.file_downloader.threads.length; i++){
-                    if (this.file_downloader.threads[i] != null && !this.file_downloader.threads[i].is_finish()) {
-                        not_finish = true;
-                        if(this.file_downloader.threads[i].get_downloaded_length() == -1){
-                            this.file_downloader.threads[i] = new DownloadThread(this.file_downloader, url,
-                                    this.file_downloader.save_file,
-                                    this.file_downloader.block,
-                                    this.file_downloader.thread_data.get(i+1), i+1);
-                            this.file_downloader.threads[i].setPriority(7);
-                            this.file_downloader.threads[i].start();
+                    try {
+                        RandomAccessFile rand_out = new RandomAccessFile(DownloadService.this.file_downloader.save_file, "rw");
+                        if(DownloadService.this.file_downloader.file_size >0) rand_out.setLength(DownloadService.this.file_downloader.file_size);
+                        rand_out.close();
+                        URL url = new URL(DownloadService.this.file_downloader.download_url);
+                        if(DownloadService.this.file_downloader.thread_data.size() != DownloadService.this.file_downloader.threads.length){
+                            DownloadService.this.file_downloader.thread_data.clear();
+                            for (int i = 0; i < DownloadService.this.file_downloader.threads.length; i++) {
+                                DownloadService.this.file_downloader.thread_data.put(i+1, 0);
+                            }
                         }
+                        for (int i = 0; i < DownloadService.this.file_downloader.threads.length; i++) {
+                            int downLength = DownloadService.this.file_downloader.thread_data.get(i+1);
+                            if(downLength < DownloadService.this.file_downloader.block && DownloadService.this.file_downloader.downloaded_size <DownloadService.this.file_downloader.file_size){
+                                DownloadService.this.file_downloader.threads[i] = new DownloadThread(
+                                        DownloadService.this.file_downloader,
+                                        url,
+                                        DownloadService.this.file_downloader.save_file,
+                                        DownloadService.this.file_downloader.block,
+                                        DownloadService.this.file_downloader.thread_data.get(i+1),
+                                        i+1);
+
+                                DownloadService.this.file_downloader.threads[i].setPriority(7);
+                                DownloadService.this.file_downloader.threads[i].start();
+                            }else{
+                                DownloadService.this.file_downloader.threads[i] = null;
+                            }
+                        }
+                        DownloadService.this.file_downloader.file_record.save(DownloadService.this.file_downloader.download_url,
+                                DownloadService.this.file_downloader.thread_data);
+
+                        not_finish = true;
+                        while (not_finish) {
+                            Thread.sleep(900);
+                            not_finish = false;
+                            for (int i = 0; i < DownloadService.this.file_downloader.threads.length; i++){
+                                if (DownloadService.this.file_downloader.threads[i] != null && !DownloadService.this.file_downloader.threads[i].is_finish()) {
+                                    not_finish = true;
+                                    if(DownloadService.this.file_downloader.threads[i].get_downloaded_length() == -1){
+                                        DownloadService.this.file_downloader.threads[i] = new DownloadThread(DownloadService.this.file_downloader, url,
+                                                DownloadService.this.file_downloader.save_file,
+                                                DownloadService.this.file_downloader.block,
+                                                DownloadService.this.file_downloader.thread_data.get(i+1), i+1);
+                                        DownloadService.this.file_downloader.threads[i].setPriority(7);
+                                        DownloadService.this.file_downloader.threads[i].start();
+                                    }
+                                }
+                            }
+
+
+                            handle_command(DownloadService.this.file_downloader);
+
+                            // if(listener!=null) listener.on_update(DownloadService.this.file_downloader.downloaded_size);
+                            if (listener != null) {
+                                publishProgress();
+                            }
+                        }
+                        DownloadService.this.file_downloader.file_record.delete(DownloadService.this.file_downloader.download_url);
+
+                        not_finish = false;
+
+                    } catch (Exception e) {
+                        Log.i("文件下载错误 ", e.getMessage());
+                        throw new Exception("file download fail");
                     }
+                } catch (Exception e) {
+                    Log.i("下载有问题1 ", e.getMessage());
                 }
 
-//                Intent in = new Intent("app.action.update_progress");
-//                in.putExtra("downloaded_size", file_downloader.downloaded_size);
-//                getApplicationContext().sendBroadcast(in);
 
-                handle_command(file_downloader);
-
-                if(listener!=null) listener.on_update(this.file_downloader.downloaded_size);
+                return null;
             }
-            this.file_downloader.file_record.delete(this.file_downloader.download_url);
-            // this.file_downloader = null;
 
-            not_finish = false;
+            @Override
+            protected void onProgressUpdate(Void...progress) {
+                Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
+                listener.on_update(DownloadService.this.file_downloader.downloaded_size);
 
-        } catch (Exception e) {
-            Log.i("文件下载错误 ", e.getMessage());
-            throw new Exception("file download fail");
-        }
+            }
+
+
+            @Override
+            protected void onPostExecute(Void obj) {
+                super.onPostExecute(obj);
+            }
+        }.execute();
+
+//        this.file_downloader = file_downloader;
+//        init_connection(file_downloader,
+//                file_downloader.context,
+//                file_downloader.download_url,
+//                file_downloader.save_file,
+//                file_downloader.thread_num);
+//
+//
+//
+//        try {
+//            RandomAccessFile rand_out = new RandomAccessFile(this.file_downloader.save_file, "rw");
+//            if(this.file_downloader.file_size >0) rand_out.setLength(this.file_downloader.file_size);
+//            rand_out.close();
+//            URL url = new URL(this.file_downloader.download_url);
+//            if(this.file_downloader.thread_data.size() != this.file_downloader.threads.length){
+//                this.file_downloader.thread_data.clear();
+//                for (int i = 0; i < this.file_downloader.threads.length; i++) {
+//                    this.file_downloader.thread_data.put(i+1, 0);
+//                }
+//            }
+//            for (int i = 0; i < this.file_downloader.threads.length; i++) {
+//                int downLength = this.file_downloader.thread_data.get(i+1);
+//                if(downLength < this.file_downloader.block && this.file_downloader.downloaded_size <this.file_downloader.file_size){
+//                    this.file_downloader.threads[i] = new DownloadThread(
+//                            this.file_downloader,
+//                            url,
+//                            this.file_downloader.save_file,
+//                            this.file_downloader.block,
+//                            this.file_downloader.thread_data.get(i+1),
+//                            i+1);
+//
+//                    this.file_downloader.threads[i].setPriority(7);
+//                    this.file_downloader.threads[i].start();
+//                }else{
+//                    this.file_downloader.threads[i] = null;
+//                }
+//            }
+//            this.file_downloader.file_record.save(this.file_downloader.download_url,
+//                    this.file_downloader.thread_data);
+//
+//            not_finish = true;
+//            while (not_finish) {
+//                Thread.sleep(900);
+//                not_finish = false;
+//                for (int i = 0; i < this.file_downloader.threads.length; i++){
+//                    if (this.file_downloader.threads[i] != null && !this.file_downloader.threads[i].is_finish()) {
+//                        not_finish = true;
+//                        if(this.file_downloader.threads[i].get_downloaded_length() == -1){
+//                            this.file_downloader.threads[i] = new DownloadThread(this.file_downloader, url,
+//                                    this.file_downloader.save_file,
+//                                    this.file_downloader.block,
+//                                    this.file_downloader.thread_data.get(i+1), i+1);
+//                            this.file_downloader.threads[i].setPriority(7);
+//                            this.file_downloader.threads[i].start();
+//                        }
+//                    }
+//                }
+//
+////                Intent in = new Intent("app.action.update_progress");
+////                in.putExtra("downloaded_size", file_downloader.downloaded_size);
+////                getApplicationContext().sendBroadcast(in);
+//
+//                handle_command(file_downloader);
+//
+//                if(listener!=null) listener.on_update(this.file_downloader.downloaded_size);
+//            }
+//            this.file_downloader.file_record.delete(this.file_downloader.download_url);
+//            // this.file_downloader = null;
+//
+//            not_finish = false;
+//
+//        } catch (Exception e) {
+//            Log.i("文件下载错误 ", e.getMessage());
+//            throw new Exception("file download fail");
+//        }
 
 
         return this.file_downloader.downloaded_size;

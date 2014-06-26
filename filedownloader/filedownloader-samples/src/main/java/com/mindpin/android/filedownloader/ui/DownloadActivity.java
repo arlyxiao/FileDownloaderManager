@@ -44,10 +44,7 @@ public class DownloadActivity extends Activity {
             switch (msg.what) {
                 case 1:
 
-                    float num = (float) progress_bar.getProgress()/(float) progress_bar.getMax();
-                    int result = (int)(num*100);
-                    Log.i("百分比 ", Integer.toString(result));
-                    result_view.setText(Integer.toString(result) + "%");
+
 
                     if(progress_bar.getProgress()== progress_bar.getMax()){
                         Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
@@ -75,22 +72,13 @@ public class DownloadActivity extends Activity {
         }
     };
 
-    private String getMimeType(String url)
-    {
-        String parts[]=url.split("\\.");
-        String extension=parts[parts.length-1];
-        String type = null;
-        if (extension != null) {
-            MimeTypeMap mime = MimeTypeMap.getSingleton();
-            type = mime.getMimeTypeFromExtension(extension);
-        }
-        return type;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
 
         stored_dir = Environment.getExternalStorageDirectory().toString();
 
@@ -190,6 +178,7 @@ public class DownloadActivity extends Activity {
             fd.download(new ProgressUpdateListener() {
                 @Override
                 public void on_update(int downloaded_size) {
+                    Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
                     Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
                     Log.i("文件总大小 ", Integer.toString(fd.get_file_size()));
 
@@ -199,12 +188,21 @@ public class DownloadActivity extends Activity {
                     Log.i("正在进行的进度条大小 ", Integer.toString(progress_bar.getProgress()));
                     Log.i("进度条最大大小 ", Integer.toString(progress_bar.getMax()));
 
+                    float num = (float) progress_bar.getProgress()/(float) progress_bar.getMax();
+                    int result = (int)(num*100);
+                    Log.i("百分比 ", Integer.toString(result));
+                    result_view.setText(Integer.toString(result) + "%");
 
+                    if(progress_bar.getProgress()== progress_bar.getMax()){
+                        Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
+                        downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
 
-                    Message msg = new Message();
-                    msg.what = 1;
-                    msg.getData().putInt("size", downloaded_size);
-                    handler.sendMessage(msg);
+                    }
+
+//                    Message msg = new Message();
+//                    msg.what = 1;
+//                    msg.getData().putInt("size", downloaded_size);
+//                    handler.sendMessage(msg);
                 }
             });
         } catch (Exception e) {

@@ -209,29 +209,35 @@ public class FileDownloader {
             DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
             m_service = binder.getService();
             try {
-                new AsyncTask<Void, Void, Void>() {
-
-                    @Override
-                    protected Void doInBackground(Void... objects) {
-                        try {
-                            m_service.download(current, current.listener);
-                        } catch (Exception e) {
-                            Log.i("下载有问题1 ", e.getMessage());
-                        }
-
-
-                        return null;
-                    }
-
-                    @Override
-                    protected void onPostExecute(Void obj) {
-                        super.onPostExecute(obj);
-                    }
-                }.execute();
-
+                m_service.download(current, current.listener);
             } catch (Exception e) {
-                Log.i("下载有问题 ", e.getMessage());
+                Log.i("下载有问题14243 ", e.toString());
             }
+
+//            try {
+//                new AsyncTask<Void, Void, Void>() {
+//
+//                    @Override
+//                    protected Void doInBackground(Void... objects) {
+//                        try {
+//                            m_service.download(current, current.listener);
+//                        } catch (Exception e) {
+//                            Log.i("下载有问题1 ", e.getMessage());
+//                        }
+//
+//
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    protected void onPostExecute(Void obj) {
+//                        super.onPostExecute(obj);
+//                    }
+//                }.execute();
+
+//            } catch (Exception e) {
+//                Log.i("下载有问题 ", e.getMessage());
+//            }
 
             m_bound = true;
 
