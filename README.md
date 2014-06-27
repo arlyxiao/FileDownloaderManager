@@ -55,10 +55,10 @@ AndroidManiFest 设置
 <service android:name="com.mindpin.android.filedownloader.DownloadService" />
 
 <receiver
-    android:name="com.mindpin.android.filedownloader.TargetWidget"
+    android:name="com.mindpin.android.filedownloader.DownloadProgressNotificationWidget"
     android:label="TargetWidget" >
     <intent-filter>
-        <action android:name="app.action.target_widget" />
+        <action android:name="app.action.download_progress_notification_widget" />
     </intent-filter>
 
 </receiver>

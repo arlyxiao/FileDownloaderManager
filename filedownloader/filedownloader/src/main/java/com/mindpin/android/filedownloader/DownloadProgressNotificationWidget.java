@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class TargetWidget extends BroadcastReceiver {
+public class DownloadProgressNotificationWidget extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i("hello 我在这 ", "true");
