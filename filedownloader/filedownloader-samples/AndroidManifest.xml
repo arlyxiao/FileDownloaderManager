@@ -28,15 +28,6 @@
         <service android:name=".DownloadService" />
 
         <receiver
-            android:name=".ProgressUpdateReceiver"
-            android:label="ProgressUpdateReceiver" >
-            <intent-filter>
-                <action android:name="app.action.update_progress" />
-            </intent-filter>
-
-        </receiver>
-
-        <receiver
             android:name=".TargetWidget"
             android:label="TargetWidget" >
             <intent-filter>

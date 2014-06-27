@@ -168,7 +168,7 @@ public class DownloadActivity extends Activity {
     }
 
     private void download(final String path, final File savedir) {
-        final FileDownloader fd = new FileDownloader(DownloadActivity.this, path, savedir, 1);
+        final FileDownloader fd = new FileDownloader(DownloadActivity.this, path, savedir, 2);
 
         Bundle b = new Bundle();
         b.putString("param_name1", "param_value1");
