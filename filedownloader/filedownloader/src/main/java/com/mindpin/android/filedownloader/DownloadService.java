@@ -351,7 +351,7 @@ public class DownloadService extends Service {
         content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
 
         content_view.setTextViewText(R.id.progress_title_text,
-                file_downloader.get_file_name().substring(0, 15));
+                regenerate_filename(file_downloader.get_file_name()));
 
         content_view.setTextViewText(R.id.download_filename, "");
 
@@ -389,6 +389,17 @@ public class DownloadService extends Service {
         notification.contentView = content_view;
 
         startForegroundCompat(R.string.foreground_service_started, notification);
+    }
+
+    private String regenerate_filename(String filename) {
+        int size = filename.length();
+        if (size <= 18) {
+            return filename;
+        }
+
+        String short_filename = filename.substring(0, 12) + "..." +
+                filename.substring(size - 5);
+        return short_filename;
     }
 
     public String show_human_size(long bytes) {
