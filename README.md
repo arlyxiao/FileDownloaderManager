@@ -7,8 +7,6 @@ FileDownloader library for android
 
 ### filedownload-samples: 
 
-Sample to show how to use the lib   
-
 1 需要下载的文件的网络地址<br>
 
 2 下载后文件的保存路径<br>
