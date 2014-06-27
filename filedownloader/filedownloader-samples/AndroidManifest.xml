@@ -25,10 +25,10 @@
         </activity>
         <activity android:name=".ui.TargetActivity" />
 
-        <service android:name=".DownloadService" />
+        <service android:name="com.mindpin.android.filedownloader.DownloadService" />
 
         <receiver
-            android:name=".TargetWidget"
+            android:name="com.mindpin.android.filedownloader.TargetWidget"
             android:label="TargetWidget" >
             <intent-filter>
                 <action android:name="app.action.target_widget" />
