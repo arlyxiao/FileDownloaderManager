@@ -9,10 +9,25 @@ FileDownloader library for android
 
 Sample to show how to use the lib   
 
+1 需要下载的文件的网络地址<br>
+
+2 下载后文件的保存路径<br>
+
+3 用几个线程进行下载<br>
+
 
 
 ### filedownload:
-Lib
+
+下载文件在 service 中运行，并且封装在组件内部
+
+1 下载进度可以显示在通知栏 <br>
+
+2 下载文件的程序最小化时，下载需要仍然继续 <br>
+
+3 下载进行时，通知栏上显示了下载进度等信息
+
+
 
 
 ==================
