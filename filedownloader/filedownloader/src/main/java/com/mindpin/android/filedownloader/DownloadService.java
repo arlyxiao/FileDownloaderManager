@@ -154,6 +154,14 @@ public class DownloadService extends Service {
                         }
                         DownloadService.this.file_downloader.file_record.delete(DownloadService.this.file_downloader.download_url);
 
+
+                        Intent in = new Intent("app.action.download_done_notification");
+                        in.putExtras(file_downloader.intent_extras);
+                        in.putExtra("activity_class", file_downloader.activity_class.getName());
+                        in.putExtra("filename", regenerate_filename(file_downloader.get_file_name()));
+                        in.putExtra("file_size", show_human_size(file_downloader.get_file_size()));
+                        getApplicationContext().sendBroadcast(in);
+
                         not_finish = false;
 
                     } catch (Exception e) {
@@ -391,16 +399,19 @@ public class DownloadService extends Service {
         startForegroundCompat(R.string.foreground_service_started, notification);
     }
 
+
     private String regenerate_filename(String filename) {
         int size = filename.length();
-        if (size <= 18) {
+        if (size <= 16) {
             return filename;
         }
 
-        String short_filename = filename.substring(0, 12) + "..." +
+        String short_filename = filename.substring(0, 8) + "..." +
                 filename.substring(size - 5);
         return short_filename;
     }
+
+
 
     public String show_human_size(long bytes) {
         Boolean si = true;

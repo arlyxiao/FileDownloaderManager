@@ -29,9 +29,19 @@
 
         <receiver
             android:name=".DownloadProgressNotificationWidget"
-            android:label="TargetWidget" >
+            android:label="DownloadProgressNotificationWidget" >
             <intent-filter>
                 <action android:name="app.action.download_progress_notification_widget" />
+            </intent-filter>
+
+        </receiver>
+
+
+        <receiver
+            android:name=".DownloadDoneNotification"
+            android:label="DownloadDoneNotification" >
+            <intent-filter>
+                <action android:name="app.action.download_done_notification" />
             </intent-filter>
 
         </receiver>
