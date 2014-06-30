@@ -1,24 +1,17 @@
 package com.mindpin.android.filedownloader;
 
 
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.RemoteViews;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -32,6 +25,7 @@ public class DownloadService extends Service {
     Boolean should_stop_foreground = false;
     NotificationServiceBar notification_service_bar;
     URL url;
+    ProgressUpdateListener listener;
 
     @Override
     public void onCreate() {
@@ -53,24 +47,11 @@ public class DownloadService extends Service {
     public int onStartCommand(final Intent intent, int flags, int startId) {
         Log.i("服务开始启动了 ", "true");
 
-
         should_stop_foreground = intent.getBooleanExtra("should_stop_foreground", false);
         if (should_stop_foreground) {
             Log.i("需要把服务放到后台运行 ", "true");
 
-            Intent i = new Intent(file_downloader.context, file_downloader.activity_class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            i.putExtras(file_downloader.intent_extras);
-            startActivity(i);
-
-
-            notification_service_bar.stopForeground(notice_id);
-
-            NotificationManager notice_manager =
-                    (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-            notice_manager.cancelAll();
-
-
+            stop_forground_notification();
         }
 
         return START_REDELIVER_INTENT;
@@ -86,6 +67,7 @@ public class DownloadService extends Service {
             throws Exception{
 
         this.file_downloader = file_downloader;
+        this.listener = listener;
 
         new AsyncTask<Void, Void, Void>() {
 
@@ -106,33 +88,17 @@ public class DownloadService extends Service {
                         while (not_finish) {
                             Thread.sleep(900);
                             not_finish = false;
-                            for (int i = 0; i < file_downloader.threads.length; i++){
-                                if (file_downloader.threads[i] != null && !file_downloader.threads[i].is_finish()) {
-                                    not_finish = true;
-                                    if(file_downloader.threads[i].get_downloaded_length() == -1){
-                                        file_downloader.threads[i] = new DownloadThread(
-                                                file_downloader,
-                                                url,
-                                                file_downloader.save_file,
-                                                file_downloader.block,
-                                                file_downloader.thread_data.get(i+1), i+1);
-                                        file_downloader.threads[i].setPriority(7);
-                                        file_downloader.threads[i].start();
-                                    }
-                                }
-                            }
 
+                            continue_download_with_thread();
 
-                            notification_service_bar.handle_command(DownloadService.this.file_downloader);
+                            notification_service_bar.handle_notification(file_downloader);
 
-                            // if(listener!=null) listener.on_update(file_downloader.downloaded_size);
                             if (listener != null) {
                                 publishProgress();
                             }
                         }
-                        file_downloader.file_record.delete(file_downloader.download_url);
 
-
+                        clear_local_thread_data();
                         build_downloaded_notification();
                         stop_service();
 
@@ -151,15 +117,11 @@ public class DownloadService extends Service {
             @Override
             protected void onProgressUpdate(Void...result) {
                 Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
-                listener.on_update(file_downloader.downloaded_size);
-
+                if (file_downloader.downloaded_size <= file_downloader.file_size) {
+                    listener.on_update(file_downloader.downloaded_size);
+                }
             }
 
-
-            @Override
-            protected void onPostExecute(Void obj) {
-                super.onPostExecute(obj);
-            }
         }.execute();
 
 
@@ -279,6 +241,27 @@ public class DownloadService extends Service {
 
     }
 
+
+    private void continue_download_with_thread() {
+
+        for (int i = 0; i < file_downloader.threads.length; i++){
+            if (file_downloader.threads[i] != null && !file_downloader.threads[i].is_finish()) {
+                not_finish = true;
+                if(file_downloader.threads[i].get_downloaded_length() == -1){
+                    file_downloader.threads[i] = new DownloadThread(
+                            file_downloader,
+                            url,
+                            file_downloader.save_file,
+                            file_downloader.block,
+                            file_downloader.thread_data.get(i+1), i+1);
+                    file_downloader.threads[i].setPriority(7);
+                    file_downloader.threads[i].start();
+                }
+            }
+        }
+
+    }
+
     private void build_downloaded_notification() {
         Intent in = new Intent("app.action.download_done_notification");
         in.putExtras(file_downloader.intent_extras);
@@ -286,6 +269,25 @@ public class DownloadService extends Service {
         in.putExtra("filename", regenerate_filename(file_downloader.get_file_name()));
         in.putExtra("file_size", show_human_size(file_downloader.get_file_size()));
         getApplicationContext().sendBroadcast(in);
+    }
+
+    private void clear_local_thread_data() {
+        file_downloader.file_record.delete(file_downloader.download_url);
+    }
+
+
+    private void stop_forground_notification() {
+        Intent i = new Intent(file_downloader.context, file_downloader.activity_class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtras(file_downloader.intent_extras);
+        startActivity(i);
+
+
+        notification_service_bar.stopForeground(notice_id);
+
+        NotificationManager notice_manager =
+                (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        notice_manager.cancelAll();
     }
 
     public String regenerate_filename(String filename) {

@@ -84,7 +84,7 @@ public class NotificationServiceBar {
     }
 
 
-    public void handle_command(FileDownloader file_downloader) {
+    public void handle_notification(FileDownloader file_downloader) {
 
         String downloaded_size = download_service.show_human_size(file_downloader.downloaded_size);
         String file_size = download_service.show_human_size(file_downloader.file_size);
