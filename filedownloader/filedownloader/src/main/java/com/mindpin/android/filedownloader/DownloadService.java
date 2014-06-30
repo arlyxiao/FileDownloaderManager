@@ -84,14 +84,14 @@ public class DownloadService extends Service {
     public int download(final FileDownloader file_downloader, final ProgressUpdateListener listener)
             throws Exception{
 
+        this.file_downloader = file_downloader;
+
         new AsyncTask<Void, Integer, Void>() {
 
             @Override
             protected Void doInBackground(Void... objects) {
                 try {
-                    DownloadService.this.file_downloader = file_downloader;
-                    init_connection(file_downloader,
-                            file_downloader.context,
+                    init_connection(file_downloader.context,
                             file_downloader.download_url,
                             file_downloader.save_file,
                             file_downloader.thread_num);
@@ -99,50 +99,50 @@ public class DownloadService extends Service {
 
 
                     try {
-                        RandomAccessFile rand_out = new RandomAccessFile(DownloadService.this.file_downloader.save_file, "rw");
-                        if(DownloadService.this.file_downloader.file_size >0) rand_out.setLength(DownloadService.this.file_downloader.file_size);
+                        RandomAccessFile rand_out = new RandomAccessFile(file_downloader.save_file, "rw");
+                        if(file_downloader.file_size >0) rand_out.setLength(file_downloader.file_size);
                         rand_out.close();
-                        URL url = new URL(DownloadService.this.file_downloader.download_url);
-                        if(DownloadService.this.file_downloader.thread_data.size() != DownloadService.this.file_downloader.threads.length){
-                            DownloadService.this.file_downloader.thread_data.clear();
-                            for (int i = 0; i < DownloadService.this.file_downloader.threads.length; i++) {
-                                DownloadService.this.file_downloader.thread_data.put(i+1, 0);
+                        URL url = new URL(file_downloader.download_url);
+                        if(file_downloader.thread_data.size() != file_downloader.threads.length){
+                            file_downloader.thread_data.clear();
+                            for (int i = 0; i < file_downloader.threads.length; i++) {
+                                file_downloader.thread_data.put(i+1, 0);
                             }
                         }
-                        for (int i = 0; i < DownloadService.this.file_downloader.threads.length; i++) {
-                            int downLength = DownloadService.this.file_downloader.thread_data.get(i+1);
-                            if(downLength < DownloadService.this.file_downloader.block && DownloadService.this.file_downloader.downloaded_size <DownloadService.this.file_downloader.file_size){
-                                DownloadService.this.file_downloader.threads[i] = new DownloadThread(
+                        for (int i = 0; i < file_downloader.threads.length; i++) {
+                            int downLength = file_downloader.thread_data.get(i+1);
+                            if(downLength < file_downloader.block && file_downloader.downloaded_size <file_downloader.file_size){
+                                file_downloader.threads[i] = new DownloadThread(
                                         DownloadService.this.file_downloader,
                                         url,
-                                        DownloadService.this.file_downloader.save_file,
-                                        DownloadService.this.file_downloader.block,
-                                        DownloadService.this.file_downloader.thread_data.get(i+1),
+                                        file_downloader.save_file,
+                                        file_downloader.block,
+                                        file_downloader.thread_data.get(i+1),
                                         i+1);
 
-                                DownloadService.this.file_downloader.threads[i].setPriority(7);
-                                DownloadService.this.file_downloader.threads[i].start();
+                                file_downloader.threads[i].setPriority(7);
+                                file_downloader.threads[i].start();
                             }else{
-                                DownloadService.this.file_downloader.threads[i] = null;
+                                file_downloader.threads[i] = null;
                             }
                         }
-                        DownloadService.this.file_downloader.file_record.save(DownloadService.this.file_downloader.download_url,
-                                DownloadService.this.file_downloader.thread_data);
+                        file_downloader.file_record.save(file_downloader.download_url,
+                                file_downloader.thread_data);
 
                         not_finish = true;
                         while (not_finish) {
                             Thread.sleep(900);
                             not_finish = false;
-                            for (int i = 0; i < DownloadService.this.file_downloader.threads.length; i++){
-                                if (DownloadService.this.file_downloader.threads[i] != null && !DownloadService.this.file_downloader.threads[i].is_finish()) {
+                            for (int i = 0; i < file_downloader.threads.length; i++){
+                                if (file_downloader.threads[i] != null && !file_downloader.threads[i].is_finish()) {
                                     not_finish = true;
-                                    if(DownloadService.this.file_downloader.threads[i].get_downloaded_length() == -1){
-                                        DownloadService.this.file_downloader.threads[i] = new DownloadThread(DownloadService.this.file_downloader, url,
-                                                DownloadService.this.file_downloader.save_file,
-                                                DownloadService.this.file_downloader.block,
-                                                DownloadService.this.file_downloader.thread_data.get(i+1), i+1);
-                                        DownloadService.this.file_downloader.threads[i].setPriority(7);
-                                        DownloadService.this.file_downloader.threads[i].start();
+                                    if(file_downloader.threads[i].get_downloaded_length() == -1){
+                                        file_downloader.threads[i] = new DownloadThread(DownloadService.this.file_downloader, url,
+                                                file_downloader.save_file,
+                                                file_downloader.block,
+                                                file_downloader.thread_data.get(i+1), i+1);
+                                        file_downloader.threads[i].setPriority(7);
+                                        file_downloader.threads[i].start();
                                     }
                                 }
                             }
@@ -150,12 +150,12 @@ public class DownloadService extends Service {
 
                             notification_service_bar.handle_command(DownloadService.this.file_downloader);
 
-                            // if(listener!=null) listener.on_update(DownloadService.this.file_downloader.downloaded_size);
+                            // if(listener!=null) listener.on_update(file_downloader.downloaded_size);
                             if (listener != null) {
-                                publishProgress(DownloadService.this.file_downloader.downloaded_size);
+                                publishProgress(file_downloader.downloaded_size);
                             }
                         }
-                        DownloadService.this.file_downloader.file_record.delete(DownloadService.this.file_downloader.download_url);
+                        file_downloader.file_record.delete(file_downloader.download_url);
 
 
 
@@ -172,7 +172,7 @@ public class DownloadService extends Service {
                         not_finish = false;
 
                         notification_service_bar.stopForeground(notice_id);
-                        DownloadService.this.stopSelf();
+                        stopSelf();
 
 
                     } catch (Exception e) {
@@ -208,8 +208,7 @@ public class DownloadService extends Service {
 
 
 
-    private void init_connection(FileDownloader file_downloader,
-                                 Context context,
+    private void init_connection(Context context,
                                  String download_url,
                                  File file_save_dir,
                                  int thread_num) {
@@ -274,144 +273,6 @@ public class DownloadService extends Service {
     private final IBinder m_binder = new LocalBinder();
 
 
-
-
-
-
-//    private static final Class[] mStartForegroundSignature = new Class[] {
-//            int.class, Notification.class};
-//    private static final Class[] mStopForegroundSignature = new Class[] {
-//            boolean.class};
-//
-//    private NotificationManager mNM;
-//    private Method mStartForeground;
-//    private Method mStopForeground;
-//    private Object[] mStartForegroundArgs = new Object[2];
-//    private Object[] mStopForegroundArgs = new Object[1];
-//    Notification notification;
-//    RemoteViews content_view;
-//
-//
-//    public void startForegroundCompat(int id, Notification notification) {
-//        notice_id = id;
-//        // If we have the new startForeground API, then use it.
-//        if (mStartForeground != null) {
-//            mStartForegroundArgs[0] = Integer.valueOf(id);
-//            mStartForegroundArgs[1] = notification;
-//            try {
-//                mStartForeground.invoke(this, mStartForegroundArgs);
-//            } catch (InvocationTargetException e) {
-//                // Should not happen.
-//                Log.i("无法启动前台服务 ", e.getMessage());
-//            } catch (IllegalAccessException e) {
-//                // Should not happen.
-//                Log.i("无法启动前台服务 ", e.getMessage());
-//            }
-//            return;
-//        }
-//
-//        // Fall back on the old API.
-//        // setForeground(true);
-//        mNM.notify(id, notification);
-//    }
-//
-//    public void stopForegroundCompat(int id) {
-//        // If we have the new stopForeground API, then use it.
-//        if (mStopForeground != null) {
-//            mStopForegroundArgs[0] = Boolean.TRUE;
-//            try {
-//                mStopForeground.invoke(this, mStopForegroundArgs);
-//            } catch (InvocationTargetException e) {
-//                // Should not happen.
-//                Log.i("无法关掉前台服务 ", e.getMessage());
-//            } catch (IllegalAccessException e) {
-//                // Should not happen.
-//                Log.i("无法关掉前台服务 ", e.getMessage());
-//            }
-//            return;
-//        }
-//
-//        // Fall back on the old API.  Note to cancel BEFORE changing the
-//        // foreground state, since we could be killed at that point.
-//        mNM.cancel(id);
-//        // setForeground(false);
-//    }
-//
-//
-//    public void handle_command(FileDownloader file_downloader) {
-//
-//        String downloaded_size = show_human_size(file_downloader.downloaded_size);
-//        String file_size = show_human_size(file_downloader.file_size);
-//
-//        float num = (float) file_downloader.downloaded_size/
-//                (float) file_downloader.file_size;
-//        int result = (int)(num*100);
-//        String percentage = Integer.toString(result);
-//
-//        mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-//        try {
-//            mStartForeground = getClass().getMethod("startForeground",
-//                    mStartForegroundSignature);
-//            mStopForeground = getClass().getMethod("stopForeground",
-//                    mStopForegroundSignature);
-//        } catch (NoSuchMethodException e) {
-//            // Running on an older platform.
-//            mStartForeground = mStopForeground = null;
-//        }
-//
-//
-//        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-//        mBuilder.setContentTitle("Download")
-//                .setContentText(Integer.toString(file_downloader.downloaded_size))
-//                .setSmallIcon(R.drawable.ic_launcher)
-//                .setAutoCancel(true)
-//                .setWhen(System.currentTimeMillis());
-//        notification = mBuilder.getNotification();
-//
-//        content_view = new RemoteViews(getPackageName(), R.layout.custom_notification_layout);
-//        content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
-//
-//        content_view.setTextViewText(R.id.progress_title_text,
-//                regenerate_filename(file_downloader.get_file_name()));
-//
-//        content_view.setTextViewText(R.id.download_filename, "");
-//
-//        content_view.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
-//        Log.i("显示正在下载的大小 ", Integer.toString(file_downloader.downloaded_size));
-//        content_view.setProgressBar(R.id.download_progressbar_in_service,
-//                file_downloader.get_file_size(),
-//                file_downloader.downloaded_size, false);
-//
-//
-//
-//
-////        final ComponentName receiver = new ComponentName(file_downloader.context,
-////                file_downloader.activity_class);
-//        final ComponentName receiver = new ComponentName(file_downloader.context,
-//                DownloadProgressNotificationWidget.class);
-//        Intent notice_intent = new Intent(file_downloader.context.getClass().getName() +
-//                System.currentTimeMillis());
-//        notice_intent.setComponent(receiver);
-//
-//
-//
-////        String param_name1 = file_downloader.intent_extras.getString("param_name1");
-////        Log.i("测试值 ", param_name1);
-//        notice_intent.putExtras(file_downloader.intent_extras);
-//
-////        PendingIntent p_intent = PendingIntent.getActivity(file_downloader.context,
-////                0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
-//        PendingIntent p_intent = PendingIntent.getBroadcast(file_downloader.context,
-//                0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
-//        notification.contentIntent = p_intent;
-//
-//        content_view.setOnClickPendingIntent(R.id.progress_content_layout, p_intent);
-//
-//        notification.contentView = content_view;
-//
-//        startForegroundCompat(R.string.foreground_service_started, notification);
-//
-//    }
 
 
     public String regenerate_filename(String filename) {
