@@ -25,13 +25,22 @@ public class DownloadDoneNotification extends BroadcastReceiver {
 //        context.startService(download_service);
 
         Bundle extras = intent.getExtras();
-        String target_activity = intent.getStringExtra("activity_class");
-        Log.i("目标 activity ", target_activity);
+        String target_activity_name = intent.getStringExtra("activity_class");
+        Class<?> target_activity = null;
+
+        try {
+            target_activity = Class.forName(target_activity_name);
+        } catch (Exception e) {
+            Log.i(" String 转换成 Class 错误 ", e.getMessage());
+        }
+
+
+        Log.i("目标 activity ", target_activity.getName());
         String filename = intent.getStringExtra("filename");
         String file_size = intent.getStringExtra("file_size");
 
 
-        final ComponentName receiver = new ComponentName(context, target_activity.getClass());
+        final ComponentName receiver = new ComponentName(context, target_activity);
         Intent notice_intent = new Intent(context.getClass().getName() +
                 System.currentTimeMillis());
         notice_intent.setComponent(receiver);
