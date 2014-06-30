@@ -31,6 +31,7 @@ public class DownloadService extends Service {
     int notice_id;
     Boolean should_stop_foreground = false;
     NotificationServiceBar notification_service_bar;
+    URL url;
 
     @Override
     public void onCreate() {
@@ -86,7 +87,7 @@ public class DownloadService extends Service {
 
         this.file_downloader = file_downloader;
 
-        new AsyncTask<Void, Integer, Void>() {
+        new AsyncTask<Void, Void, Void>() {
 
             @Override
             protected Void doInBackground(Void... objects) {
@@ -99,35 +100,7 @@ public class DownloadService extends Service {
 
 
                     try {
-                        RandomAccessFile rand_out = new RandomAccessFile(file_downloader.save_file, "rw");
-                        if(file_downloader.file_size >0) rand_out.setLength(file_downloader.file_size);
-                        rand_out.close();
-                        URL url = new URL(file_downloader.download_url);
-                        if(file_downloader.thread_data.size() != file_downloader.threads.length){
-                            file_downloader.thread_data.clear();
-                            for (int i = 0; i < file_downloader.threads.length; i++) {
-                                file_downloader.thread_data.put(i+1, 0);
-                            }
-                        }
-                        for (int i = 0; i < file_downloader.threads.length; i++) {
-                            int downLength = file_downloader.thread_data.get(i+1);
-                            if(downLength < file_downloader.block && file_downloader.downloaded_size <file_downloader.file_size){
-                                file_downloader.threads[i] = new DownloadThread(
-                                        DownloadService.this.file_downloader,
-                                        url,
-                                        file_downloader.save_file,
-                                        file_downloader.block,
-                                        file_downloader.thread_data.get(i+1),
-                                        i+1);
-
-                                file_downloader.threads[i].setPriority(7);
-                                file_downloader.threads[i].start();
-                            }else{
-                                file_downloader.threads[i] = null;
-                            }
-                        }
-                        file_downloader.file_record.save(file_downloader.download_url,
-                                file_downloader.thread_data);
+                        save_thread_data();
 
                         not_finish = true;
                         while (not_finish) {
@@ -137,7 +110,9 @@ public class DownloadService extends Service {
                                 if (file_downloader.threads[i] != null && !file_downloader.threads[i].is_finish()) {
                                     not_finish = true;
                                     if(file_downloader.threads[i].get_downloaded_length() == -1){
-                                        file_downloader.threads[i] = new DownloadThread(DownloadService.this.file_downloader, url,
+                                        file_downloader.threads[i] = new DownloadThread(
+                                                file_downloader,
+                                                url,
                                                 file_downloader.save_file,
                                                 file_downloader.block,
                                                 file_downloader.thread_data.get(i+1), i+1);
@@ -152,7 +127,7 @@ public class DownloadService extends Service {
 
                             // if(listener!=null) listener.on_update(file_downloader.downloaded_size);
                             if (listener != null) {
-                                publishProgress(file_downloader.downloaded_size);
+                                publishProgress();
                             }
                         }
                         file_downloader.file_record.delete(file_downloader.download_url);
@@ -174,10 +149,9 @@ public class DownloadService extends Service {
             }
 
             @Override
-            protected void onProgressUpdate(Integer...downloaded_sizes) {
-                int downloaded_size = downloaded_sizes[0];
+            protected void onProgressUpdate(Void...result) {
                 Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
-                listener.on_update(downloaded_size);
+                listener.on_update(file_downloader.downloaded_size);
 
             }
 
@@ -266,6 +240,43 @@ public class DownloadService extends Service {
 
         notification_service_bar.stopForeground(notice_id);
         stopSelf();
+    }
+
+    private void save_thread_data() {
+        try {
+            RandomAccessFile rand_out = new RandomAccessFile(file_downloader.save_file, "rw");
+            if(file_downloader.file_size >0) rand_out.setLength(file_downloader.file_size);
+            rand_out.close();
+            url = new URL(file_downloader.download_url);
+            if(file_downloader.thread_data.size() != file_downloader.threads.length){
+                file_downloader.thread_data.clear();
+                for (int i = 0; i < file_downloader.threads.length; i++) {
+                    file_downloader.thread_data.put(i+1, 0);
+                }
+            }
+            for (int i = 0; i < file_downloader.threads.length; i++) {
+                int downLength = file_downloader.thread_data.get(i+1);
+                if(downLength < file_downloader.block && file_downloader.downloaded_size <file_downloader.file_size){
+                    file_downloader.threads[i] = new DownloadThread(
+                            DownloadService.this.file_downloader,
+                            url,
+                            file_downloader.save_file,
+                            file_downloader.block,
+                            file_downloader.thread_data.get(i+1),
+                            i+1);
+
+                    file_downloader.threads[i].setPriority(7);
+                    file_downloader.threads[i].start();
+                }else{
+                    file_downloader.threads[i] = null;
+                }
+            }
+            file_downloader.file_record.save(file_downloader.download_url,
+                    file_downloader.thread_data);
+        } catch (Exception e) {
+            Log.i("保存线程数据错误 ", e.getMessage());
+        }
+
     }
 
     private void build_downloaded_notification() {
