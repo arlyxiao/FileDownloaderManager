@@ -158,22 +158,8 @@ public class DownloadService extends Service {
                         file_downloader.file_record.delete(file_downloader.download_url);
 
 
-
-
-                        Intent in = new Intent("app.action.download_done_notification");
-                        in.putExtras(file_downloader.intent_extras);
-                        in.putExtra("activity_class", file_downloader.activity_class.getName());
-                        in.putExtra("filename", regenerate_filename(file_downloader.get_file_name()));
-                        in.putExtra("file_size", show_human_size(file_downloader.get_file_size()));
-                        getApplicationContext().sendBroadcast(in);
-
-
-
-                        not_finish = false;
-
-                        notification_service_bar.stopForeground(notice_id);
-                        stopSelf();
-
+                        build_downloaded_notification();
+                        stop_service();
 
                     } catch (Exception e) {
                         Log.i("文件下载错误 ", e.getMessage());
@@ -274,6 +260,22 @@ public class DownloadService extends Service {
 
 
 
+
+    private void stop_service() {
+        not_finish = false;
+
+        notification_service_bar.stopForeground(notice_id);
+        stopSelf();
+    }
+
+    private void build_downloaded_notification() {
+        Intent in = new Intent("app.action.download_done_notification");
+        in.putExtras(file_downloader.intent_extras);
+        in.putExtra("activity_class", file_downloader.activity_class.getName());
+        in.putExtra("filename", regenerate_filename(file_downloader.get_file_name()));
+        in.putExtra("file_size", show_human_size(file_downloader.get_file_size()));
+        getApplicationContext().sendBroadcast(in);
+    }
 
     public String regenerate_filename(String filename) {
         int size = filename.length();
