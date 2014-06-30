@@ -27,6 +27,7 @@ import java.util.Map;
 public class DownloadService extends Service {
     FileDownloader file_downloader;
     boolean not_finish = true;
+    int notice_id;
 
     @Override
     public void onCreate() {
@@ -45,29 +46,29 @@ public class DownloadService extends Service {
         Log.i("服务开始启动了 ", "true");
 
 
-        Boolean should_stop_foreground = intent.getBooleanExtra("should_stop_foreground", false);
-        if (should_stop_foreground) {
-            Log.i("需要把服务放到后台运行 ", "true");
-
-            Intent i = new Intent(file_downloader.context, file_downloader.activity_class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            i.putExtras(file_downloader.intent_extras);
-            startActivity(i);
-
-
-            stopForegroundCompat(R.string.foreground_service_started);
-            if (!not_finish) {
-                Log.i("已经下载完成 停止服务 ", "true");
-
-                NotificationManager notice_manager =
-                        (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-                notice_manager.cancelAll();
-
-                stopSelf();
-            }
-
-
-        }
+//        Boolean should_stop_foreground = intent.getBooleanExtra("should_stop_foreground", false);
+//        if (should_stop_foreground) {
+//            Log.i("需要把服务放到后台运行 ", "true");
+//
+//            Intent i = new Intent(file_downloader.context, file_downloader.activity_class);
+//            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            i.putExtras(file_downloader.intent_extras);
+//            startActivity(i);
+//
+//
+//            stopForegroundCompat(R.string.foreground_service_started);
+//            if (!not_finish) {
+//                Log.i("已经下载完成 停止服务 ", "true");
+//
+//                NotificationManager notice_manager =
+//                        (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+//                notice_manager.cancelAll();
+//
+//                stopSelf();
+//            }
+//
+//
+//        }
 
         return START_REDELIVER_INTENT;
     }
@@ -81,7 +82,7 @@ public class DownloadService extends Service {
     public int download(final FileDownloader file_downloader, final ProgressUpdateListener listener)
             throws Exception{
 
-        new AsyncTask<Void, Void, Void>() {
+        new AsyncTask<Void, Integer, Void>() {
 
             @Override
             protected Void doInBackground(Void... objects) {
@@ -149,10 +150,12 @@ public class DownloadService extends Service {
 
                             // if(listener!=null) listener.on_update(DownloadService.this.file_downloader.downloaded_size);
                             if (listener != null) {
-                                publishProgress();
+                                publishProgress(DownloadService.this.file_downloader.downloaded_size);
                             }
                         }
                         DownloadService.this.file_downloader.file_record.delete(DownloadService.this.file_downloader.download_url);
+
+
 
 
                         Intent in = new Intent("app.action.download_done_notification");
@@ -162,7 +165,13 @@ public class DownloadService extends Service {
                         in.putExtra("file_size", show_human_size(file_downloader.get_file_size()));
                         getApplicationContext().sendBroadcast(in);
 
+
+
                         not_finish = false;
+
+                        stopForegroundCompat(notice_id);
+                        DownloadService.this.stopSelf();
+
 
                     } catch (Exception e) {
                         Log.i("文件下载错误 ", e.getMessage());
@@ -177,9 +186,10 @@ public class DownloadService extends Service {
             }
 
             @Override
-            protected void onProgressUpdate(Void...progress) {
+            protected void onProgressUpdate(Integer...downloaded_sizes) {
+                int downloaded_size = downloaded_sizes[0];
                 Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
-                listener.on_update(DownloadService.this.file_downloader.downloaded_size);
+                listener.on_update(downloaded_size);
 
             }
 
@@ -281,6 +291,7 @@ public class DownloadService extends Service {
 
 
     public void startForegroundCompat(int id, Notification notification) {
+        notice_id = id;
         // If we have the new startForeground API, then use it.
         if (mStartForeground != null) {
             mStartForegroundArgs[0] = Integer.valueOf(id);
