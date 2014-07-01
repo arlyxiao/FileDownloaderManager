@@ -46,8 +46,13 @@ public class DownloadThread extends Thread {
                 http.setRequestProperty("Accept-Language", "zh-CN");
                 http.setRequestProperty("Referer", download_url.toString());
                 http.setRequestProperty("Charset", "UTF-8");
+
                 int start_pos = block * (thread_id - 1) + downloaded_length;
-                int end_pos = block * thread_id -1;
+                int end_pos = block * thread_id - 1;
+
+                if (downloader.file_size == end_pos) {
+                    end_pos = end_pos - 1;
+                }
 
                 //设置获取实体数据的范围
                 Log.i("线程开始点 ", Integer.toString(start_pos));
@@ -58,16 +63,18 @@ public class DownloadThread extends Thread {
 
                 InputStream inStream = http.getInputStream();
                 byte[] buffer = new byte[1024];
-                int offset = 0;
+                int offset;
                 print("线程 " + this.thread_id + " start download from position "+ start_pos);
                 RandomAccessFile threadfile = new RandomAccessFile(this.save_file, "rwd");
                 threadfile.seek(start_pos);
                 while ((offset = inStream.read(buffer, 0, 1024)) != -1) {
-                    // Log.i("线程 loop size ", "true");
                     threadfile.write(buffer, 0, offset);
                     downloaded_length += offset;
                     downloader.update(this.thread_id, downloaded_length);
                     downloader.append(offset);
+
+                    Log.i("线程" + this.thread_id + " offset ", Integer.toString(offset));
+                    Log.i("线程" + this.thread_id + " loop size ", Integer.toString(downloaded_length));
                 }
                 threadfile.close();
                 inStream.close();

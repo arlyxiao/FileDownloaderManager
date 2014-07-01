@@ -20,7 +20,7 @@ import java.util.Random;
 
 public class DownloadService extends Service {
     FileDownloader file_downloader;
-    boolean not_finish = true;
+    boolean is_finished = false;
     int notice_id;
     Boolean should_stop_foreground = false;
     NotificationServiceBar notification_service_bar;
@@ -60,19 +60,22 @@ public class DownloadService extends Service {
     @Override
     public void onDestroy() {
         Log.i("下载服务关闭 ", "true");
+
     }
 
 
-    public int download(final FileDownloader file_downloader, final ProgressUpdateListener listener)
+    public void download(final FileDownloader file_downloader, final ProgressUpdateListener listener)
             throws Exception{
 
         this.file_downloader = file_downloader;
         this.listener = listener;
 
-        new AsyncTask<Void, Void, Void>() {
 
+        new AsyncTask<FileDownloader, FileDownloader, FileDownloader>() {
             @Override
-            protected Void doInBackground(Void... objects) {
+            protected FileDownloader doInBackground(FileDownloader... objects) {
+                FileDownloader file_downloader = objects[0];
+
                 try {
                     init_connection(file_downloader.context,
                             file_downloader.download_url,
@@ -80,34 +83,24 @@ public class DownloadService extends Service {
                             file_downloader.thread_num);
 
 
+                    save_thread_data(file_downloader);
 
-                    try {
-                        save_thread_data();
+                    is_finished = false;
+                    while (!is_finished) {
+                        Thread.sleep(900);
+                        is_finished = true;
 
-                        not_finish = true;
-                        while (not_finish) {
-                            Thread.sleep(900);
-                            not_finish = false;
+                        continue_download_with_thread(file_downloader);
 
-                            continue_download_with_thread();
+                        notification_service_bar.handle_notification(file_downloader);
 
-                            notification_service_bar.handle_notification(file_downloader);
-
-                            if (listener != null) {
-                                publishProgress();
-                            }
-                        }
-
-                        clear_local_thread_data();
-                        build_downloaded_notification();
-                        stop_service();
-
-                    } catch (Exception e) {
-                        Log.i("文件下载错误 ", e.getMessage());
-                        throw new Exception("file download fail");
+                        if (listener != null) publishProgress(file_downloader);
                     }
+
+                    return file_downloader;
+
                 } catch (Exception e) {
-                    Log.i("下载有问题1 ", e.getMessage());
+                    Log.i("下载有错误 ", e.getMessage());
                 }
 
 
@@ -115,17 +108,22 @@ public class DownloadService extends Service {
             }
 
             @Override
-            protected void onProgressUpdate(Void...result) {
+            protected void onProgressUpdate(FileDownloader... result) {
+                FileDownloader file_downloader = result[0];
                 Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
-                if (file_downloader.downloaded_size <= file_downloader.file_size) {
-                    listener.on_update(file_downloader.downloaded_size);
-                }
+
+                listener.on_update(file_downloader.downloaded_size);
             }
 
-        }.execute();
+            @Override
+            protected void onPostExecute(FileDownloader file_downloader) {
 
+                build_downloaded_notification(file_downloader);
+                stop_service();
+                clear_local_thread_data(file_downloader);
 
-        return this.file_downloader.downloaded_size;
+            }
+        }.execute(file_downloader);
     }
 
 
@@ -169,7 +167,7 @@ public class DownloadService extends Service {
                     for (int i = 0; i < file_downloader.threads.length; i++) {
                         file_downloader.downloaded_size += file_downloader.thread_data.get(i+1);
                     }
-                    file_downloader.print("已经下载的长度 "+ file_downloader.downloaded_size);
+                    file_downloader.print("已经下载的长度mmm "+ file_downloader.downloaded_size);
                 }
                 //计算每条线程下载的数据长度
                 file_downloader.block = (file_downloader.file_size % file_downloader.threads.length)==0?
@@ -198,13 +196,13 @@ public class DownloadService extends Service {
 
 
     private void stop_service() {
-        not_finish = false;
+        is_finished = true;
 
         notification_service_bar.stopForeground(notice_id);
-        stopSelf();
+        DownloadService.this.stopSelf();
     }
 
-    private void save_thread_data() {
+    private void save_thread_data(FileDownloader file_downloader) {
         try {
             RandomAccessFile rand_out = new RandomAccessFile(file_downloader.save_file, "rw");
             if(file_downloader.file_size >0) rand_out.setLength(file_downloader.file_size);
@@ -219,8 +217,9 @@ public class DownloadService extends Service {
             for (int i = 0; i < file_downloader.threads.length; i++) {
                 int downLength = file_downloader.thread_data.get(i+1);
                 if(downLength < file_downloader.block && file_downloader.downloaded_size <file_downloader.file_size){
+                    Log.i("开始进行线程下载 ", "true");
                     file_downloader.threads[i] = new DownloadThread(
-                            DownloadService.this.file_downloader,
+                            file_downloader,
                             url,
                             file_downloader.save_file,
                             file_downloader.block,
@@ -242,12 +241,15 @@ public class DownloadService extends Service {
     }
 
 
-    private void continue_download_with_thread() {
+    private void continue_download_with_thread(FileDownloader file_downloader) {
 
         for (int i = 0; i < file_downloader.threads.length; i++){
+
             if (file_downloader.threads[i] != null && !file_downloader.threads[i].is_finish()) {
-                not_finish = true;
+                is_finished = false;
+                Log.i("一直在下载 000 ", "true");
                 if(file_downloader.threads[i].get_downloaded_length() == -1){
+                    Log.i("一直在下载 111 ", "true");
                     file_downloader.threads[i] = new DownloadThread(
                             file_downloader,
                             url,
@@ -258,11 +260,14 @@ public class DownloadService extends Service {
                     file_downloader.threads[i].start();
                 }
             }
+
         }
 
     }
 
-    private void build_downloaded_notification() {
+    private void build_downloaded_notification(FileDownloader file_downloader) {
+
+        Log.i("通知的文件大小 ", Integer.toString(file_downloader.get_file_size()));
         Intent in = new Intent("app.action.download_done_notification");
         in.putExtras(file_downloader.intent_extras);
         in.putExtra("activity_class", file_downloader.activity_class.getName());
@@ -271,7 +276,7 @@ public class DownloadService extends Service {
         getApplicationContext().sendBroadcast(in);
     }
 
-    private void clear_local_thread_data() {
+    private void clear_local_thread_data(FileDownloader file_downloader) {
         file_downloader.file_record.delete(file_downloader.download_url);
     }
 
@@ -311,5 +316,61 @@ public class DownloadService extends Service {
         String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
+
+
+//    private class DownloadFileTask extends AsyncTask<Void, Void, Void> {
+//
+//        @Override
+//        protected Void doInBackground(Void... objects) {
+//
+//
+//            try {
+//                init_connection(file_downloader.context,
+//                        file_downloader.download_url,
+//                        file_downloader.save_file,
+//                        file_downloader.thread_num);
+//
+//
+//                save_thread_data(file_downloader);
+//
+//                is_finished = false;
+//                while (!is_finished) {
+//                    Thread.sleep(900);
+//                    is_finished = true;
+//
+//                    continue_download_with_thread(file_downloader);
+//
+//                    notification_service_bar.handle_notification(file_downloader);
+//
+//                    if (listener != null) publishProgress();
+//                }
+//
+//
+//
+//            } catch (Exception e) {
+//                Log.i("下载有错误 ", e.getMessage());
+//            }
+//
+//
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onProgressUpdate(Void... result) {
+//            Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
+//
+//            listener.on_update(file_downloader.downloaded_size);
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void result) {
+//
+//            stop_service();
+//            clear_local_thread_data();
+//            build_downloaded_notification();
+//        }
+//
+//    }
+
 
 }

@@ -141,6 +141,7 @@ public class FileDownloader {
         Intent download_service = new Intent(context, DownloadService.class);
         context.startService(download_service);
         context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
+
     }
 
 
