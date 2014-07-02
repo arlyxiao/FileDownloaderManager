@@ -118,6 +118,9 @@ public class DownloadService extends Service {
             @Override
             protected void onPostExecute(FileDownloader file_downloader) {
 
+                if (!file_downloader.threads[0].thread_running) {
+                    return;
+                }
                 build_downloaded_notification(file_downloader);
                 stop_service();
                 clear_local_thread_data(file_downloader);
@@ -190,6 +193,30 @@ public class DownloadService extends Service {
         return m_binder;
     }
 
+    @Override
+    public boolean onUnbind(Intent intent) {
+        if (file_downloader == null || file_downloader.threads == null) {
+            Log.i("file_downloader 为 null " , " true");
+            return true;
+        }
+        for (int i = 0; i < file_downloader.threads.length; i++){
+            if (file_downloader.threads[i] == null) {
+                Log.i("file_downloader threads 为 null " + i , " true");
+                return true;
+            }
+
+            file_downloader.threads[i].thread_running = false;
+            file_downloader.threads[i].interrupt();
+
+            if (file_downloader.threads[i].isInterrupted()) {
+                Log.i("停止线程 " + i , " true");
+            }
+
+        }
+        return true;
+    }
+
+
     private final IBinder m_binder = new LocalBinder();
 
 
@@ -244,6 +271,11 @@ public class DownloadService extends Service {
     private void continue_download_with_thread(FileDownloader file_downloader) {
 
         for (int i = 0; i < file_downloader.threads.length; i++){
+
+            if (!file_downloader.threads[i].thread_running) {
+                Log.i("service中的线程可以停止loop了 ", "true");
+                return;
+            }
 
             if (file_downloader.threads[i] != null && !file_downloader.threads[i].is_finish()) {
                 is_finished = false;

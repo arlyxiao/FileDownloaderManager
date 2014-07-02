@@ -19,6 +19,8 @@ public class DownloadThread extends Thread {
     private boolean finish = false;
     private FileDownloader downloader;
 
+    boolean thread_running = true;
+
     public DownloadThread(FileDownloader downloader,
                           URL download_url,
                           File save_file,
@@ -68,10 +70,16 @@ public class DownloadThread extends Thread {
                 RandomAccessFile threadfile = new RandomAccessFile(this.save_file, "rwd");
                 threadfile.seek(start_pos);
                 while ((offset = inStream.read(buffer, 0, 1024)) != -1) {
+                    if (!thread_running) {
+                        Log.i("线程可以停止运行了 ", "true");
+                        return;
+                    }
                     threadfile.write(buffer, 0, offset);
                     downloaded_length += offset;
                     downloader.update(this.thread_id, downloaded_length);
                     downloader.append(offset);
+
+
 
                     Log.i("线程" + this.thread_id + " offset ", Integer.toString(offset));
                     Log.i("线程" + this.thread_id + " loop size ", Integer.toString(downloaded_length));

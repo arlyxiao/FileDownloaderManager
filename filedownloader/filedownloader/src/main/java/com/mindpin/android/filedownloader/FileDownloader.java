@@ -49,6 +49,9 @@ public class FileDownloader {
 
     public FileDownloader current = this;
 
+    Intent download_service;
+
+
 
     public int get_thread_size() {
         return threads.length;
@@ -138,10 +141,21 @@ public class FileDownloader {
     public void download(final ProgressUpdateListener listener) throws Exception{
         this.listener = listener;
 
-        Intent download_service = new Intent(context, DownloadService.class);
+        download_service = new Intent(context, DownloadService.class);
         context.startService(download_service);
         context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
 
+    }
+
+    public void pause_download() {
+        try {
+            context.unbindService(m_connection);
+        } catch (Exception e) {
+            Log.i("绑定已经解除了 ", e.toString());
+        }
+
+        // context.stopService(download_service);
+        Log.i("暂停下载 ", "true");
     }
 
 

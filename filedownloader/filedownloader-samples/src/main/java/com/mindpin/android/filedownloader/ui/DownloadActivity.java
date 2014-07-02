@@ -37,6 +37,9 @@ public class DownloadActivity extends Activity {
     String path_above_10mb = "http://esharedev.oss-cn-hangzhou.aliyuncs.com/file/jihuang.mp4";
 
 
+    FileDownloader fd = null;
+
+
     private Handler handler = new Handler(){
 
         @Override
@@ -165,10 +168,30 @@ public class DownloadActivity extends Activity {
 
             }
         });
+
+
+        // 暂停下载
+        Button button6 = (Button) this.findViewById(R.id.button6);
+        button6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fd.pause_download();
+            }
+        });
+
+
+        // 停止下载并删除文件
+        Button button7 = (Button) this.findViewById(R.id.button7);
+        button7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
     }
 
     private void download(final String path, final File savedir) {
-        final FileDownloader fd = new FileDownloader(DownloadActivity.this, path, savedir, 2);
+        fd = new FileDownloader(DownloadActivity.this, path, savedir, 2);
 
         Bundle b = new Bundle();
         b.putString("param_name1", "param_value1");
