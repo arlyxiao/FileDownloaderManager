@@ -167,5 +167,54 @@ downloadmanager.remove(download_id);
 ```
 
 
+5, 自定义界面进度条, 提供监视下载进度变化的钩子方法，在钩子方法中自定义界面进度条
+```java
+// 需要使用到系统 ContentObserver
+class DownloadChangeObserver extends ContentObserver {
+
+    public DownloadChangeObserver() {
+        super(handler);
+    }
+
+    @Override
+    public void onChange(boolean selfChange) {
+        update_progress();
+    }
+
+}
+
+// button onClick事件里激活
+getContentResolver().registerContentObserver(CONTENT_URI, true, download_observer);
+
+// 更新进度条所需要的数据
+public void update_progress() {
+    int[] bytes_and_status = new int[] {-1, -1, 0};
+    DownloadManager.Query query = new DownloadManager.Query().setFilterById(download_id);
+    Cursor c = null;
+    try {
+        c = downloadmanager.query(query);
+        if (c != null && c.moveToFirst()) {
+            bytes_and_status[0] = c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+            Log.i("到目前为止下载的大小 ", Integer.toString(bytes_and_status[0]));
+            bytes_and_status[1] = c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+            Log.i("总大小 ", Integer.toString(bytes_and_status[0]));
+            bytes_and_status[2] = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
+            Log.i("下载状态 ", Integer.toString(bytes_and_status[0]));
+        }
+    } finally {
+        if (c != null) {
+            c.close();
+        }
+    }
+
+    // 需要用到 Hanlder 类来处理这些数据信息显示到进度条上
+    handler.sendMessage(handler.obtainMessage(0, bytes_and_status[0], bytes_and_status[1], bytes_and_status[2]));
+}
+```
+
+
+
+
+
 
 
