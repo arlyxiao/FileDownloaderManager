@@ -121,6 +121,39 @@ request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
 int download_id = downloadmanager.enqueue(request);
 ```
 
-1, 自定义界面进度条（提供监视下载进度变化的钩子方法，在钩子方法中自定义界面进度条）
+2, 自定义通知栏进度条信息点击事件
+
+```java
+// 启动 Activity onCreate 方法里激活广播通知
+registerReceiver(on_notification_click,
+                new IntentFilter(DownloadManager.ACTION_NOTIFICATION_CLICKED));
+
+
+// 自定义点击通知栏后要做的逻辑行为
+BroadcastReceiver on_notification_click = new BroadcastReceiver() {
+        public void onReceive(Context ctxt, Intent intent) {
+            Toast.makeText(ctxt, "通知栏点击提示", Toast.LENGTH_LONG).show();
+        }
+    };
+```
+
+
+
+3, 自定义下载完成通知栏信息事件
+
+```java
+// 启动 Activity onCreate 方法里激活广播通知
+registerReceiver(on_complete,
+                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+
+// 自定义点击通知栏后要做的逻辑行为
+BroadcastReceiver on_complete = new BroadcastReceiver() {
+        public void onReceive(Context ctxt, Intent intent) {
+            Toast.makeText(ctxt, "已经下载完成提示", Toast.LENGTH_LONG).show();
+        }
+    };
+```
+
 
 
