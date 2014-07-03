@@ -97,3 +97,30 @@ fd.download(new ProgressUpdateListener(){
 ```
 
 ==========
+
+
+
+
+### DownloadManager API 相关说明
+
+1, 启动下载，并显示通知栏进度条信息, 多个任务也同时显示在通知栏上
+
+```java
+// 初始化下载 URL 路径
+Uri uri = Uri.parse("http://esharedev.oss-cn-hangzhou.aliyuncs.com/file/%E5%9B%BE%E7%89%87%E6%94%BE%E5%A4%A7%E7%BC%A9%E5%B0%8F%E6%97%8B%E8%BD%AC.mp4");
+
+DownloadManager.Request request = new Request(uri);
+
+// 设置下载目录，文件名
+request.setDestinationInExternalPublicDir("mindpin", "less_5mb.mp4");
+
+// 设置只允许在WIFI的网络下下载
+request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+
+// 加入下载队列, 开始下载
+int download_id = downloadmanager.enqueue(request);
+```
+
+1, 自定义界面进度条（提供监视下载进度变化的钩子方法，在钩子方法中自定义界面进度条）
+
+

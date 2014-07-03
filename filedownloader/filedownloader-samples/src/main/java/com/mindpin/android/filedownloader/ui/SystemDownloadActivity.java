@@ -85,7 +85,7 @@ public class SystemDownloadActivity extends Activity {
 
                 getContentResolver().registerContentObserver(CONTENT_URI, true, download_observer);
 
-                updateView();
+                update_progress();
 
             }
         });
@@ -111,8 +111,6 @@ public class SystemDownloadActivity extends Activity {
 
                 getContentResolver().registerContentObserver(CONTENT_URI, true, download_observer);
 
-                updateView();
-
             }
         });
 
@@ -133,7 +131,7 @@ public class SystemDownloadActivity extends Activity {
 //    protected void onResume() {
 //        super.onResume();
 //        getContentResolver().registerContentObserver(DownloadManagerPro.CONTENT_URI, true, download_observer);
-//        // updateView();
+//        // update_progress();
 //    }
 
 //    @Override
@@ -158,26 +156,24 @@ public class SystemDownloadActivity extends Activity {
 
         @Override
         public void onChange(boolean selfChange) {
-            updateView();
+            update_progress();
         }
 
     }
 
-    public void updateView() {
-//        int[] bytesAndStatus = downloadManagerPro.getBytesAndStatus(download_id);
-
-        int[] bytesAndStatus = new int[] {-1, -1, 0};
+    public void update_progress() {
+        int[] bytes_and_status = new int[] {-1, -1, 0};
         DownloadManager.Query query = new DownloadManager.Query().setFilterById(download_id);
         Cursor c = null;
         try {
             c = downloadmanager.query(query);
             if (c != null && c.moveToFirst()) {
-                bytesAndStatus[0] = c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                Log.i("到目前为止下载的大小 ", Integer.toString(bytesAndStatus[0]));
-                bytesAndStatus[1] = c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-                Log.i("总大小 ", Integer.toString(bytesAndStatus[0]));
-                bytesAndStatus[2] = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                Log.i("下载状态 ", Integer.toString(bytesAndStatus[0]));
+                bytes_and_status[0] = c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                Log.i("到目前为止下载的大小 ", Integer.toString(bytes_and_status[0]));
+                bytes_and_status[1] = c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                Log.i("总大小 ", Integer.toString(bytes_and_status[0]));
+                bytes_and_status[2] = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                Log.i("下载状态 ", Integer.toString(bytes_and_status[0]));
             }
         } finally {
             if (c != null) {
@@ -185,7 +181,7 @@ public class SystemDownloadActivity extends Activity {
             }
         }
 
-        handler.sendMessage(handler.obtainMessage(0, bytesAndStatus[0], bytesAndStatus[1], bytesAndStatus[2]));
+        handler.sendMessage(handler.obtainMessage(0, bytes_and_status[0], bytes_and_status[1], bytes_and_status[2]));
     }
 
     private class MyHandler extends Handler {
