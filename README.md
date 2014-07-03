@@ -173,6 +173,7 @@ downloadmanager.remove(download_id);
 class DownloadChangeObserver extends ContentObserver {
 
     public DownloadChangeObserver() {
+        // 这里的 handler 为自己定义的一个 Handler 类实例，用来处理更新进度条的相关数据操作
         super(handler);
     }
 
