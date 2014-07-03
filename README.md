@@ -156,4 +156,16 @@ BroadcastReceiver on_complete = new BroadcastReceiver() {
 ```
 
 
+4, 删除下载任务
+
+```java
+// 初始化 downloadmanager
+DownloadManager downloadmanager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+
+// download_id 为上面启动下载方法 downloadmanager.enqueue(request); 这里的返回值
+downloadmanager.remove(download_id);
+```
+
+
+
 

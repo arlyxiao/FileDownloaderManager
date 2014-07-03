@@ -56,8 +56,7 @@ public class SystemDownloadActivity extends Activity {
                 new IntentFilter(DownloadManager.ACTION_NOTIFICATION_CLICKED));
 
         handler = new MyHandler();
-        String servicestring = Context.DOWNLOAD_SERVICE;
-        downloadmanager = (DownloadManager) getSystemService(servicestring);
+        downloadmanager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         download_observer = new DownloadChangeObserver();
 
         progress_bar = (ProgressBar) this.findViewById(R.id.downloadbar);
