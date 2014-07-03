@@ -129,7 +129,7 @@ registerReceiver(on_notification_click,
                 new IntentFilter(DownloadManager.ACTION_NOTIFICATION_CLICKED));
 
 
-// 自定义点击通知栏后要做的逻辑行为
+// 自定义点击通知栏后要做的逻辑
 BroadcastReceiver on_notification_click = new BroadcastReceiver() {
         public void onReceive(Context ctxt, Intent intent) {
             Toast.makeText(ctxt, "通知栏点击提示", Toast.LENGTH_LONG).show();
@@ -147,7 +147,7 @@ registerReceiver(on_complete,
                 new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
 
-// 自定义点击通知栏后要做的逻辑行为
+// 自定义完成下载后的逻辑
 BroadcastReceiver on_complete = new BroadcastReceiver() {
         public void onReceive(Context ctxt, Intent intent) {
             Toast.makeText(ctxt, "已经下载完成提示", Toast.LENGTH_LONG).show();
