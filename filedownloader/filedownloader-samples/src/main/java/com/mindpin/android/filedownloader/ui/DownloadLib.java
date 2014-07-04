@@ -81,13 +81,18 @@ public class DownloadLib {
 
         // 设置只允许在WIFI的网络下下载
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+
+        // 加入下载队列, 开始下载
+        download_id = downloadmanager.enqueue(request);
+
+        context.getContentResolver().registerContentObserver(
+                CONTENT_URI, true, download_observer);
     }
 
 
     public void download(UpdateListener listener) {
 
-        // 加入下载队列, 开始下载
-        download_id = downloadmanager.enqueue(request);
+        this.listener = listener;
 
 
         // 激活通知栏点击事件
@@ -99,10 +104,6 @@ public class DownloadLib {
         context.registerReceiver(on_complete,
                 new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
-
-        this.listener = listener;
-        context.getContentResolver().registerContentObserver(
-                CONTENT_URI, true, download_observer);
     }
 
 
@@ -175,20 +176,24 @@ public class DownloadLib {
     class DownloadChangeObserver extends ContentObserver {
 
         public DownloadChangeObserver() {
-            super(null);
+            super(handler);
         }
 
         @Override
         public void onChange(boolean selfChange) {
-            try {
-                // Thread.sleep(900);
-            } catch (Exception e) {
-
-            }
+//            try {
+//                // Thread.sleep(900);
+//            } catch (Exception e) {
+//
+//            }
 
             int downloaded_size = get_downloaded_size();
+            filesize = get_filesize();
+
             Log.i("已经下载的大小 ", Integer.toString(downloaded_size));
-            listener.on_update(downloaded_size);
+            handler.sendMessage(handler.obtainMessage(0, downloaded_size, filesize));
+
+
         }
 
     }
@@ -206,7 +211,7 @@ public class DownloadLib {
                 bytes_and_status[1] = c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
                 Log.i("总大小 ", Integer.toString(bytes_and_status[0]));
                 bytes_and_status[2] = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                Log.i("下载状态 ", Integer.toString(bytes_and_status[0]));
+                Log.i("下载状态 ", Integer.toString(bytes_and_status[2]));
             }
             return bytes_and_status;
         } finally {
@@ -251,6 +256,14 @@ public class DownloadLib {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            try {
+                Log.i("第二个参数值 ", Integer.toString(msg.arg1));
+
+                DownloadLib.this.listener.on_update(msg.arg1);
+            } catch (Exception e) {
+
+            }
+
         }
     }
 
