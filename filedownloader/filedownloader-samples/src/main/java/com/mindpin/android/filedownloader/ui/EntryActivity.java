@@ -21,7 +21,7 @@ public class EntryActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(EntryActivity.this, SystemDownloadActivity.class);
+                Intent i = new Intent(EntryActivity.this, DemoActivity.class);
                 startActivity(i);
             }
         });
