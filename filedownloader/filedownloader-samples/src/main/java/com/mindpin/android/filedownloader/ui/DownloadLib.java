@@ -228,9 +228,18 @@ public class DownloadLib {
     }
 
     public int get_filesize() {
+        int size = -1;
 
-        int[] bytes_and_status = get_bytes_and_status();
-        return bytes_and_status[1];
+        while(size <= 0) {
+            int[] bytes_and_status = get_bytes_and_status();
+
+            Log.i("内部总大小 ", Integer.toString(bytes_and_status[1]));
+            size = bytes_and_status[1];
+        }
+
+        return size;
+
+
 
 //        new Thread(new Runnable() {
 //

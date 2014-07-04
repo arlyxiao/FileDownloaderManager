@@ -24,6 +24,8 @@ public class DemoActivity extends Activity {
     private ProgressBar progress_bar;
     private TextView percentage_view, present_view;
 
+    int filesize;
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,13 +52,13 @@ public class DemoActivity extends Activity {
                 Bundle b = new Bundle();
                 b.putString("param_name1", "param_value1");
                 fd.set_notification(TargetActivity.class, b);
-                final int filesize = fd.get_filesize();
+                filesize = fd.get_filesize();
                 Log.i("文件总大小 ", Integer.toString(filesize));
                 fd.download(new UpdateListener(){
                     public void on_update(int downloaded_size){
                         Log.i("UI界面已经下载的大小 ", Integer.toString(downloaded_size));
 
-                        int filesize = fd.get_filesize();
+//                        int filesize = fd.get_filesize();
 
                         progress_bar.setMax(filesize);
                         progress_bar.setProgress(downloaded_size);
@@ -86,13 +88,13 @@ public class DemoActivity extends Activity {
                 Bundle b = new Bundle();
                 b.putString("param_name1", "param_value1");
                 fd.set_notification(TargetActivity.class, b);
-                final int filesize = fd.get_filesize();
+                filesize = fd.get_filesize();
                 Log.i("文件总大小 ", Integer.toString(filesize));
                 fd.download(new UpdateListener(){
                     public void on_update(int downloaded_size){
                         Log.i("UI界面已经下载的大小 ", Integer.toString(downloaded_size));
 
-                        int filesize = fd.get_filesize();
+//                        int filesize = fd.get_filesize();
 
                         progress_bar.setMax(filesize);
                         progress_bar.setProgress(downloaded_size);
