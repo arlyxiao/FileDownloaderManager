@@ -3,36 +3,21 @@ package com.mindpin.android.filedownloader.ui;
 
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
-
-import com.mindpin.android.filedownloader.FileDownloader;
-import com.mindpin.android.filedownloader.R;
+import android.webkit.MimeTypeMap;
 
 import java.io.File;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Random;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 @SuppressLint("NewApi")
@@ -46,6 +31,7 @@ public class DownloadLib {
     String download_url;
     File file_save_dir;
     Long download_id;
+    String full_file_path;
 
     Uri uri;
     int filesize;
@@ -77,6 +63,7 @@ public class DownloadLib {
 
         Log.i("测试dir ", dir);
         Log.i("测试name ", name);
+        full_file_path = dir + "/" + name;
         request.setDestinationInExternalPublicDir(dir, name);
 
         // 设置只允许在WIFI的网络下下载
@@ -133,6 +120,7 @@ public class DownloadLib {
         public void onReceive(Context ctxt, Intent intent) {
             Intent i = new Intent(ctxt, activity_class);
             i.putExtras(intent_extras);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             ctxt.startActivity(i);
         }
     };
@@ -141,35 +129,37 @@ public class DownloadLib {
     // 完成下载后通知栏逻辑
     BroadcastReceiver on_complete = new BroadcastReceiver() {
         public void onReceive(Context ctxt, Intent intent) {
-            Random rand = new java.util.Random();
-            int notice_id = rand.nextInt(999999999);
 
-            final ComponentName receiver = new ComponentName(context, activity_class);
-            Intent notice_intent = new Intent(ctxt.getClass().getName() +
-                    System.currentTimeMillis());
-            notice_intent.setComponent(receiver);
-
-
-            notice_intent.putExtras(intent_extras);
-            notice_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            PendingIntent pIntent = PendingIntent.getActivity(context, 0, notice_intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Notification n  = new NotificationCompat.Builder(context)
-                    .setContentTitle("hello")
-                    .setContentText("world")
-                    .setSmallIcon(R.drawable.ic_launcher)
-                    .setContentIntent(pIntent)
-                    .setAutoCancel(true).getNotification();
-
-
-            NotificationManager notificationManager =
-                    (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
-
-
-            notificationManager.notify(notice_id, n);
+            open_file();
         }
     };
+
+
+    protected void open_file() {
+        Log.i("要打开的文件 ", full_file_path);
+        File file = new File(full_file_path);
+
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            // intent.setAction(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.fromFile(file), get_mime_type(file.getAbsolutePath()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        } catch (Exception e) {
+            Log.i("文件打开错误 ", e.getMessage());
+        }
+    }
+
+    private String get_mime_type(String url) {
+        String parts[]=url.split("\\.");
+        String extension=parts[parts.length-1];
+        String type = null;
+        if (extension != null) {
+            MimeTypeMap mime = MimeTypeMap.getSingleton();
+            type = mime.getMimeTypeFromExtension(extension);
+        }
+        return type;
+    }
 
 
 
@@ -181,11 +171,6 @@ public class DownloadLib {
 
         @Override
         public void onChange(boolean selfChange) {
-//            try {
-//                // Thread.sleep(900);
-//            } catch (Exception e) {
-//
-//            }
 
             int downloaded_size = get_downloaded_size();
             filesize = get_filesize();
