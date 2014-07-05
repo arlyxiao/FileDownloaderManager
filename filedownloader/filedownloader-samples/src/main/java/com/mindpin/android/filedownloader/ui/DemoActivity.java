@@ -26,6 +26,9 @@ public class DemoActivity extends Activity {
 
     int filesize;
 
+    DownloadLib fd1;
+    DownloadLib fd2;
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +77,6 @@ public class DemoActivity extends Activity {
 
 
 
-
         less_10mb_btn = (Button) findViewById(R.id.less_10mb_btn);
         less_10mb_btn.setOnClickListener(new View.OnClickListener() {
 
@@ -83,18 +85,17 @@ public class DemoActivity extends Activity {
 
                 String download_url = "http://esharedev.oss-cn-hangzhou.aliyuncs.com/file/KCExtraImageView.mp4";
                 File save_file_path = Environment.getExternalStorageDirectory();
-                final DownloadLib fd = new DownloadLib(context, download_url, save_file_path);
+                fd2 = new DownloadLib(context, download_url, save_file_path);
 
                 Bundle b = new Bundle();
                 b.putString("param_name1", "param_value1");
-                fd.set_notification(TargetActivity.class, b);
-                filesize = fd.get_filesize();
+                fd2.set_notification(TargetActivity.class, b);
+                filesize = fd2.get_filesize();
                 Log.i("文件总大小 ", Integer.toString(filesize));
-                fd.download(new UpdateListener(){
+
+                fd2.download(new UpdateListener(){
                     public void on_update(int downloaded_size){
                         Log.i("UI界面已经下载的大小 ", Integer.toString(downloaded_size));
-
-//                        int filesize = fd.get_filesize();
 
                         progress_bar.setMax(filesize);
                         progress_bar.setProgress(downloaded_size);
@@ -104,6 +105,18 @@ public class DemoActivity extends Activity {
                     }
                 });
 
+            }
+        });
+
+
+
+        remove_btn = (Button) findViewById(R.id.remove_btn);
+        remove_btn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                fd2.remove_download();
+                Log.i("删除下载", "true");
             }
         });
     }

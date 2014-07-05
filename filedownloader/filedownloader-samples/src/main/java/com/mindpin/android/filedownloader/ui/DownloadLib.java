@@ -40,6 +40,7 @@ public class DownloadLib {
     Bundle intent_extras;
 
     UpdateListener listener;
+    boolean stop_download = false;
 
     public DownloadLib(Context context, String download_url, File file_save_dir) {
         this.context = context;
@@ -106,6 +107,8 @@ public class DownloadLib {
 
     public void remove_download() {
         downloadmanager.remove(download_id);
+
+        stop_download = true;
     }
 
 
@@ -129,7 +132,7 @@ public class DownloadLib {
     // 完成下载后通知栏逻辑
     BroadcastReceiver on_complete = new BroadcastReceiver() {
         public void onReceive(Context ctxt, Intent intent) {
-
+            if (stop_download) return;
             open_file();
         }
     };
@@ -216,6 +219,7 @@ public class DownloadLib {
         int size = -1;
 
         while(size <= 0) {
+            if (stop_download) return size;
             int[] bytes_and_status = get_bytes_and_status();
 
             Log.i("内部总大小 ", Integer.toString(bytes_and_status[1]));
