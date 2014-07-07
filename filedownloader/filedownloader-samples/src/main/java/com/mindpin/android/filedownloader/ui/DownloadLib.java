@@ -132,7 +132,10 @@ public class DownloadLib {
     // 完成下载后通知栏逻辑
     BroadcastReceiver on_complete = new BroadcastReceiver() {
         public void onReceive(Context ctxt, Intent intent) {
-            if (stop_download) return;
+            if (stop_download) {
+                Log.i("主动停止下载 不需要打开文件 ", "true");
+                return;
+            }
             open_file();
         }
     };
