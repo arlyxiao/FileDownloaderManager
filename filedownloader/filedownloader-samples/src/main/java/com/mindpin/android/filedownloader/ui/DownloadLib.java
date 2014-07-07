@@ -134,9 +134,11 @@ public class DownloadLib {
         public void onReceive(Context ctxt, Intent intent) {
             if (stop_download) {
                 Log.i("主动停止下载 不需要打开文件 ", "true");
+                context.unregisterReceiver(on_complete);
                 return;
             }
             open_file();
+            context.unregisterReceiver(on_complete);
         }
     };
 
