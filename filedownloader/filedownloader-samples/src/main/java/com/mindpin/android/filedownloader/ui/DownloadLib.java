@@ -10,7 +10,6 @@ import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -18,10 +17,7 @@ import android.os.Message;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import com.mindpin.android.filedownloader.FileDownloader;
-
 import java.io.File;
-import java.io.FileWriter;
 import java.util.UUID;
 
 
@@ -36,7 +32,7 @@ public class DownloadLib {
     String download_url;
     File file_save_dir;
     Long download_id;
-    String full_file_path;
+    String save_file_path;
 
     Uri uri;
     int filesize;
@@ -65,7 +61,7 @@ public class DownloadLib {
 
         Log.i("测试dir ", dir);
         Log.i("测试name ", name);
-        full_file_path = dir + "/" + name;
+        save_file_path = dir + "/" + name;
 
 
         // 初始化下载 URL 路径
@@ -82,7 +78,7 @@ public class DownloadLib {
 
         try {
             Log.i("等待中 ", "true");
-            Thread.sleep(500);
+            Thread.sleep(800);
             filesize = get_filesize();
         } catch (Exception e) {
             Log.i("暂停时间错误 ", e.toString());
@@ -182,6 +178,8 @@ public class DownloadLib {
 
 
     protected void open_file() {
+        String full_file_path = Environment.getExternalStorageDirectory().getAbsolutePath()
+                + save_file_path;
         Log.i("要打开的文件 ", full_file_path);
         File file = new File(full_file_path);
 
