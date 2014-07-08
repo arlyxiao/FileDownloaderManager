@@ -10,12 +10,15 @@ import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+
+import com.mindpin.android.filedownloader.FileDownloader;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -44,7 +47,7 @@ public class DownloadLib {
     UpdateListener listener;
     boolean stop_download = false;
 
-    public DownloadLib(Context context, String download_url, File file_save_dir) {
+    public DownloadLib(final Context context, String download_url, File file_save_dir) {
         this.context = context;
         this.download_url = download_url;
         this.file_save_dir = file_save_dir;
@@ -76,6 +79,14 @@ public class DownloadLib {
 
         // 加入下载队列, 开始下载
         download_id = downloadmanager.enqueue(request);
+
+        try {
+            Log.i("等待中 ", "true");
+            Thread.sleep(500);
+            filesize = get_filesize();
+        } catch (Exception e) {
+            Log.i("暂停时间错误 ", e.toString());
+        }
 
         context.getContentResolver().registerContentObserver(
                 CONTENT_URI, true, download_observer);
@@ -212,8 +223,6 @@ public class DownloadLib {
 
             Log.i("已经下载的大小 ", Integer.toString(downloaded_size));
             handler.sendMessage(handler.obtainMessage(0, downloaded_size, filesize));
-
-
         }
 
     }
@@ -221,7 +230,8 @@ public class DownloadLib {
 
     private int[] get_bytes_and_status() {
         int[] bytes_and_status = new int[] {-1, -1, 0};
-        DownloadManager.Query query = new DownloadManager.Query().setFilterById(download_id);
+        DownloadManager.Query query =
+                new DownloadManager.Query().setFilterById(download_id);
         Cursor c = null;
         try {
             c = downloadmanager.query(query);
@@ -248,15 +258,10 @@ public class DownloadLib {
     }
 
     public int get_filesize() {
+        if (filesize > 0) return filesize;
         int size = -1;
 
-        while(size <= 0) {
-            try {
-                Log.i("文件大小还没取得 等待状态中 ", "true");
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                Log.i("sleep error ", e.toString());
-            }
+        while (size <= 0) {
 
             if (stop_download) return size;
             int[] bytes_and_status = get_bytes_and_status();
