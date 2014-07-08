@@ -11,12 +11,14 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.util.UUID;
 
 
@@ -52,19 +54,21 @@ public class DownloadLib {
                 getSystemService(Context.DOWNLOAD_SERVICE);
         download_observer = new DownloadChangeObserver();
 
+        // 设置下载目录，文件名
+        String dir = file_save_dir.getPath();
+        String name = get_filename();
+
+        if (!create_dir(file_save_dir)) return;
+
+        Log.i("测试dir ", dir);
+        Log.i("测试name ", name);
+        full_file_path = dir + "/" + name;
+
 
         // 初始化下载 URL 路径
         uri = Uri.parse(download_url);
 
         request = new DownloadManager.Request(uri);
-
-        // 设置下载目录，文件名
-        String dir = file_save_dir.getPath();
-        String name = get_filename();
-
-        Log.i("测试dir ", dir);
-        Log.i("测试name ", name);
-        full_file_path = dir + "/" + name;
         request.setDestinationInExternalPublicDir(dir, name);
 
         // 设置只允许在WIFI的网络下下载
@@ -115,6 +119,31 @@ public class DownloadLib {
     public void set_notification(Class activity_class, Bundle intent_extras) {
         this.activity_class = activity_class;
         this.intent_extras = intent_extras;
+    }
+
+    private boolean create_dir(File file_dir) {
+        file_dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                + file_dir.getPath());
+        if (file_dir.exists()) {
+            Log.i("目录已经存在 ", file_dir.getAbsolutePath());
+            return true;
+        }
+
+        Log.i("目录不存在 开始创建目录 ", "true");
+        boolean result = false;
+
+        try{
+            file_dir.mkdir();
+            result = true;
+        } catch(SecurityException se){
+            Log.i("目录创建失败 ", se.toString());
+        }
+        if(result) {
+            Log.i("目录创建成功 ", "true");
+            return true;
+        }
+
+        return false;
     }
 
 

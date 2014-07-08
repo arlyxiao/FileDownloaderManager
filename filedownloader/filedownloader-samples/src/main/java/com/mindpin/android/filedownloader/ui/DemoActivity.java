@@ -84,7 +84,7 @@ public class DemoActivity extends Activity {
             public void onClick(View view) {
 
                 String download_url = "http://esharedev.oss-cn-hangzhou.aliyuncs.com/file/KCExtraImageView.mp4";
-                File save_file_path = Environment.getExternalStorageDirectory();
+                File save_file_path = new File("/testmindpin/abc");
                 fd2 = new DownloadLib(context, download_url, save_file_path);
 
                 Bundle b = new Bundle();
