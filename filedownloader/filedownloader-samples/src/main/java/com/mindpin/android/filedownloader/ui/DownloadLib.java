@@ -251,6 +251,13 @@ public class DownloadLib {
         int size = -1;
 
         while(size <= 0) {
+            try {
+                Log.i("文件大小还没取得 等待状态中 ", "true");
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                Log.i("sleep error ", e.toString());
+            }
+
             if (stop_download) return size;
             int[] bytes_and_status = get_bytes_and_status();
 
