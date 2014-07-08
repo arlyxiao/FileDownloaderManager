@@ -130,12 +130,13 @@ public class DownloadLib {
         }
 
         Log.i("目录不存在 开始创建目录 ", "true");
-        boolean result = false;
 
         try{
-            file_dir.mkdir();
-            Log.i("目录创建成功 ", "true");
-            return true;
+            boolean result = file_dir.mkdirs();
+            if (result) {
+                Log.i("目录创建成功 ", "true");
+                return true;
+            }
         } catch(SecurityException se){
             Log.i("目录创建失败 ", se.toString());
         }
