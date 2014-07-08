@@ -134,13 +134,10 @@ public class DownloadLib {
 
         try{
             file_dir.mkdir();
-            result = true;
-        } catch(SecurityException se){
-            Log.i("目录创建失败 ", se.toString());
-        }
-        if(result) {
             Log.i("目录创建成功 ", "true");
             return true;
+        } catch(SecurityException se){
+            Log.i("目录创建失败 ", se.toString());
         }
 
         return false;
