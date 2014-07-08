@@ -55,13 +55,13 @@ public class DemoActivity extends Activity {
                 Bundle b = new Bundle();
                 b.putString("param_name1", "param_value1");
                 fd.set_notification(TargetActivity.class, b);
-                filesize = fd.get_filesize();
-                Log.i("文件总大小 ", Integer.toString(filesize));
+                // filesize = fd.get_filesize();
+                // Log.i("文件总大小 ", Integer.toString(filesize));
                 fd.download(new UpdateListener(){
                     public void on_update(int downloaded_size){
                         Log.i("UI界面已经下载的大小 ", Integer.toString(downloaded_size));
 
-//                        int filesize = fd.get_filesize();
+                        int filesize = fd.get_filesize();
 
                         progress_bar.setMax(filesize);
                         progress_bar.setProgress(downloaded_size);
@@ -90,12 +90,14 @@ public class DemoActivity extends Activity {
                 Bundle b = new Bundle();
                 b.putString("param_name1", "param_value1");
                 fd2.set_notification(TargetActivity.class, b);
-                filesize = fd2.get_filesize();
-                Log.i("文件总大小 ", Integer.toString(filesize));
+                // filesize = fd2.get_filesize();
+                // Log.i("文件总大小 ", Integer.toString(filesize));
 
                 fd2.download(new UpdateListener(){
                     public void on_update(int downloaded_size){
                         Log.i("UI界面已经下载的大小 ", Integer.toString(downloaded_size));
+
+                        int filesize = fd2.get_filesize();
 
                         progress_bar.setMax(filesize);
                         progress_bar.setProgress(downloaded_size);

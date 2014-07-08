@@ -3,7 +3,11 @@ package com.mindpin.android.filedownloader.ui;
 
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,10 +18,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.mindpin.android.filedownloader.R;
+
 import java.io.File;
+import java.util.Random;
 import java.util.UUID;
 
 
@@ -75,14 +83,6 @@ public class DownloadLib {
 
         // 加入下载队列, 开始下载
         download_id = downloadmanager.enqueue(request);
-
-        try {
-            Log.i("等待中 ", "true");
-            Thread.sleep(800);
-            filesize = get_filesize();
-        } catch (Exception e) {
-            Log.i("暂停时间错误 ", e.toString());
-        }
 
         context.getContentResolver().registerContentObserver(
                 CONTENT_URI, true, download_observer);
@@ -152,6 +152,18 @@ public class DownloadLib {
     }
 
 
+    private String regenerate_filename(String filename) {
+        int size = filename.length();
+        if (size <= 24) {
+            return filename;
+        }
+
+        String short_filename = filename.substring(0, 8) + "..." +
+                filename.substring(size - 5);
+        return short_filename;
+    }
+
+
     // 通知栏点击逻辑事件处理
     BroadcastReceiver on_notification_click = new BroadcastReceiver() {
         public void onReceive(Context ctxt, Intent intent) {
@@ -171,7 +183,43 @@ public class DownloadLib {
                 context.unregisterReceiver(on_complete);
                 return;
             }
-            open_file();
+            String filename = regenerate_filename(get_filename());
+
+            Notification n;
+
+            String full_file_path = Environment.getExternalStorageDirectory().getAbsolutePath()
+                    + save_file_path;
+            Log.i("要打开的文件 ", full_file_path);
+            File file = new File(full_file_path);
+
+            Intent notice_intent = new Intent();
+            notice_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            notice_intent.setAction(android.content.Intent.ACTION_VIEW);
+            notice_intent.setDataAndType(Uri.fromFile(file),
+                    get_mime_type(file.getAbsolutePath()));
+
+
+            PendingIntent pIntent = PendingIntent.getActivity(context, 0, notice_intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+            n  = new NotificationCompat.Builder(context)
+                    .setContentTitle(filename)
+                    .setContentText("文件已经下载完成")
+                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setContentIntent(pIntent)
+                    .setAutoCancel(true).getNotification();
+
+
+            NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+
+
+            Random rand = new Random();
+            int notice_id = rand.nextInt(999999999);
+            Log.i("通知 id ", Integer.toString(notice_id));
+
+            notificationManager.notify(notice_id, n);
+
             context.unregisterReceiver(on_complete);
         }
     };
@@ -256,38 +304,14 @@ public class DownloadLib {
     }
 
     public int get_filesize() {
-        if (filesize > 0) return filesize;
         int size = -1;
+        // if (stop_download) return size;
+        int[] bytes_and_status = get_bytes_and_status();
 
-        while (size <= 0) {
-
-            if (stop_download) return size;
-            int[] bytes_and_status = get_bytes_and_status();
-
-            Log.i("内部总大小 ", Integer.toString(bytes_and_status[1]));
-            size = bytes_and_status[1];
-        }
+        Log.i("内部总大小 ", Integer.toString(bytes_and_status[1]));
+        size = bytes_and_status[1];
 
         return size;
-
-
-
-//        new Thread(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                try {
-//                    URL url = new URL(download_url);
-//                    URLConnection urlConnection = url.openConnection();
-//                    urlConnection.connect();
-//                    filesize = urlConnection.getContentLength();
-//                } catch (Exception e) {
-//                    Log.i("获取 filesize 错误 ", e.toString());
-//                }
-//            }
-//        }).start();
-//
-//        return filesize;
     }
 
 
