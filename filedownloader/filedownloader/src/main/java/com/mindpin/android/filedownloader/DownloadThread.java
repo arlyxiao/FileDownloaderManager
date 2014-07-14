@@ -70,10 +70,12 @@ public class DownloadThread extends Thread {
                 RandomAccessFile threadfile = new RandomAccessFile(this.save_file, "rwd");
                 threadfile.seek(start_pos);
                 while ((offset = inStream.read(buffer, 0, 1024)) != -1) {
-                    if (!thread_running) {
+                    if (downloader.should_pause) {
                         Log.i("线程可以停止运行了 ", "true");
                         return;
                     }
+
+
                     threadfile.write(buffer, 0, offset);
                     downloaded_length += offset;
                     downloader.update(this.thread_id, downloaded_length);

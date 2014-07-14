@@ -117,8 +117,12 @@ public class DownloadActivity extends Activity {
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
                     File savedir = Environment.getExternalStorageDirectory();
-                    fd2 =
-                            new FileDownloader(DownloadActivity.this, path, savedir, 2);
+
+                    if (fd2 == null) {
+                        fd2 =
+                                new FileDownloader(DownloadActivity.this, path, savedir, 2);
+                    }
+
                     download(fd2);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();

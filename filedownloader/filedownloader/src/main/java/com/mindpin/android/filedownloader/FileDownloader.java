@@ -60,6 +60,8 @@ public class FileDownloader implements Parcelable {
 
     boolean should_pause = false;
 
+    int obj_id = this.hashCode();
+
 
 
 
@@ -97,6 +99,9 @@ public class FileDownloader implements Parcelable {
         dest.writeInt(thread_num);
         dest.writeValue(save_file);
         dest.writeValue(activity_class);
+
+        dest.writeByte((byte) (should_pause ? 1 : 0));
+        dest.writeInt(obj_id);
     }
 
 
@@ -106,6 +111,9 @@ public class FileDownloader implements Parcelable {
         thread_num = in.readInt();
         save_file = (File)in.readValue(getClass().getClassLoader());
         activity_class = (Class)in.readValue(getClass().getClassLoader());
+        should_pause = in.readByte() != 0;
+        obj_id = in.readInt();
+
     }
 
 
@@ -237,6 +245,11 @@ public class FileDownloader implements Parcelable {
         should_pause = true;
 
         Log.i("暂停下载 ", "true");
+        Log.i("obj_id ", Integer.toString(this.hashCode()));
+
+        Intent download_service = new Intent(context, DownloadService.class);
+        download_service.putExtra("download_manager", this);
+        context.startService(download_service);
     }
 
 

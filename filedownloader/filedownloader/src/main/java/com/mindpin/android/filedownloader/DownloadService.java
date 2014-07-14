@@ -1,6 +1,7 @@
 package com.mindpin.android.filedownloader;
 
 
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Random;
 
 
@@ -17,6 +19,8 @@ public class DownloadService extends Service {
     Context context;
     Boolean should_stop_foreground = false;
     URL url;
+    ArrayList<DownloadStore> download_store_list = new ArrayList<DownloadStore>();
+
 
     @Override
     public void onCreate() {
@@ -116,8 +120,28 @@ public class DownloadService extends Service {
 //            }
 //        }).start();
 
-        FileTaskThread download_thread = new FileTaskThread(intent);
-        download_thread.run();
+        FileDownloader download_manager =
+                intent.getParcelableExtra("download_manager");
+        Log.i("传整个对象给 service, 测试输出 ", download_manager.get_test());
+
+        Log.i("对象 has_code ", Integer.toString(download_manager.obj_id));
+
+        FileTaskThread download_thread = null;
+        Random rand = new Random();
+        int notice_id = rand.nextInt(999999999);
+        if (get_download_manager(download_manager.obj_id) == null) {
+            save_download_manager(download_manager);
+            download_thread =
+                    new FileTaskThread(intent, download_manager, notice_id);
+
+            download_thread.run();
+
+        }
+        save_download_manager(download_manager);
+
+
+
+
 
 
 
@@ -467,18 +491,20 @@ public class DownloadService extends Service {
 
     private class FileTaskThread implements Runnable {
         Intent intent;
-        public FileTaskThread(Intent intent) {
+        FileDownloader download_manager;
+        int notice_id;
+
+        public FileTaskThread(Intent intent,
+                              FileDownloader download_manager,
+                              int notice_id) {
             this.intent = intent;
+            this.download_manager = download_manager;
+            this.notice_id = notice_id;
         }
 
         @Override
         public void run() {
-            final FileDownloader download_manager =
-                    intent.getParcelableExtra("download_manager");
-            Log.i("传整个对象给 service, 测试输出 ", download_manager.get_test());
-
-            Random rand = new Random();
-            final int notice_id = rand.nextInt(999999999);
+            final int obj_id = download_manager.obj_id;
 
             final NotificationServiceBar notification_service_bar =
                     new NotificationServiceBar(getApplicationContext(),
@@ -493,12 +519,21 @@ public class DownloadService extends Service {
                 protected Void doInBackground(Void... objects) {
 
                     try {
+
                         download_manager.init_connection(context);
                         download_manager.save_thread_data();
 
                         download_manager.is_finished = false;
                         while (!download_manager.is_finished) {
                             Thread.sleep(900);
+
+                            if (get_download_manager(obj_id).should_pause) {
+                                download_manager.should_pause = true;
+                                Log.i("should_pause为 true", "true");
+                                return null;
+                            } else {
+                                Log.i("should_pause为 false", "false");
+                            }
 
                             download_manager.is_finished = true;
                             download_manager.continue_download_with_thread();
@@ -536,7 +571,7 @@ public class DownloadService extends Service {
                 @Override
                 protected void onPostExecute(Void result) {
 
-                    if (!download_manager.threads[0].thread_running) {
+                    if (download_manager.should_pause) {
                         Log.i("线程停止 ", "true");
                         return;
                     }
@@ -548,6 +583,35 @@ public class DownloadService extends Service {
                 }
             }.execute();
         }
+    }
+
+
+    private DownloadStore get_download_manager(int obj_id) {
+        if (download_store_list == null) {
+            Log.i("download_store_list为 null ", "true");
+            return null;
+        }
+        for (DownloadStore item : download_store_list) {
+            if (item.obj_id == obj_id) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private void save_download_manager(FileDownloader fd) {
+        int obj_id = fd.obj_id;
+
+        DownloadStore download_store = get_download_manager(obj_id);
+
+        if (download_store == null) {
+            Log.i("第一次保存 obj_id ", "true");
+            download_store = new DownloadStore(obj_id);
+            download_store_list.add(download_store);
+        }
+
+        download_store.should_pause = fd.should_pause;
+        download_store.should_stop = true;
     }
 
 
