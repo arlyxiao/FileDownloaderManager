@@ -14,19 +14,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class NotificationServiceBar {
-    private static final Class[] mStartForegroundSignature = new Class[] {
+    private static final Class[] start_signature = new Class[] {
             int.class, Notification.class};
-    private static final Class[] mStopForegroundSignature = new Class[] {
+    private static final Class[] stop_signature = new Class[] {
             boolean.class};
 
-    private NotificationManager mNM;
-    private Method mStartForeground;
-    private Method mStopForeground;
-    private Object[] mStartForegroundArgs = new Object[2];
-    private Object[] mStopForegroundArgs = new Object[1];
-    Notification notification;
-    RemoteViews content_view;
-    int notice_id;
+    private NotificationManager nm;
+    private Method start_foreground_method;
+    private Method stop_foreground_method;
+
+    Object[] start_foreground_args = new Object[2];
+    Object[] stop_foreground_args = new Object[1];
+
     DownloadService download_service;
     Context context;
 
@@ -34,18 +33,28 @@ public class NotificationServiceBar {
     public NotificationServiceBar(Context context, DownloadService download_service) {
         this.context = context;
         this.download_service = download_service;
-        notice_id = download_service.notice_id;
+
+        nm = (NotificationManager)context.getSystemService(context.NOTIFICATION_SERVICE);
     }
 
 
-    public void startForeground(int id, Notification notification) {
-        notice_id = id;
-        // If we have the new startForeground API, then use it.
-        if (mStartForeground != null) {
-            mStartForegroundArgs[0] = Integer.valueOf(id);
-            mStartForegroundArgs[1] = notification;
+    public void start_foreground(int id, Notification notification) {
+        try {
+            start_foreground_method = getClass().getMethod("start_foreground",
+                    start_signature);
+            stop_foreground_method = getClass().getMethod("stop_foreground",
+                    stop_signature);
+        } catch (NoSuchMethodException e) {
+            // Running on an older platform.
+            start_foreground_method = stop_foreground_method = null;
+        }
+
+        // If we have the new start_foreground API, then use it.
+        if (start_foreground_method != null) {
+            start_foreground_args[0] = Integer.valueOf(id);
+            start_foreground_args[1] = notification;
             try {
-                mStartForeground.invoke(this, mStartForegroundArgs);
+                start_foreground_method.invoke(this, start_foreground_args);
             } catch (InvocationTargetException e) {
                 // Should not happen.
                 Log.i("无法启动前台服务 ", e.getMessage());
@@ -58,15 +67,15 @@ public class NotificationServiceBar {
 
         // Fall back on the old API.
         // setForeground(true);
-        mNM.notify(id, notification);
+        nm.notify(id, notification);
     }
 
-    public void stopForeground(int id) {
-        // If we have the new stopForeground API, then use it.
-        if (mStopForeground != null) {
-            mStopForegroundArgs[0] = Boolean.TRUE;
+    public void stop_foreground(int id) {
+        // If we have the new stop_foreground API, then use it.
+        if (stop_foreground_method != null) {
+            stop_foreground_args[0] = Boolean.TRUE;
             try {
-                mStopForeground.invoke(this, mStopForegroundArgs);
+                stop_foreground_method.invoke(this, stop_foreground_args);
             } catch (InvocationTargetException e) {
                 // Should not happen.
                 Log.i("无法关掉前台服务 ", e.getMessage());
@@ -79,13 +88,12 @@ public class NotificationServiceBar {
 
         // Fall back on the old API.  Note to cancel BEFORE changing the
         // foreground state, since we could be killed at that point.
-        mNM.cancel(id);
+        nm.cancel(id);
         // setForeground(false);
     }
 
 
-    public void handle_notification(FileDownloader file_downloader) {
-
+    public void handle_notification(FileDownloader file_downloader, int notice_id) {
         String downloaded_size = download_service.show_human_size(file_downloader.downloaded_size);
         String file_size = download_service.show_human_size(file_downloader.file_size);
 
@@ -93,17 +101,6 @@ public class NotificationServiceBar {
                 (float) file_downloader.file_size;
         int result = (int)(num*100);
         String percentage = Integer.toString(result);
-
-        mNM = (NotificationManager)context.getSystemService(context.NOTIFICATION_SERVICE);
-        try {
-            mStartForeground = getClass().getMethod("startForeground",
-                    mStartForegroundSignature);
-            mStopForeground = getClass().getMethod("stopForeground",
-                    mStopForegroundSignature);
-        } catch (NoSuchMethodException e) {
-            // Running on an older platform.
-            mStartForeground = mStopForeground = null;
-        }
 
 
         android.support.v4.app.NotificationCompat.Builder mBuilder =
@@ -113,9 +110,9 @@ public class NotificationServiceBar {
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setAutoCancel(true)
                 .setWhen(System.currentTimeMillis());
-        notification = mBuilder.getNotification();
+        Notification notification = mBuilder.getNotification();
 
-        content_view = new RemoteViews(context.getPackageName(), R.layout.custom_notification_layout);
+        RemoteViews content_view = new RemoteViews(context.getPackageName(), R.layout.custom_notification_layout);
         content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
 
         content_view.setTextViewText(R.id.progress_title_text,
@@ -144,7 +141,10 @@ public class NotificationServiceBar {
 
 //        String param_name1 = file_downloader.intent_extras.getString("param_name1");
 //        Log.i("测试值 ", param_name1);
-        notice_intent.putExtras(file_downloader.intent_extras);
+        if (file_downloader.intent_extras != null) {
+            notice_intent.putExtras(file_downloader.intent_extras);
+        }
+
 
 //        PendingIntent p_intent = PendingIntent.getActivity(file_downloader.context,
 //                0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -156,7 +156,61 @@ public class NotificationServiceBar {
 
         notification.contentView = content_view;
 
-        startForeground(notice_id, notification);
+
+        start_foreground(notice_id, notification);
+
+    }
+
+
+    public void wait_notification(FileDownloader file_downloader, int notice_id) {
+
+        String downloaded_size = Integer.toString(0);
+        String file_size = Integer.toString(0);
+
+        android.support.v4.app.NotificationCompat.Builder mBuilder =
+                new android.support.v4.app.NotificationCompat.Builder(context);
+        mBuilder.setContentTitle("Download")
+                .setContentText(Integer.toString(file_downloader.downloaded_size))
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis());
+        Notification notification = mBuilder.getNotification();
+
+        RemoteViews content_view = new RemoteViews(context.getPackageName(), R.layout.custom_notification_layout);
+        content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
+
+        content_view.setTextViewText(R.id.progress_title_text,
+                download_service.regenerate_filename(file_downloader.get_file_name()));
+
+        content_view.setTextViewText(R.id.download_filename, "");
+
+        content_view.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
+        Log.i("显示正在下载的大小 ", Integer.toString(file_downloader.downloaded_size));
+        content_view.setProgressBar(R.id.download_progressbar_in_service,
+                file_downloader.get_file_size(),
+                file_downloader.downloaded_size, false);
+
+
+
+        final ComponentName receiver = new ComponentName(file_downloader.context,
+                DownloadProgressNotificationWidget.class);
+        Intent notice_intent = new Intent(file_downloader.context.getClass().getName() +
+                System.currentTimeMillis());
+        notice_intent.setComponent(receiver);
+
+
+        PendingIntent p_intent = PendingIntent.getBroadcast(file_downloader.context,
+                0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        notification.contentIntent = p_intent;
+
+        content_view.setOnClickPendingIntent(R.id.progress_content_layout, p_intent);
+
+        notification.contentView = content_view;
+
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+        notificationManager.notify(notice_id, notification);
 
     }
 }

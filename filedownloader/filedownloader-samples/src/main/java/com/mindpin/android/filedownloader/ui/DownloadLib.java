@@ -122,6 +122,9 @@ public class DownloadLib {
         stop_download = true;
     }
 
+    public void pause_download() {
+    }
+
 
     public void set_notification(Class activity_class, Bundle intent_extras) {
         this.activity_class = activity_class;
@@ -225,22 +228,22 @@ public class DownloadLib {
     };
 
 
-    protected void open_file() {
-        String full_file_path = Environment.getExternalStorageDirectory().getAbsolutePath()
-                + save_file_path;
-        Log.i("要打开的文件 ", full_file_path);
-        File file = new File(full_file_path);
-
-        try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            // intent.setAction(Intent.ACTION_VIEW);
-            intent.setDataAndType(Uri.fromFile(file), get_mime_type(file.getAbsolutePath()));
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        } catch (Exception e) {
-            Log.i("文件打开错误 ", e.getMessage());
-        }
-    }
+//    protected void open_file() {
+//        String full_file_path = Environment.getExternalStorageDirectory().getAbsolutePath()
+//                + save_file_path;
+//        Log.i("要打开的文件 ", full_file_path);
+//        File file = new File(full_file_path);
+//
+//        try {
+//            Intent intent = new Intent(Intent.ACTION_VIEW);
+//            // intent.setAction(Intent.ACTION_VIEW);
+//            intent.setDataAndType(Uri.fromFile(file), get_mime_type(file.getAbsolutePath()));
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(intent);
+//        } catch (Exception e) {
+//            Log.i("文件打开错误 ", e.getMessage());
+//        }
+//    }
 
     private String get_mime_type(String url) {
         String parts[]=url.split("\\.");

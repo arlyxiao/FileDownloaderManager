@@ -20,7 +20,7 @@ import java.text.DecimalFormat;
 
 public class DemoActivity extends Activity {
     Context context;
-    private Button less_5mb_btn, less_10mb_btn, remove_btn;
+    private Button less_5mb_btn, less_10mb_btn, remove_btn, pause_btn;
     private ProgressBar progress_bar;
     private TextView percentage_view, present_view;
 
@@ -119,6 +119,17 @@ public class DemoActivity extends Activity {
             public void onClick(View v) {
                 fd2.remove_download();
                 Log.i("删除下载", "true");
+            }
+        });
+
+
+        pause_btn = (Button) findViewById(R.id.pause_btn);
+        pause_btn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Log.i("暂停下载", "true");
+
             }
         });
     }
