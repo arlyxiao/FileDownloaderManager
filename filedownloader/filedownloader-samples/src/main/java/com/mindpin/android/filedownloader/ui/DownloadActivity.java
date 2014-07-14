@@ -119,10 +119,12 @@ public class DownloadActivity extends Activity {
                     File savedir = Environment.getExternalStorageDirectory();
 
                     if (fd2 == null) {
+                        Log.i("初始化 fd2 ", "true");
                         fd2 =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
 
+                    fd2.should_pause = false;
                     download(fd2);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();

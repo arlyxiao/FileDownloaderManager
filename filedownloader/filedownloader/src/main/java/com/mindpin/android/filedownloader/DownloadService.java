@@ -126,18 +126,22 @@ public class DownloadService extends Service {
 
         Log.i("对象 has_code ", Integer.toString(download_manager.obj_id));
 
-        FileTaskThread download_thread = null;
-        Random rand = new Random();
-        int notice_id = rand.nextInt(999999999);
-        if (get_download_manager(download_manager.obj_id) == null) {
-            save_download_manager(download_manager);
-            download_thread =
-                    new FileTaskThread(intent, download_manager, notice_id);
 
+        if (get_download_manager(download_manager.obj_id) == null ||
+                !download_manager.should_pause) {
+            save_download_manager(download_manager);
+
+            FileTaskThread download_thread = null;
+//            Random rand = new Random();
+//            int notice_id = rand.nextInt(999999999);
+            download_thread =
+                    new FileTaskThread(intent, download_manager, download_manager.notice_id);
             download_thread.run();
 
+            Log.i("初始化 thread ", "true");
         }
         save_download_manager(download_manager);
+
 
 
 
@@ -499,6 +503,7 @@ public class DownloadService extends Service {
                               int notice_id) {
             this.intent = intent;
             this.download_manager = download_manager;
+            Log.i("notice_id值 ", Integer.toString(notice_id));
             this.notice_id = notice_id;
         }
 

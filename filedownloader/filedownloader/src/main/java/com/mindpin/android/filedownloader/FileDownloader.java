@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -58,9 +59,10 @@ public class FileDownloader implements Parcelable {
 //
 //    Intent download_service;
 
-    boolean should_pause = false;
+    public boolean should_pause = false;
 
     int obj_id = this.hashCode();
+    public int notice_id = new Random().nextInt(999999999);
 
 
 
@@ -102,6 +104,7 @@ public class FileDownloader implements Parcelable {
 
         dest.writeByte((byte) (should_pause ? 1 : 0));
         dest.writeInt(obj_id);
+        dest.writeInt(notice_id);
     }
 
 
@@ -113,6 +116,7 @@ public class FileDownloader implements Parcelable {
         activity_class = (Class)in.readValue(getClass().getClassLoader());
         should_pause = in.readByte() != 0;
         obj_id = in.readInt();
+        notice_id = in.readInt();
 
     }
 
