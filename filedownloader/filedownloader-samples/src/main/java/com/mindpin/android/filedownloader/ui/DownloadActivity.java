@@ -124,7 +124,6 @@ public class DownloadActivity extends Activity {
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
 
-                    fd2.should_pause = false;
                     download(fd2);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
@@ -206,7 +205,7 @@ public class DownloadActivity extends Activity {
         button7.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                fd2.stop_download();
             }
         });
     }

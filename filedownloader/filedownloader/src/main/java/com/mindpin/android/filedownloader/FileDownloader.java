@@ -60,6 +60,7 @@ public class FileDownloader implements Parcelable {
 //    Intent download_service;
 
     public boolean should_pause = false;
+    public boolean should_stop = false;
 
     int obj_id = this.hashCode();
     public int notice_id = new Random().nextInt(999999999);
@@ -103,6 +104,7 @@ public class FileDownloader implements Parcelable {
         dest.writeValue(activity_class);
 
         dest.writeByte((byte) (should_pause ? 1 : 0));
+        dest.writeByte((byte) (should_stop ? 1 : 0));
         dest.writeInt(obj_id);
         dest.writeInt(notice_id);
     }
@@ -115,6 +117,7 @@ public class FileDownloader implements Parcelable {
         save_file = (File)in.readValue(getClass().getClassLoader());
         activity_class = (Class)in.readValue(getClass().getClassLoader());
         should_pause = in.readByte() != 0;
+        should_stop = in.readByte() != 0;
         obj_id = in.readInt();
         notice_id = in.readInt();
 
@@ -254,6 +257,26 @@ public class FileDownloader implements Parcelable {
         Intent download_service = new Intent(context, DownloadService.class);
         download_service.putExtra("download_manager", this);
         context.startService(download_service);
+
+        should_pause = false;
+    }
+
+    public void stop_download() {
+        should_pause= false;
+        Intent download_service = new Intent(context, DownloadService.class);
+        download_service.putExtra("download_manager", this);
+        context.startService(download_service);
+
+
+        should_stop = true;
+
+        Log.i("停止下载 ", "true");
+        Log.i("obj_id ", Integer.toString(this.hashCode()));
+
+        download_service.putExtra("download_manager", this);
+        context.startService(download_service);
+
+        should_stop = false;
     }
 
 

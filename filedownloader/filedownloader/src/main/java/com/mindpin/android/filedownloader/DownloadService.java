@@ -1,7 +1,6 @@
 package com.mindpin.android.filedownloader;
 
 
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.util.Log;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Random;
 
 
 public class DownloadService extends Service {
@@ -125,16 +123,18 @@ public class DownloadService extends Service {
         Log.i("传整个对象给 service, 测试输出 ", download_manager.get_test());
 
         Log.i("对象 has_code ", Integer.toString(download_manager.obj_id));
+        if (download_manager.should_stop) {
+            Log.i("调试 应该要停止 ", "true");
+        }
 
 
-        if (get_download_manager(download_manager.obj_id) == null ||
-                !download_manager.should_pause) {
+        if (get_download_store(download_manager.obj_id) == null ||
+                (download_manager.should_pause == false &&
+                download_manager.should_stop == false) ) {
+            Log.i("初始化 thread000 ", "true");
             save_download_manager(download_manager);
 
-            FileTaskThread download_thread = null;
-//            Random rand = new Random();
-//            int notice_id = rand.nextInt(999999999);
-            download_thread =
+            FileTaskThread download_thread =
                     new FileTaskThread(intent, download_manager, download_manager.notice_id);
             download_thread.run();
 
@@ -298,64 +298,70 @@ public class DownloadService extends Service {
         return m_binder;
     }
 
-    @Override
-    public boolean onUnbind(Intent intent) {
-        final FileDownloader file_downloader =
-                intent.getParcelableExtra("download_manager");
-
-        if (file_downloader == null || file_downloader.threads == null) {
-            Log.i("file_downloader 为 null " , " true");
-            return true;
-        }
-        for (int i = 0; i < file_downloader.threads.length; i++){
-            if (file_downloader.threads[i] == null) {
-                Log.i("file_downloader threads 为 null " + i , " true");
-                return true;
-            }
-
-            file_downloader.threads[i].thread_running = false;
-            file_downloader.threads[i].interrupt();
-
-            if (file_downloader.threads[i].isInterrupted()) {
-                Log.i("停止线程 " + i , " true");
-            }
-
-        }
-        return true;
-    }
+//    @Override
+//    public boolean onUnbind(Intent intent) {
+//        final FileDownloader file_downloader =
+//                intent.getParcelableExtra("download_manager");
+//
+//        if (file_downloader == null || file_downloader.threads == null) {
+//            Log.i("file_downloader 为 null " , " true");
+//            return true;
+//        }
+//        for (int i = 0; i < file_downloader.threads.length; i++){
+//            if (file_downloader.threads[i] == null) {
+//                Log.i("file_downloader threads 为 null " + i , " true");
+//                return true;
+//            }
+//
+//            file_downloader.threads[i].thread_running = false;
+//            file_downloader.threads[i].interrupt();
+//
+//            if (file_downloader.threads[i].isInterrupted()) {
+//                Log.i("停止线程 " + i , " true");
+//            }
+//
+//        }
+//        return true;
+//    }
 
 
     private final IBinder m_binder = new LocalBinder();
 
 
 
+    private void clear_notice_bar(int notice_id) {
+        NotificationServiceBar notification_service_bar =
+                new NotificationServiceBar(getApplicationContext(),
+                        DownloadService.this);
 
-    private void stop_service(NotificationServiceBar notification_service_bar,
-                              int notice_id) {
         notification_service_bar.stop_foreground(notice_id);
+    }
+
+    private void stop_service() {
+
         DownloadService.this.stopSelf();
     }
 
-    private void pause_download(FileDownloader file_downloader) {
-        if (file_downloader == null || file_downloader.threads == null) {
-            Log.i("file_downloader 为 null " , " true");
-            return;
-        }
-        for (int i = 0; i < file_downloader.threads.length; i++){
-            if (file_downloader.threads[i] == null) {
-                Log.i("file_downloader threads 为 null " + i , " true");
-                return;
-            }
-
-            file_downloader.threads[i].thread_running = false;
-            file_downloader.threads[i].interrupt();
-
-            if (file_downloader.threads[i].isInterrupted()) {
-                Log.i("停止线程 " + i , " true");
-            }
-
-        }
-    }
+//    private void pause_download(FileDownloader file_downloader) {
+//        if (file_downloader == null || file_downloader.threads == null) {
+//            Log.i("file_downloader 为 null " , " true");
+//            return;
+//        }
+//        for (int i = 0; i < file_downloader.threads.length; i++){
+//            if (file_downloader.threads[i] == null) {
+//                Log.i("file_downloader threads 为 null " + i , " true");
+//                return;
+//            }
+//
+//            file_downloader.threads[i].thread_running = false;
+//            file_downloader.threads[i].interrupt();
+//
+//            if (file_downloader.threads[i].isInterrupted()) {
+//                Log.i("停止线程 " + i , " true");
+//            }
+//
+//        }
+//    }
 
 //    private void save_thread_data(FileDownloader file_downloader) {
 //        try {
@@ -450,8 +456,23 @@ public class DownloadService extends Service {
     }
 
     private void clear_local_thread_data(FileDownloader file_downloader) {
-        file_downloader.file_record.delete(file_downloader.download_url);
-        Log.i("清理 cache 数据　", "true");
+
+        if (file_downloader.download_url == null) {
+            Log.i("清理 cache 数据 download_url 为空　", "true");
+        }
+
+        if (file_downloader.file_record == null) {
+            Log.i("清理 cache 数据 file_record 为空　", "true");
+            return;
+        }
+        try {
+            file_downloader.file_record.delete(file_downloader.download_url);
+            Log.i("清理 cache 数据　", "true");
+        } catch (Exception e) {
+            Log.i("清理 cache 数据错误 ", e.toString());
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -532,13 +553,25 @@ public class DownloadService extends Service {
                         while (!download_manager.is_finished) {
                             Thread.sleep(900);
 
-                            if (get_download_manager(obj_id).should_pause) {
+                            // 停止下载
+                            if (get_download_store(obj_id).should_stop) {
+                                download_manager.should_stop = true;
+                                Log.i("should_stop true", "true");
+                                return null;
+                            } else {
+                                Log.i("should_stop false", "false");
+                            }
+
+                            // 暂停下载
+                            if (get_download_store(obj_id).should_pause) {
                                 download_manager.should_pause = true;
                                 Log.i("should_pause为 true", "true");
                                 return null;
                             } else {
                                 Log.i("should_pause为 false", "false");
                             }
+
+
 
                             download_manager.is_finished = true;
                             download_manager.continue_download_with_thread();
@@ -576,22 +609,30 @@ public class DownloadService extends Service {
                 @Override
                 protected void onPostExecute(Void result) {
 
+                    if (download_manager.should_stop) {
+                        Log.i("整个停止下载 ", "true");
+                        clear_notice_bar(notice_id);
+                        clear_local_thread_data(download_manager);
+                        stop_service();
+                        return;
+                    }
+
                     if (download_manager.should_pause) {
                         Log.i("线程停止 ", "true");
                         return;
                     }
 
                     build_download_done_notification(download_manager);
-                    stop_service(notification_service_bar, notice_id);
+                    clear_notice_bar(notice_id);
                     clear_local_thread_data(download_manager);
-
+                    stop_service();
                 }
             }.execute();
         }
     }
 
 
-    private DownloadStore get_download_manager(int obj_id) {
+    private DownloadStore get_download_store(int obj_id) {
         if (download_store_list == null) {
             Log.i("download_store_list为 null ", "true");
             return null;
@@ -607,7 +648,7 @@ public class DownloadService extends Service {
     private void save_download_manager(FileDownloader fd) {
         int obj_id = fd.obj_id;
 
-        DownloadStore download_store = get_download_manager(obj_id);
+        DownloadStore download_store = get_download_store(obj_id);
 
         if (download_store == null) {
             Log.i("第一次保存 obj_id ", "true");
@@ -615,8 +656,16 @@ public class DownloadService extends Service {
             download_store_list.add(download_store);
         }
 
+        if (fd.should_pause) {
+            Log.i("存储暂停 ", "true");
+        }
+
         download_store.should_pause = fd.should_pause;
-        download_store.should_stop = true;
+
+        if (fd.should_stop) {
+            Log.i("存储停止 ", "true");
+        }
+        download_store.should_stop = fd.should_stop;
     }
 
 

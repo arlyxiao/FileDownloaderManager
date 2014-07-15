@@ -6,6 +6,8 @@ import java.util.Map;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
 /**
  * 业务bean
  *
@@ -75,9 +77,15 @@ public class FileRecord {
      * @param path
      */
     public void delete(String path){
-        SQLiteDatabase db = db_open_helper.getWritableDatabase();
-        db.execSQL("delete from filedownlog where downpath=?", new Object[]{path});
-        db.close();
+        try {
+            SQLiteDatabase db = db_open_helper.getWritableDatabase();
+            db.execSQL("delete from filedownlog where downpath=?", new Object[]{path});
+            db.close();
+        } catch (Exception e) {
+            Log.i("数据库删除错误 ", e.toString());
+            e.printStackTrace();
+        }
+
     }
 
 }
