@@ -154,7 +154,7 @@ public class DownloadService extends Service {
 
     private void build_download_done_notification(FileDownloader file_downloader) {
 
-        Log.i("通知的文件大小 ", Integer.toString(file_downloader.get_file_size()));
+        Log.i("通知的文件大小 ", Integer.toString(file_downloader.file_size));
         Intent in = new Intent("app.action.download_done_notification");
         if (file_downloader.intent_extras != null) {
             in.putExtras(file_downloader.intent_extras);
@@ -164,8 +164,8 @@ public class DownloadService extends Service {
             in.putExtra("activity_class", file_downloader.activity_class.getName());
         }
 
-        in.putExtra("filename", regenerate_filename(file_downloader.get_file_name()));
-        in.putExtra("file_size", show_human_size(file_downloader.get_file_size()));
+        in.putExtra("filename", file_downloader.get_file_name());
+        in.putExtra("file_size", show_human_size(file_downloader.file_size));
         getApplicationContext().sendBroadcast(in);
     }
 
@@ -334,6 +334,13 @@ public class DownloadService extends Service {
                     protected void onProgressUpdate(FileDownloader... result) {
                         FileDownloader download_manager = result[0];
                         Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
+
+                        Intent in = new Intent("app.action.download_listener_receiver");
+                        Log.i("onProgressUpdate fd 文件大小 ",
+                                Integer.toString(download_manager.file_size));
+                        in.putExtra("download_manager", download_manager);
+                        getApplicationContext().sendBroadcast(in);
+
 
                         download_manager.listener.on_update(download_manager.downloaded_size);
                     }

@@ -60,6 +60,15 @@
 
         </receiver>
 
+        <receiver
+            android:name=".DownloadListenerReceiver"
+            android:label="DownloadListenerReceiver" >
+            <intent-filter>
+                <action android:name="app.action.download_listener_receiver" />
+            </intent-filter>
+
+        </receiver>
+
     </application>
 
 </manifest>

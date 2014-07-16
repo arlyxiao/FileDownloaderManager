@@ -13,9 +13,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,7 +28,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 
-public class FileDownloader implements Parcelable {
+public class FileDownloader implements Parcelable  {
     public HttpURLConnection conn;
     public static Context context;
     public FileRecord file_record;
@@ -66,8 +68,8 @@ public class FileDownloader implements Parcelable {
     int obj_id = this.hashCode();
     public int notice_id = new Random().nextInt(999999999);
 
+    // Intent download_service;
 
-    FileDownloader fd;
 
 
 
@@ -111,6 +113,7 @@ public class FileDownloader implements Parcelable {
         dest.writeByte((byte) (should_stop ? 1 : 0));
         dest.writeInt(obj_id);
         dest.writeInt(notice_id);
+        dest.writeInt(file_size);
     }
 
 
@@ -124,6 +127,7 @@ public class FileDownloader implements Parcelable {
         should_stop = in.readByte() != 0;
         obj_id = in.readInt();
         notice_id = in.readInt();
+        file_size = in.readInt();
 
     }
 
@@ -137,6 +141,14 @@ public class FileDownloader implements Parcelable {
 
 
     public int get_file_size() {
+        try {
+            Intent download_service = new Intent(context, DownloadService.class);
+            context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
+        } catch (Exception e) {
+            Log.i("bindService 错误 ", e.toString());
+            e.printStackTrace();
+        }
+
         return file_size;
     }
 
@@ -173,6 +185,18 @@ public class FileDownloader implements Parcelable {
 //    public void on_update(int downloaded_size) {
 //        Log.i("实现接口 onupdate 输出测试 ", "true");
 //    }
+
+
+//    private BroadcastReceiver download_listener_receiver =
+//        new BroadcastReceiver() {
+//
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                Log.i("接收最新 fd ", "true");
+//
+//                fd = intent.getParcelableExtra("download_manager");
+//            }
+//        };
 
 
     public void set_notification(Class activity_class, Bundle intent_extras) {
@@ -235,6 +259,10 @@ public class FileDownloader implements Parcelable {
     public void download(ProgressUpdateListener listener) throws Exception{
         this.listener = listener;
 
+//        IntentFilter filter = new IntentFilter();
+//        context.registerReceiver(download_listener_receiver, filter);
+
+
         Intent download_service = new Intent(context, DownloadService.class);
         Log.i("启动服务前取下载URL ", download_url);
         download_service.putExtra("download_manager", this);
@@ -244,7 +272,7 @@ public class FileDownloader implements Parcelable {
 //            Log.i("已经绑定 ", "true");
 //            return;
 //        }
-        context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
+        // context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
 
     }
 
@@ -298,22 +326,23 @@ public class FileDownloader implements Parcelable {
             DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
             m_service = binder.getService();
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (file_size == 0) {
-                        fd = m_service.get_download_store(obj_id);
-                        file_size = fd.file_size;
-                        try {
-                            Log.i("等待取得 file_size ", Integer.toString(file_size));
-                            Thread.sleep(600);
-                        } catch (Exception e) {
+            file_size = m_service.get_download_store(obj_id).file_size;
 
-                        }
-
-                    }
-                }
-            }).start();
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    while (file_size == 0) {
+//                        file_size = fd.file_size;
+//                        try {
+//                            Log.i("等待取得 file_size ", Integer.toString(file_size));
+//                            Thread.sleep(600);
+//                        } catch (Exception e) {
+//
+//                        }
+//
+//                    }
+//                }
+//            }).start();
 
 
 

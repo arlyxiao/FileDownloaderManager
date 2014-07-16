@@ -122,9 +122,9 @@ public class NotificationServiceBar {
 
         content_view.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
         Log.i("显示正在下载的大小 ", Integer.toString(file_downloader.downloaded_size));
-        Log.i("显示文件的大小 ", Integer.toString(file_downloader.get_file_size()));
+        Log.i("显示文件的大小 ", Integer.toString(file_downloader.file_size));
         content_view.setProgressBar(R.id.download_progressbar_in_service,
-                file_downloader.get_file_size(),
+                file_downloader.file_size,
                 file_downloader.downloaded_size, false);
 
 
@@ -194,7 +194,7 @@ public class NotificationServiceBar {
         Log.i("显示正在下载的大小 ", Integer.toString(file_downloader.downloaded_size));
 
         content_view.setProgressBar(R.id.download_progressbar_in_service,
-                file_downloader.get_file_size(),
+                file_downloader.file_size,
                 file_downloader.downloaded_size, false);
 
 
