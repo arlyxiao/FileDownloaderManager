@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -50,7 +51,7 @@ public class FileDownloader implements Parcelable {
     Class activity_class;
     Bundle intent_extras;
 
-    public ProgressUpdateListener listener;
+    public static ProgressUpdateListener listener;
 
     URL url;
     boolean is_finished = false;
@@ -64,6 +65,9 @@ public class FileDownloader implements Parcelable {
 
     int obj_id = this.hashCode();
     public int notice_id = new Random().nextInt(999999999);
+
+
+    FileDownloader fd;
 
 
 
@@ -145,6 +149,10 @@ public class FileDownloader implements Parcelable {
         this.thread_data.put(thread_id, pos);
         this.file_record.update(this.download_url, this.thread_data);
     }
+
+
+//    public FileDownloader() {
+//    }
 
 
     public FileDownloader(Context context,
@@ -236,16 +244,12 @@ public class FileDownloader implements Parcelable {
 //            Log.i("已经绑定 ", "true");
 //            return;
 //        }
-//        context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
+        context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
 
     }
 
     public void pause_download() {
-//        try {
-//            context.unbindService(m_connection);
-//        } catch (Exception e) {
-//            Log.i("绑定解除失败 ", e.toString());
-//        }
+
 
         // context.stopService(download_service);
 
@@ -255,6 +259,7 @@ public class FileDownloader implements Parcelable {
         Log.i("obj_id ", Integer.toString(this.hashCode()));
 
         Intent download_service = new Intent(context, DownloadService.class);
+
         download_service.putExtra("download_manager", this);
         context.startService(download_service);
 
@@ -262,46 +267,65 @@ public class FileDownloader implements Parcelable {
     }
 
     public void stop_download() {
-        should_pause= false;
-        Intent download_service = new Intent(context, DownloadService.class);
-        download_service.putExtra("download_manager", this);
-        context.startService(download_service);
-
 
         should_stop = true;
 
         Log.i("停止下载 ", "true");
         Log.i("obj_id ", Integer.toString(this.hashCode()));
-        // Intent download_service = new Intent(context, DownloadService.class);
+        Intent download_service = new Intent(context, DownloadService.class);
         download_service.putExtra("download_manager", this);
         context.startService(download_service);
 
         should_stop = false;
+
+        NotificationManager nm =
+                (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+
+        nm.cancel(notice_id);
+
     }
 
 
-//    DownloadService m_service;
-//    boolean m_bound = false;
-//
-//
-//    private ServiceConnection m_connection = new ServiceConnection() {
-//
-//        @Override
-//        public void onServiceConnected(ComponentName className,
-//                                       IBinder service) {
-//            DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
-//            m_service = binder.getService();
-//
-//
-//            m_bound = true;
-//
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName arg0) {
-//            // m_bound = false;
-//        }
-//    };
+    DownloadService m_service;
+    boolean m_bound = false;
+
+
+    private ServiceConnection m_connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
+            m_service = binder.getService();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (file_size == 0) {
+                        fd = m_service.get_download_store(obj_id);
+                        file_size = fd.file_size;
+                        try {
+                            Log.i("等待取得 file_size ", Integer.toString(file_size));
+                            Thread.sleep(600);
+                        } catch (Exception e) {
+
+                        }
+
+                    }
+                }
+            }).start();
+
+
+
+            m_bound = true;
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            // m_bound = false;
+        }
+    };
 
 
 

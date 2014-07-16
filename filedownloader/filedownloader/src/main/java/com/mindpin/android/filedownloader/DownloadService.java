@@ -17,8 +17,10 @@ public class DownloadService extends Service {
     Context context;
     Boolean should_stop_foreground = false;
     // URL url;
-    ArrayList<DownloadStore> download_store_list = new ArrayList<DownloadStore>();
+    ArrayList<FileDownloader> download_store_list = new ArrayList<FileDownloader>();
     // ArrayList<Integer> file_task_threads = new ArrayList<Integer>();
+
+    public int file_size;
 
 
     @Override
@@ -68,7 +70,7 @@ public class DownloadService extends Service {
 //
 //            Log.i("初始化 thread ", "true");
 //        }
-        save_download_manager(download_manager);
+        // save_download_manager(download_manager);
 
         FileTaskThread file_task_thread =
                 new FileTaskThread(intent, download_manager, download_manager.notice_id);
@@ -109,6 +111,26 @@ public class DownloadService extends Service {
 
         return m_binder;
     }
+
+//    @Override
+//    public boolean onUnbind(Intent intent) {
+//
+//        Log.i("服务解决绑定callback ", "true");
+//
+//        FileDownloader download_manager =
+//                intent.getParcelableExtra("download_manager");
+//        Log.i("传整个对象给 service, 测试输出 ", download_manager.get_test());
+//
+//        FileTaskThread file_task_thread =
+//                new FileTaskThread(intent, download_manager, download_manager.notice_id);
+//        file_task_thread.run();
+//
+//        stop_service();
+//        clear_local_thread_data(download_manager);
+//        clear_notice_bar(download_manager.notice_id);
+//
+//        return true;
+//    }
 
 
 
@@ -206,7 +228,7 @@ public class DownloadService extends Service {
 
 
 
-    private class FileTaskThread implements Runnable {
+    private class FileTaskThread extends Thread {
         Intent intent;
         FileDownloader download_manager;
         int notice_id;
@@ -218,6 +240,11 @@ public class DownloadService extends Service {
             this.download_manager = download_manager;
             Log.i("notice_id值 ", Integer.toString(notice_id));
             this.notice_id = notice_id;
+
+            if (download_manager.should_pause || download_manager.should_stop) {
+                this.setPriority(MAX_PRIORITY);
+                Log.i("设置成最大优先级 ", "true");
+            }
         }
 
         @Override
@@ -228,8 +255,13 @@ public class DownloadService extends Service {
                     new NotificationServiceBar(getApplicationContext(),
                             DownloadService.this);
 
-            notification_service_bar.
-                    wait_notification(download_manager, notice_id);
+            if (get_download_store(download_manager.obj_id) == null) {
+                notification_service_bar.
+                        wait_notification(download_manager, notice_id);
+            }
+
+
+            save_download_manager(download_manager);
 
 //            if (!download_manager.should_pause && !download_manager.should_stop) {
 //                notification_service_bar.
@@ -245,6 +277,7 @@ public class DownloadService extends Service {
                         try {
 
                             download_manager.init_connection(context);
+                            file_size = download_manager.file_size;
                             download_manager.save_thread_data();
 
                             download_manager.is_finished = false;
@@ -282,6 +315,7 @@ public class DownloadService extends Service {
                                     Log.i("从 service 中传 listener 进度条 ", "true");
                                     publishProgress(download_manager);
                                 }
+
 
                             }
 
@@ -339,12 +373,12 @@ public class DownloadService extends Service {
     }
 
 
-    private DownloadStore get_download_store(int obj_id) {
+    public FileDownloader get_download_store(int obj_id) {
         if (download_store_list == null) {
             Log.i("download_store_list为 null ", "true");
             return null;
         }
-        for (DownloadStore item : download_store_list) {
+        for (FileDownloader item : download_store_list) {
             if (item.obj_id == obj_id) {
                 return item;
             }
@@ -355,24 +389,27 @@ public class DownloadService extends Service {
     private void save_download_manager(FileDownloader fd) {
         int obj_id = fd.obj_id;
 
-        DownloadStore download_store = get_download_store(obj_id);
+        FileDownloader download_store = get_download_store(obj_id);
 
         if (download_store == null) {
             Log.i("第一次保存 obj_id ", "true");
-            download_store = new DownloadStore(obj_id);
-            download_store_list.add(download_store);
+            // download_store = new FileDownloader();
+            download_store_list.add(fd);
+        } else {
+            download_store_list.remove(download_store);
+            download_store_list.add(fd);
         }
 
         if (fd.should_pause) {
             Log.i("存储暂停 ", "true");
         }
 
-        download_store.should_pause = fd.should_pause;
+        // download_store.should_pause = fd.should_pause;
 
         if (fd.should_stop) {
             Log.i("存储停止 ", "true");
         }
-        download_store.should_stop = fd.should_stop;
+        // download_store.should_stop = fd.should_stop;
     }
 
 

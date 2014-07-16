@@ -223,6 +223,7 @@ public class DownloadActivity extends Activity {
                     fd.download(new ProgressUpdateListener () {
                         @Override
                         public void on_update(int downloaded_size) {
+
                             Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
                             Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
                             Log.i("文件总大小 ", Integer.toString(fd.get_file_size()));
