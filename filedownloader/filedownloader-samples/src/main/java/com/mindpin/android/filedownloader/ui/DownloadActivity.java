@@ -220,6 +220,8 @@ public class DownloadActivity extends Activity {
                 downloaded_file = fd.get_file_name();
                 try {
                     Log.i("activity 中取下载URL ", fd.download_url);
+                    progress_bar.setMax(0);
+                    progress_bar.setProgress(0);
                     fd.download(new ProgressUpdateListener () {
                         @Override
                         public void on_update(int downloaded_size) {
@@ -240,7 +242,7 @@ public class DownloadActivity extends Activity {
                             result_view.setText(Integer.toString(result) + "%");
 
                             if(progress_bar.getProgress()== progress_bar.getMax()){
-                                Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
+                                // Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
                                 downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
 
                             }

@@ -8,10 +8,14 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
+import java.io.File;
 import java.util.Random;
 
 
@@ -24,31 +28,47 @@ public class DownloadDoneNotification extends BroadcastReceiver {
 //        download_service.putExtra("should_stop_foreground", true);
 //        context.startService(download_service);
 
-        Bundle extras = intent.getExtras();
-        String target_activity_name = intent.getStringExtra("activity_class");
-        Class<?> target_activity = null;
-
-        try {
-            target_activity = Class.forName(target_activity_name);
-        } catch (Exception e) {
-            Log.i(" String 转换成 Class 错误 ", e.getMessage());
-        }
-
-
-        Log.i("目标 activity ", target_activity.getName());
+//        Bundle extras = intent.getExtras();
+//        String target_activity_name = intent.getStringExtra("activity_class");
+//        Class<?> target_activity = null;
+//
+//        try {
+//            target_activity = Class.forName(target_activity_name);
+//        } catch (Exception e) {
+//            Log.i(" String 转换成 Class 错误 ", e.getMessage());
+//        }
+//
+//
+//        Log.i("目标 activity ", target_activity.getName());
         String filename = intent.getStringExtra("filename");
         String file_size = intent.getStringExtra("file_size");
 
 
-        final ComponentName receiver = new ComponentName(context, target_activity);
-        Intent notice_intent = new Intent(context.getClass().getName() +
-                System.currentTimeMillis());
-        notice_intent.setComponent(receiver);
+//        final ComponentName receiver = new ComponentName(context, target_activity);
+//        Intent notice_intent = new Intent(context.getClass().getName() +
+//                System.currentTimeMillis());
+//        notice_intent.setComponent(receiver);
+//
+//        notice_intent.putExtras(extras);
+//        notice_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        PendingIntent p_intent = PendingIntent.getActivity(context, 0, notice_intent,
+//                PendingIntent.FLAG_UPDATE_CURRENT);
 
-        notice_intent.putExtras(extras);
-        notice_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        String stored_dir = Environment.getExternalStorageDirectory().toString();
+        Log.i("要打开的文件 ", stored_dir + "/" + filename);
+        File file = new File(filename);
+
+        Intent notice_intent = new Intent();
+        notice_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        notice_intent.setAction(android.content.Intent.ACTION_VIEW);
+        notice_intent.setDataAndType(Uri.fromFile(file),
+                get_mime_type(file.getAbsolutePath()));
+
+
         PendingIntent p_intent = PendingIntent.getActivity(context, 0, notice_intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
+
 
         Notification n  = new NotificationCompat.Builder(context)
                 .setContentTitle(filename)
@@ -65,5 +85,16 @@ public class DownloadDoneNotification extends BroadcastReceiver {
         Random rand = new Random();
         int notice_id = rand.nextInt(999999999);
         notificationManager.notify(notice_id, n);
+    }
+
+    private String get_mime_type(String url) {
+        String parts[]=url.split("\\.");
+        String extension=parts[parts.length-1];
+        String type = null;
+        if (extension != null) {
+            MimeTypeMap mime = MimeTypeMap.getSingleton();
+            type = mime.getMimeTypeFromExtension(extension);
+        }
+        return type;
     }
 }
