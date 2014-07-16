@@ -16,8 +16,9 @@ import java.util.ArrayList;
 public class DownloadService extends Service {
     Context context;
     Boolean should_stop_foreground = false;
-    URL url;
+    // URL url;
     ArrayList<DownloadStore> download_store_list = new ArrayList<DownloadStore>();
+    // ArrayList<Integer> file_task_threads = new ArrayList<Integer>();
 
 
     @Override
@@ -47,20 +48,33 @@ public class DownloadService extends Service {
             Log.i("调试 应该要停止 ", "true");
         }
 
-
-        if (get_download_store(download_manager.obj_id) == null ||
-                (download_manager.should_pause == false &&
-                download_manager.should_stop == false) ) {
-            Log.i("初始化 thread000 ", "true");
-            save_download_manager(download_manager);
-
-            FileTaskThread download_thread =
-                    new FileTaskThread(intent, download_manager, download_manager.notice_id);
-            download_thread.run();
-
-            Log.i("初始化 thread ", "true");
+        if (download_manager.should_pause) {
+            Log.i("调试 应该要暂停 ", "true");
         }
+
+
+//        if (get_download_store(download_manager.obj_id) == null ||
+//                (download_manager.should_pause == false &&
+//                download_manager.should_stop == false)
+//                ) {
+//            save_download_manager(download_manager);
+//
+//
+//            FileTaskThread file_task_thread =
+//                    new FileTaskThread(intent, download_manager, download_manager.notice_id);
+//            file_task_thread.run();
+//
+//
+//
+//            Log.i("初始化 thread ", "true");
+//        }
         save_download_manager(download_manager);
+
+        FileTaskThread file_task_thread =
+                new FileTaskThread(intent, download_manager, download_manager.notice_id);
+        file_task_thread.run();
+
+
 
 
 
@@ -217,95 +231,110 @@ public class DownloadService extends Service {
             notification_service_bar.
                     wait_notification(download_manager, notice_id);
 
+//            if (!download_manager.should_pause && !download_manager.should_stop) {
+//                notification_service_bar.
+//                        wait_notification(download_manager, notice_id);
+//            }
 
-            new AsyncTask<Void, FileDownloader, Void>() {
-                @Override
-                protected Void doInBackground(Void... objects) {
 
-                    try {
 
-                        download_manager.init_connection(context);
-                        download_manager.save_thread_data();
+                new AsyncTask<Void, FileDownloader, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... objects) {
 
-                        download_manager.is_finished = false;
-                        while (!download_manager.is_finished) {
-                            Thread.sleep(900);
+                        try {
 
-                            // 停止下载
-                            if (get_download_store(obj_id).should_stop) {
-                                download_manager.should_stop = true;
-                                Log.i("should_stop true", "true");
-                                return null;
-                            } else {
-                                Log.i("should_stop false", "false");
+                            download_manager.init_connection(context);
+                            download_manager.save_thread_data();
+
+                            download_manager.is_finished = false;
+                            while (!download_manager.is_finished) {
+                                Thread.sleep(900);
+
+                                // 停止下载
+                                if (get_download_store(obj_id).should_stop) {
+                                    download_manager.should_stop = true;
+                                    Log.i("should_stop true", "true");
+                                    return null;
+                                } else {
+                                    Log.i("should_stop false", "false");
+                                }
+
+                                // 暂停下载
+                                if (get_download_store(obj_id).should_pause) {
+                                    download_manager.should_pause = true;
+                                    Log.i("should_pause为 true", "true");
+                                    return null;
+                                } else {
+                                    Log.i("should_pause为 false", "false");
+                                }
+
+
+
+                                download_manager.is_finished = true;
+                                download_manager.continue_download_with_thread();
+
+
+                                notification_service_bar.
+                                        handle_notification(download_manager, notice_id);
+
+                                if (download_manager.listener != null) {
+                                    Log.i("从 service 中传 listener 进度条 ", "true");
+                                    publishProgress(download_manager);
+                                }
+
                             }
 
-                            // 暂停下载
-                            if (get_download_store(obj_id).should_pause) {
-                                download_manager.should_pause = true;
-                                Log.i("should_pause为 true", "true");
-                                return null;
-                            } else {
-                                Log.i("should_pause为 false", "false");
-                            }
+                            return null;
 
-
-
-                            download_manager.is_finished = true;
-                            download_manager.continue_download_with_thread();
-
-
-                            notification_service_bar.
-                                    handle_notification(download_manager, notice_id);
-
-                            if (download_manager.listener != null) {
-                                Log.i("从 service 中传 listener 进度条 ", "true");
-                                publishProgress(download_manager);
-                            }
-
+                        } catch (Exception e) {
+                            Log.i("下载有错误 ", e.toString());
+                            e.printStackTrace();
                         }
 
-                        return null;
 
-                    } catch (Exception e) {
-                        Log.i("下载有错误 ", e.toString());
-                        e.printStackTrace();
+                        return null;
                     }
 
+                    @Override
+                    protected void onProgressUpdate(FileDownloader... result) {
+                        FileDownloader download_manager = result[0];
+                        Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
 
-                    return null;
-                }
+                        download_manager.listener.on_update(download_manager.downloaded_size);
+                    }
 
-                @Override
-                protected void onProgressUpdate(FileDownloader... result) {
-                    FileDownloader download_manager = result[0];
-                    Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
+                    @Override
+                    protected void onPostExecute(Void result) {
 
-                    download_manager.listener.on_update(download_manager.downloaded_size);
-                }
+                        if (download_manager.should_stop) {
+                            Log.i("整个停止下载 ", "true");
+                            clear_notice_bar(notice_id);
+                            clear_local_thread_data(download_manager);
+                            stop_service();
+                            return;
+                        }
 
-                @Override
-                protected void onPostExecute(Void result) {
+                        if (download_manager.should_pause) {
+                            Log.i("线程停止 ", "true");
+                            return;
+                        }
 
-                    if (download_manager.should_stop) {
-                        Log.i("整个停止下载 ", "true");
+                        build_download_done_notification(download_manager);
                         clear_notice_bar(notice_id);
                         clear_local_thread_data(download_manager);
                         stop_service();
-                        return;
                     }
+                }.execute();
 
-                    if (download_manager.should_pause) {
-                        Log.i("线程停止 ", "true");
-                        return;
-                    }
+//            } finally {
+//                Log.i("FileTaskThread 终止 ", "true");
+////                notification_service_bar.
+////                        handle_notification(download_manager, notice_id);
+//            }
 
-                    build_download_done_notification(download_manager);
-                    clear_notice_bar(notice_id);
-                    clear_local_thread_data(download_manager);
-                    stop_service();
-                }
-            }.execute();
+
+
         }
     }
 

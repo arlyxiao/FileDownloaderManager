@@ -272,7 +272,7 @@ public class FileDownloader implements Parcelable {
 
         Log.i("停止下载 ", "true");
         Log.i("obj_id ", Integer.toString(this.hashCode()));
-
+        // Intent download_service = new Intent(context, DownloadService.class);
         download_service.putExtra("download_manager", this);
         context.startService(download_service);
 
@@ -469,10 +469,9 @@ public class FileDownloader implements Parcelable {
             }
             Log.i("threads length ", Integer.toString(this.threads.length));
             Log.i("thread id ", Long.toString(this.threads[i].getId()));
-            Log.i("thread id thread running ", Boolean.toString(this.threads[i].thread_running));
 
 
-            if (!this.threads[i].thread_running) {
+            if (should_pause || should_stop) {
                 Log.i("service中的线程可以停止loop了 ", "true");
                 return;
             }
@@ -480,6 +479,10 @@ public class FileDownloader implements Parcelable {
             if (this.threads[i] != null && !this.threads[i].is_finish()) {
                 is_finished = false;
                 Log.i("一直在下载 000 ", "true");
+                if (this.threads[i].isInterrupted()) {
+                    this.threads[i].start();
+                    Log.i("thread 启动中 ", "true");
+                }
                 if(this.threads[i].get_downloaded_length() == -1){
                     Log.i("一直在下载 111 ", "true");
                     this.threads[i] = new DownloadThread(

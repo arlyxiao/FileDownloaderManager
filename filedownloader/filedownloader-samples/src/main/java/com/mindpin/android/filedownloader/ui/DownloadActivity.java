@@ -123,7 +123,6 @@ public class DownloadActivity extends Activity {
                         fd2 =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-
                     download(fd2);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();

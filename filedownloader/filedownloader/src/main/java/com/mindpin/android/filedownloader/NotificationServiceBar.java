@@ -122,6 +122,7 @@ public class NotificationServiceBar {
 
         content_view.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
         Log.i("显示正在下载的大小 ", Integer.toString(file_downloader.downloaded_size));
+        Log.i("显示文件的大小 ", Integer.toString(file_downloader.get_file_size()));
         content_view.setProgressBar(R.id.download_progressbar_in_service,
                 file_downloader.get_file_size(),
                 file_downloader.downloaded_size, false);
@@ -164,8 +165,13 @@ public class NotificationServiceBar {
 
     public void wait_notification(FileDownloader file_downloader, int notice_id) {
 
-        String downloaded_size = Integer.toString(0);
-        String file_size = Integer.toString(0);
+        Log.i("等待状态", "true");
+
+//        String downloaded_size = Integer.toString(0);
+//        String file_size = Integer.toString(0);
+
+        String downloaded_size = download_service.show_human_size(file_downloader.downloaded_size);
+        String file_size = download_service.show_human_size(file_downloader.file_size);
 
         android.support.v4.app.NotificationCompat.Builder mBuilder =
                 new android.support.v4.app.NotificationCompat.Builder(context);
