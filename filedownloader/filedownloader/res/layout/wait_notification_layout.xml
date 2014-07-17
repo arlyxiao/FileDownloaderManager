@@ -10,7 +10,7 @@
         android:layout_margin="10dp">
     </ImageView>
 
-    <RelativeLayout android:id="@+id/progress_content_layout"
+    <RelativeLayout android:id="@+id/progress_content_layout2"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_marginTop="10dp"

@@ -135,27 +135,27 @@ public class NotificationServiceBar {
 
 
 
-//        final ComponentName receiver = new ComponentName(file_downloader.context,
-//                file_downloader.activity_class);
         final ComponentName receiver = new ComponentName(file_downloader.context,
-                DownloadProgressNotificationWidget.class);
+                file_downloader.activity_class);
+//        final ComponentName receiver = new ComponentName(file_downloader.context,
+//                DownloadProgressNotificationWidget.class);
         Intent notice_intent = new Intent(file_downloader.context.getClass().getName() +
                 System.currentTimeMillis());
         notice_intent.setComponent(receiver);
 
 
 
-//        String param_name1 = file_downloader.intent_extras.getString("param_name1");
-//        Log.i("测试值 ", param_name1);
+        String param_name1 = file_downloader.intent_extras.getString("param_name1");
+        Log.i("notification bar 测试值  ", param_name1);
         if (file_downloader.intent_extras != null) {
             notice_intent.putExtras(file_downloader.intent_extras);
         }
 
 
-//        PendingIntent p_intent = PendingIntent.getActivity(file_downloader.context,
-//                0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        PendingIntent p_intent = PendingIntent.getBroadcast(file_downloader.context,
+        PendingIntent p_intent = PendingIntent.getActivity(file_downloader.context,
                 0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
+//        PendingIntent p_intent = PendingIntent.getBroadcast(file_downloader.context,
+//                0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
         notification.contentIntent = p_intent;
 
         content_view.setOnClickPendingIntent(R.id.progress_content_layout, p_intent);
@@ -217,19 +217,24 @@ public class NotificationServiceBar {
 
 
 
-
         final ComponentName receiver = new ComponentName(file_downloader.context,
-                DownloadProgressNotificationWidget.class);
+                file_downloader.activity_class);
+//        final ComponentName receiver = new ComponentName(file_downloader.context,
+//                DownloadProgressNotificationWidget.class);
         Intent notice_intent = new Intent(file_downloader.context.getClass().getName() +
                 System.currentTimeMillis());
         notice_intent.setComponent(receiver);
 
+        if (file_downloader.intent_extras != null) {
+            notice_intent.putExtras(file_downloader.intent_extras);
+        }
 
-        PendingIntent p_intent = PendingIntent.getBroadcast(file_downloader.context,
+
+        PendingIntent p_intent = PendingIntent.getActivity(file_downloader.context,
                 0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
         notification.contentIntent = p_intent;
 
-        content_view.setOnClickPendingIntent(R.id.progress_content_layout, p_intent);
+        content_view.setOnClickPendingIntent(R.id.progress_content_layout2, p_intent);
 
         notification.contentView = content_view;
 
