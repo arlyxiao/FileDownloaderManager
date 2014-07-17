@@ -65,6 +65,7 @@ public class FileRecord {
         } catch (Exception e) {
             Log.i("getWritableDatabase 错误 ", e.toString());
             e.printStackTrace();
+            return;
         }
 
         if (db == null) {

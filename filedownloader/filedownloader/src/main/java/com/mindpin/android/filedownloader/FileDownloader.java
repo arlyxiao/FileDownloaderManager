@@ -65,7 +65,7 @@ public class FileDownloader implements Parcelable  {
     public boolean should_pause = false;
     public boolean should_stop = false;
 
-    public int obj_id;
+    public int obj_id = 0;
     public int notice_id = new Random().nextInt(999999999);
 
     // Intent download_service;
@@ -142,6 +142,7 @@ public class FileDownloader implements Parcelable  {
 
     public int get_file_size() {
         try {
+            Log.i("bind 中传 obj_id 111 ", Integer.toString(obj_id));
             Intent download_service = new Intent(context, DownloadService.class);
             context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
         } catch (Exception e) {
@@ -180,7 +181,11 @@ public class FileDownloader implements Parcelable  {
 
         this.thread_num = thread_num;
 
-        this.obj_id = this.hashCode();
+        if (this.obj_id == 0) {
+            this.obj_id = this.hashCode();
+            Log.i("生成 obj_id ", Integer.toString(obj_id));
+        }
+
     }
 
 //    @Override
@@ -328,6 +333,7 @@ public class FileDownloader implements Parcelable  {
             DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
             m_service = binder.getService();
 
+            Log.i("bind 中传 obj_id 222 ", Integer.toString(obj_id));
             file_size = m_service.get_download_store(obj_id).file_size;
 
 //            new Thread(new Runnable() {
