@@ -62,7 +62,7 @@ public class FileRecord {
         SQLiteDatabase db;
         try {
             db = db_open_helper.getWritableDatabase();
-        } catch (Exception e) {
+        } catch (android.database.sqlite.SQLiteDatabaseLockedException e) {
             Log.i("getWritableDatabase 错误 ", e.toString());
             e.printStackTrace();
             return;

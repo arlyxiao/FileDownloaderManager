@@ -45,7 +45,7 @@ public class DownloadService extends Service {
                 intent.getParcelableExtra("download_manager");
         Log.i("传整个对象给 service, 测试输出 ", download_manager.get_test());
 
-        Log.i("对象 has_code ", Integer.toString(download_manager.obj_id));
+        Log.i("对象 has_code ", Integer.toString(download_manager.get_obj_id()));
         if (download_manager.should_stop) {
             Log.i("调试 应该要停止 ", "true");
         }
@@ -55,7 +55,7 @@ public class DownloadService extends Service {
         }
 
 
-//        if (get_download_store(download_manager.obj_id) == null ||
+//        if (get_download_store(download_manager.get_obj_id()) == null ||
 //                (download_manager.should_pause == false &&
 //                download_manager.should_stop == false)
 //                ) {
@@ -249,13 +249,13 @@ public class DownloadService extends Service {
 
         @Override
         public void run() {
-            final int obj_id = download_manager.obj_id;
+            final int obj_id = download_manager.get_obj_id();
 
             final NotificationServiceBar notification_service_bar =
                     new NotificationServiceBar(getApplicationContext(),
                             DownloadService.this);
 
-            if (get_download_store(download_manager.obj_id) == null) {
+            if (get_download_store(download_manager.get_obj_id()) == null) {
                 notification_service_bar.
                         wait_notification(download_manager, notice_id);
             }
@@ -386,8 +386,8 @@ public class DownloadService extends Service {
             return null;
         }
         for (FileDownloader item : download_store_list) {
-            if (item.obj_id == obj_id) {
-                Log.i("当前 obj_id  ", Integer.toString(item.obj_id));
+            if (item.get_obj_id() == obj_id) {
+                Log.i("当前 obj_id  ", Integer.toString(item.get_obj_id()));
                 Log.i("通过 obj_id 获得当前 file_size ", Integer.toString(item.file_size));
                 return item;
             }
@@ -396,7 +396,7 @@ public class DownloadService extends Service {
     }
 
     private void save_download_manager(FileDownloader fd) {
-        int obj_id = fd.obj_id;
+        int obj_id = fd.get_obj_id();
 
         FileDownloader download_store = get_download_store(obj_id);
 

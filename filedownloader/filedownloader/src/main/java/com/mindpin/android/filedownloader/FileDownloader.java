@@ -65,7 +65,7 @@ public class FileDownloader implements Parcelable  {
     public boolean should_pause = false;
     public boolean should_stop = false;
 
-    public int obj_id = 0;
+    private int obj_id = 0;
     public int notice_id = new Random().nextInt(999999999);
 
     // Intent download_service;
@@ -133,7 +133,13 @@ public class FileDownloader implements Parcelable  {
 
 
 
+    public int get_obj_id() {
+        return obj_id;
+    }
 
+    public void set_obj_id() {
+        this.obj_id = this.hashCode();
+    }
 
     public int get_thread_size() {
         return threads.length;
@@ -182,7 +188,7 @@ public class FileDownloader implements Parcelable  {
         this.thread_num = thread_num;
 
         if (this.obj_id == 0) {
-            this.obj_id = this.hashCode();
+            set_obj_id();
             Log.i("生成 obj_id ", Integer.toString(obj_id));
         }
 

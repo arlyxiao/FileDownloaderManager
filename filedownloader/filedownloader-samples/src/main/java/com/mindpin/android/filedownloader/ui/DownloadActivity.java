@@ -216,21 +216,21 @@ public class DownloadActivity extends Activity {
 //            public void run() {
                 Bundle b = new Bundle();
                 b.putString("param_name1", "param_value1");
-                fd.set_notification(TargetActivity.class, b);
+                fd2.set_notification(TargetActivity.class, b);
                 downloaded_file = fd.get_file_name();
                 try {
                     Log.i("activity 中取下载URL ", fd.download_url);
                     progress_bar.setMax(0);
                     progress_bar.setProgress(0);
-                    fd.download(new ProgressUpdateListener () {
+                    fd2.download(new ProgressUpdateListener () {
                         @Override
                         public void on_update(int downloaded_size) {
 
                             Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
                             Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
-                            Log.i("文件总大小 ", Integer.toString(fd.get_file_size()));
+                            Log.i("文件总大小 ", Integer.toString(fd2.get_file_size()));
 
-                            progress_bar.setMax(fd.get_file_size());
+                            progress_bar.setMax(fd2.get_file_size());
                             progress_bar.setProgress(downloaded_size);
 
                             Log.i("正在进行的进度条大小 ", Integer.toString(progress_bar.getProgress()));
