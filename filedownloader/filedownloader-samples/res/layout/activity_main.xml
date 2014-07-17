@@ -1,12 +1,12 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="fill_parent"
+	android:layout_width="wrap_content"
 	android:layout_height="fill_parent"
     android:orientation="vertical"
 	tools:context=".MainActivity">
 
     <LinearLayout
-        android:layout_width="200dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="10dp"
@@ -21,175 +21,172 @@
         <ProgressBar
             style="?android:attr/progressBarStyleHorizontal"
 
-            android:layout_width="match_parent"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:id="@+id/downloadbar" />
 
 
     </LinearLayout>
 
+
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginTop="10dp"
-        android:id="@+id/linearLayout0">
+        >
 
 
-        <LinearLayout
-            android:layout_width="fill_parent"
+
+
+    <TableRow
+        android:id="@+id/tableRow2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dip" >
+
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:id="@+id/linearLayout">
+            android:text="100K 以下"
+            android:id="@+id/less_100kb_btn" />
 
-
-            <Button
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="100K 以下"
-                android:id="@+id/button" />
-
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="fill_parent"
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:id="@+id/linearLayout2">
+            android:text="暂停"
+            android:id="@+id/less_100kb_btn_pause" />
 
-            <Button
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="1M 以下"
-                android:id="@+id/button2" />
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="fill_parent"
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:id="@+id/linearLayout3">
+            android:text="停止"
+            android:id="@+id/less_100kb_btn_stop" />
+    </TableRow>
 
 
-            <Button
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="5M 以下"
-                android:id="@+id/button3" />
+    <TableRow
+        android:id="@+id/tableRow3"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dip" >
 
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="fill_parent"
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:id="@+id/linearLayout4">
+            android:text="1M 以下"
+            android:id="@+id/less_1m_btn" />
 
-
-            <Button
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="10M 以下"
-                android:id="@+id/button4" />
-
-
-        </LinearLayout>
-
-
-
-        <LinearLayout
-            android:layout_width="fill_parent"
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:id="@+id/linearLayout5">
+            android:text="暂停"
+            android:id="@+id/less_1m_btn_pause" />
 
-
-
-            <Button
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="10M 以上"
-                android:id="@+id/button5" />
-
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="fill_parent"
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:id="@+id/linearLayout6">
+            android:text="停止"
+            android:id="@+id/less_1m_btn_stop" />
+    </TableRow>
 
+    <TableRow
+        android:id="@+id/tableRow4"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dip" >
 
-
-            <Button
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="暂停下载"
-                android:id="@+id/button6" />
-
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="fill_parent"
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:id="@+id/linearLayout7">
+            android:text="5M 以下"
+            android:id="@+id/less_5m_btn" />
 
-
-
-            <Button
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="停止下载并删除文件"
-                android:id="@+id/button7" />
-
-
-        </LinearLayout>
-
-
-
-        <LinearLayout
-            android:layout_width="fill_parent"
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:id="@+id/linearLayout8">
+            android:text="暂停"
+            android:id="@+id/less_5m_btn_pause" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="停止"
+            android:id="@+id/less_5m_btn_stop" />
+    </TableRow>
 
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="file"
-                android:id="@+id/downloaded_file" />
+    <TableRow
+        android:id="@+id/tableRow5"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dip" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10M 以下"
+            android:id="@+id/less_10m_btn" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="暂停"
+            android:id="@+id/less_10m_btn_pause" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="停止"
+            android:id="@+id/less_10m_btn_stop" />
+    </TableRow>
 
 
-        </LinearLayout>
+    <TableRow
+        android:id="@+id/tableRow6"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dip" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10M 以上"
+            android:id="@+id/more_10m_btn" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="暂停"
+            android:id="@+id/more_10m_btn_pause" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="停止"
+            android:id="@+id/more_10m_btn_stop" />
+    </TableRow>
+
+
+    <TableRow
+        android:id="@+id/tableRow7"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dip" >
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="file"
+            android:id="@+id/downloaded_file" />
+
+
+    </TableRow>
 
 
     </LinearLayout>
 
 
-
-
-
-
-
-</LinearLayout>
+</TableLayout>

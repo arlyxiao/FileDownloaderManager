@@ -37,7 +37,11 @@ public class DownloadActivity extends Activity {
     String path_above_10mb = "http://esharedev.oss-cn-hangzhou.aliyuncs.com/file/jihuang.mp4";
 
 
-    FileDownloader fd2;
+    FileDownloader fd_less_100kb;
+    FileDownloader fd_less_1m;
+    FileDownloader fd_less_5m;
+    FileDownloader fd_less_10m;
+    FileDownloader fd_more_10m;
 
 
     private Handler handler = new Handler(){
@@ -90,17 +94,21 @@ public class DownloadActivity extends Activity {
         result_view = (TextView) this.findViewById(R.id.result_view);
         downloaded_file_view = (TextView) this.findViewById(R.id.downloaded_file);
 
-        Button button = (Button) this.findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
+        // 100kb 以下
+        Button less_100kb_btn = (Button) this.findViewById(R.id.less_100kb_btn);
+        less_100kb_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String path = path_less_100kb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", stored_dir);
                     File savedir = Environment.getExternalStorageDirectory();
-                    FileDownloader fd =
-                            new FileDownloader(DownloadActivity.this, path, savedir, 2);
-                    download(fd);
+                    if (fd_less_100kb == null) {
+                        Log.i("初始化 fd_less_100kb ", "true");
+                        fd_less_100kb =
+                                new FileDownloader(DownloadActivity.this, path, savedir, 2);
+                    }
+                    download(fd_less_100kb);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -109,8 +117,27 @@ public class DownloadActivity extends Activity {
         });
 
 
-        Button button2 = (Button) this.findViewById(R.id.button2);
-        button2.setOnClickListener(new View.OnClickListener() {
+        Button less_100kb_btn_pause = (Button) this.findViewById(R.id.less_100kb_btn_pause);
+        less_100kb_btn_pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fd_less_100kb.pause_download();
+            }
+        });
+
+
+        Button less_100kb_btn_stop = (Button) this.findViewById(R.id.less_100kb_btn_stop);
+        less_100kb_btn_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fd_less_100kb.stop_download();
+            }
+        });
+
+
+        // 1m 以下
+        Button less_1m_btn = (Button) this.findViewById(R.id.less_1m_btn);
+        less_1m_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String path = path_less_1mb;
@@ -118,12 +145,12 @@ public class DownloadActivity extends Activity {
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
                     File savedir = Environment.getExternalStorageDirectory();
 
-                    if (fd2 == null) {
-                        Log.i("初始化 fd2 ", "true");
-                        fd2 =
+                    if (fd_less_1m == null) {
+                        Log.i("初始化 fd_less_1m ", "true");
+                        fd_less_1m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    download(fd2);
+                    download(fd_less_1m);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -131,18 +158,41 @@ public class DownloadActivity extends Activity {
             }
         });
 
+        Button less_1m_btn_pause = (Button) this.findViewById(R.id.less_1m_btn_pause);
+        less_1m_btn_pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fd_less_1m.pause_download();
+            }
+        });
 
-        Button button3 = (Button) this.findViewById(R.id.button3);
-        button3.setOnClickListener(new View.OnClickListener() {
+
+        Button less_1m_btn_stop = (Button) this.findViewById(R.id.less_1m_btn_stop);
+        less_1m_btn_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fd_less_1m.stop_download();
+            }
+        });
+
+
+
+        // 5M 以下
+        Button less_5m_btn = (Button) this.findViewById(R.id.less_5m_btn);
+        less_5m_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String path = path_less_5mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
                     File savedir = Environment.getExternalStorageDirectory();
-                    FileDownloader fd =
-                            new FileDownloader(DownloadActivity.this, path, savedir, 2);
-                    download(fd);
+
+                    if (fd_less_5m == null) {
+                        Log.i("初始化 fd_less_5m ", "true");
+                        fd_less_5m =
+                                new FileDownloader(DownloadActivity.this, path, savedir, 2);
+                    }
+                    download(fd_less_5m);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -150,18 +200,40 @@ public class DownloadActivity extends Activity {
             }
         });
 
+        Button less_5m_btn_pause = (Button) this.findViewById(R.id.less_5m_btn_pause);
+        less_5m_btn_pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fd_less_5m.pause_download();
+            }
+        });
 
-        Button button4 = (Button) this.findViewById(R.id.button4);
-        button4.setOnClickListener(new View.OnClickListener() {
+
+        Button less_5m_btn_stop = (Button) this.findViewById(R.id.less_5m_btn_stop);
+        less_5m_btn_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fd_less_5m.stop_download();
+            }
+        });
+
+
+        // 10m以下
+        Button less_10m_btn = (Button) this.findViewById(R.id.less_10m_btn);
+        less_10m_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String path = path_less_10mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
                     File savedir = Environment.getExternalStorageDirectory();
-                    FileDownloader fd =
-                            new FileDownloader(DownloadActivity.this, path, savedir, 2);
-                    download(fd);
+
+                    if (fd_less_10m == null) {
+                        Log.i("初始化 fd_less_10m ", "true");
+                        fd_less_5m =
+                                new FileDownloader(DownloadActivity.this, path, savedir, 2);
+                    }
+                    download(fd_less_10m);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -170,17 +242,40 @@ public class DownloadActivity extends Activity {
         });
 
 
-        Button button5 = (Button) this.findViewById(R.id.button5);
-        button5.setOnClickListener(new View.OnClickListener() {
+        Button less_10m_btn_pause = (Button) this.findViewById(R.id.less_10m_btn_pause);
+        less_10m_btn_pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fd_less_10m.pause_download();
+            }
+        });
+
+
+        Button less_10m_btn_stop = (Button) this.findViewById(R.id.less_10m_btn_stop);
+        less_10m_btn_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fd_less_10m.stop_download();
+            }
+        });
+
+
+        // 10m 以上
+        Button more_10m_btn = (Button) this.findViewById(R.id.more_10m_btn);
+        more_10m_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String path = path_above_10mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
                     File savedir = Environment.getExternalStorageDirectory();
-                    FileDownloader fd =
-                            new FileDownloader(DownloadActivity.this, path, savedir, 2);
-                    download(fd);
+
+                    if (fd_more_10m == null) {
+                        Log.i("初始化 fd_more_10m ", "true");
+                        fd_more_10m =
+                                new FileDownloader(DownloadActivity.this, path, savedir, 2);
+                    }
+                    download(fd_more_10m);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -188,25 +283,25 @@ public class DownloadActivity extends Activity {
             }
         });
 
-
-        // 暂停下载
-        Button button6 = (Button) this.findViewById(R.id.button6);
-        button6.setOnClickListener(new View.OnClickListener() {
+        Button more_10m_btn_pause = (Button) this.findViewById(R.id.more_10m_btn_pause);
+        more_10m_btn_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fd2.pause_download();
+                fd_more_10m.pause_download();
             }
         });
 
 
-        // 停止下载并删除文件
-        Button button7 = (Button) this.findViewById(R.id.button7);
-        button7.setOnClickListener(new View.OnClickListener() {
+        Button more_10m_btn_stop = (Button) this.findViewById(R.id.more_10m_btn_stop);
+        more_10m_btn_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fd2.stop_download();
+                fd_more_10m.stop_download();
             }
         });
+
+
+
     }
 
     private void download(final FileDownloader fd) {
@@ -216,21 +311,21 @@ public class DownloadActivity extends Activity {
 //            public void run() {
                 Bundle b = new Bundle();
                 b.putString("param_name1", "param_value1");
-                fd2.set_notification(TargetActivity.class, b);
+                fd.set_notification(TargetActivity.class, b);
                 downloaded_file = fd.get_file_name();
                 try {
                     Log.i("activity 中取下载URL ", fd.download_url);
                     progress_bar.setMax(0);
                     progress_bar.setProgress(0);
-                    fd2.download(new ProgressUpdateListener () {
+                    fd.download(new ProgressUpdateListener () {
                         @Override
                         public void on_update(int downloaded_size) {
 
                             Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
                             Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
-                            Log.i("文件总大小 ", Integer.toString(fd2.get_file_size()));
+                            Log.i("文件总大小 ", Integer.toString(fd.get_file_size()));
 
-                            progress_bar.setMax(fd2.get_file_size());
+                            progress_bar.setMax(fd.get_file_size());
                             progress_bar.setProgress(downloaded_size);
 
                             Log.i("正在进行的进度条大小 ", Integer.toString(progress_bar.getProgress()));
