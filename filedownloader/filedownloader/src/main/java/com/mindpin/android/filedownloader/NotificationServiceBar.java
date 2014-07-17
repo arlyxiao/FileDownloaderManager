@@ -121,7 +121,7 @@ public class NotificationServiceBar {
         content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
 
         content_view.setTextViewText(R.id.progress_title_text,
-                regenerate_filename(file_downloader.get_file_name()));
+                Tool.regenerate_filename(file_downloader.get_file_name()));
 
         content_view.setTextViewText(R.id.download_filename, "");
 
@@ -191,7 +191,7 @@ public class NotificationServiceBar {
         RemoteViews content_view = new RemoteViews(context.getPackageName(), R.layout.wait_notification_layout);
         content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
         content_view.setTextViewText(R.id.progress_title_text,
-                regenerate_filename(file_downloader.get_file_name()));
+                Tool.regenerate_filename(file_downloader.get_file_name()));
 
         if (download_service == null) {
 
@@ -245,14 +245,5 @@ public class NotificationServiceBar {
 
     }
 
-    public String regenerate_filename(String filename) {
-        int size = filename.length();
-        if (size <= 16) {
-            return filename;
-        }
 
-        String short_filename = filename.substring(0, 8) + "..." +
-                filename.substring(size - 5);
-        return short_filename;
-    }
 }

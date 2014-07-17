@@ -56,8 +56,9 @@ public class DownloadDoneNotification extends BroadcastReceiver {
 
 
         String stored_dir = Environment.getExternalStorageDirectory().toString();
-        Log.i("要打开的文件 ", stored_dir + "/" + filename);
-        File file = new File(filename);
+        String store_file = stored_dir + "/" + filename;
+        Log.i("要打开的文件 ", store_file);
+        File file = new File(store_file);
 
         Intent notice_intent = new Intent();
         notice_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -71,7 +72,7 @@ public class DownloadDoneNotification extends BroadcastReceiver {
 
 
         Notification n  = new NotificationCompat.Builder(context)
-                .setContentTitle(filename)
+                .setContentTitle(Tool.regenerate_filename(filename))
                 .setContentText("下载完成 " + file_size)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentIntent(p_intent)
