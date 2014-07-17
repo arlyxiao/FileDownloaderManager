@@ -230,7 +230,7 @@ public class DownloadActivity extends Activity {
 
                     if (fd_less_10m == null) {
                         Log.i("初始化 fd_less_10m ", "true");
-                        fd_less_5m =
+                        fd_less_10m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
                     download(fd_less_10m);
