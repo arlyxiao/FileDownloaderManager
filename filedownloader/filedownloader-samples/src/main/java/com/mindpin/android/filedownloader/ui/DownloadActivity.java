@@ -234,6 +234,7 @@ public class DownloadActivity extends Activity {
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
                     download(fd_less_10m);
+
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -303,6 +304,7 @@ public class DownloadActivity extends Activity {
 
 
     }
+
 
     private void download(final FileDownloader fd) {
 

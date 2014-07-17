@@ -204,16 +204,7 @@ public class DownloadService extends Service {
 //        notice_manager.cancelAll();
 //    }
 
-    public String regenerate_filename(String filename) {
-        int size = filename.length();
-        if (size <= 16) {
-            return filename;
-        }
 
-        String short_filename = filename.substring(0, 8) + "..." +
-                filename.substring(size - 5);
-        return short_filename;
-    }
 
 
 
@@ -262,12 +253,6 @@ public class DownloadService extends Service {
 
 
             save_download_manager(download_manager);
-
-//            if (!download_manager.should_pause && !download_manager.should_stop) {
-//                notification_service_bar.
-//                        wait_notification(download_manager, notice_id);
-//            }
-
 
 
                 new AsyncTask<Void, FileDownloader, Void>() {

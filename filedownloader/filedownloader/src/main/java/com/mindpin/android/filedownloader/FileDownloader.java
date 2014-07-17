@@ -275,6 +275,14 @@ public class FileDownloader implements Parcelable  {
 //        IntentFilter filter = new IntentFilter();
 //        context.registerReceiver(download_listener_receiver, filter);
 
+        NotificationServiceBar notification_service_bar =
+                new NotificationServiceBar(context);
+
+        notification_service_bar.
+                wait_notification(FileDownloader.this, notice_id);
+
+
+
 
         Intent download_service = new Intent(context, DownloadService.class);
         Log.i("启动服务前取下载URL ", download_url);
@@ -341,22 +349,7 @@ public class FileDownloader implements Parcelable  {
 
             Log.i("bind 中传 obj_id 222 ", Integer.toString(obj_id));
             file_size = m_service.get_download_store(obj_id).file_size;
-
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    while (file_size == 0) {
-//                        file_size = fd.file_size;
-//                        try {
-//                            Log.i("等待取得 file_size ", Integer.toString(file_size));
-//                            Thread.sleep(600);
-//                        } catch (Exception e) {
-//
-//                        }
-//
-//                    }
-//                }
-//            }).start();
+            Log.i("bind 中传 file_size 222 ", Integer.toString(file_size));
 
 
 
@@ -367,6 +360,7 @@ public class FileDownloader implements Parcelable  {
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             // m_bound = false;
+            Log.i("下载完毕 ", "true");
         }
     };
 

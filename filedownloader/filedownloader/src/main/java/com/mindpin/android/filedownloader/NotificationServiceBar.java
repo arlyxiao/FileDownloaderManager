@@ -37,6 +37,11 @@ public class NotificationServiceBar {
         nm = (NotificationManager)context.getSystemService(context.NOTIFICATION_SERVICE);
     }
 
+    public NotificationServiceBar(Context context) {
+        this.context = context;
+        nm = (NotificationManager)context.getSystemService(context.NOTIFICATION_SERVICE);
+    }
+
 
     public void start_foreground(int id, Notification notification) {
         try {
@@ -116,7 +121,7 @@ public class NotificationServiceBar {
         content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
 
         content_view.setTextViewText(R.id.progress_title_text,
-                download_service.regenerate_filename(file_downloader.get_file_name()));
+                regenerate_filename(file_downloader.get_file_name()));
 
         content_view.setTextViewText(R.id.download_filename, "");
 
@@ -164,14 +169,15 @@ public class NotificationServiceBar {
 
 
     public void wait_notification(FileDownloader file_downloader, int notice_id) {
+        String downloaded_size;
+        String file_size;
 
         Log.i("等待状态", "true");
 
 //        String downloaded_size = Integer.toString(0);
 //        String file_size = Integer.toString(0);
 
-        String downloaded_size = download_service.show_human_size(file_downloader.downloaded_size);
-        String file_size = download_service.show_human_size(file_downloader.file_size);
+
 
         android.support.v4.app.NotificationCompat.Builder mBuilder =
                 new android.support.v4.app.NotificationCompat.Builder(context);
@@ -184,9 +190,20 @@ public class NotificationServiceBar {
 
         RemoteViews content_view = new RemoteViews(context.getPackageName(), R.layout.custom_notification_layout);
         content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
-
         content_view.setTextViewText(R.id.progress_title_text,
-                download_service.regenerate_filename(file_downloader.get_file_name()));
+                regenerate_filename(file_downloader.get_file_name()));
+
+        if (download_service == null) {
+
+            downloaded_size = "0";
+            file_size = "0";
+
+        } else {
+
+            downloaded_size = download_service.show_human_size(file_downloader.downloaded_size);
+            file_size = download_service.show_human_size(file_downloader.file_size);
+        }
+
 
         content_view.setTextViewText(R.id.download_filename, "");
 
@@ -220,5 +237,16 @@ public class NotificationServiceBar {
                 (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
         notificationManager.notify(notice_id, notification);
 
+    }
+
+    public String regenerate_filename(String filename) {
+        int size = filename.length();
+        if (size <= 16) {
+            return filename;
+        }
+
+        String short_filename = filename.substring(0, 8) + "..." +
+                filename.substring(size - 5);
+        return short_filename;
     }
 }
