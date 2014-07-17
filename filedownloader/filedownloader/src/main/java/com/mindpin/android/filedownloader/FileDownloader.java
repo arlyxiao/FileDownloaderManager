@@ -65,7 +65,7 @@ public class FileDownloader implements Parcelable  {
     public boolean should_pause = false;
     public boolean should_stop = false;
 
-    int obj_id = this.hashCode();
+    public int obj_id;
     public int notice_id = new Random().nextInt(999999999);
 
     // Intent download_service;
@@ -179,6 +179,8 @@ public class FileDownloader implements Parcelable  {
         this.save_file = file_save_dir;
 
         this.thread_num = thread_num;
+
+        this.obj_id = this.hashCode();
     }
 
 //    @Override

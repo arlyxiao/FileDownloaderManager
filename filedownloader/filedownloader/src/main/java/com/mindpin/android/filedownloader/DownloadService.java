@@ -387,6 +387,8 @@ public class DownloadService extends Service {
         }
         for (FileDownloader item : download_store_list) {
             if (item.obj_id == obj_id) {
+                Log.i("当前 obj_id  ", Integer.toString(item.obj_id));
+                Log.i("通过 obj_id 获得当前 file_size ", Integer.toString(item.file_size));
                 return item;
             }
         }

@@ -59,7 +59,18 @@ public class FileRecord {
      * @param map
      */
     public void update(String path, Map<Integer, Integer> map){
-        SQLiteDatabase db = db_open_helper.getWritableDatabase();
+        SQLiteDatabase db = null;
+        try {
+            db = db_open_helper.getWritableDatabase();
+        } catch (Exception e) {
+            Log.i("getWritableDatabase 错误 ", e.toString());
+            e.printStackTrace();
+        }
+
+        if (db == null) {
+            return;
+        }
+
         db.beginTransaction();
         try{
             for(Map.Entry<Integer, Integer> entry : map.entrySet()){
