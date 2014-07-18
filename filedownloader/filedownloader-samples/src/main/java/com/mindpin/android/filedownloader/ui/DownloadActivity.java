@@ -57,7 +57,8 @@ public class DownloadActivity extends Activity {
 
         Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
 
-        stored_dir = Environment.getExternalStorageDirectory().toString();
+        // stored_dir = Environment.getExternalStorageDirectory().toString();
+        stored_dir = "/testmindpin/files";
 
 
         progress_bar = (ProgressBar) this.findViewById(R.id.downloadbar);
@@ -86,7 +87,7 @@ public class DownloadActivity extends Activity {
                 String path = path_less_100kb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", stored_dir);
-                    File savedir = new File("/testmindpin/files");
+                    File savedir = new File(stored_dir);
                     if (fd_less_100kb == null) {
                         Log.i("初始化 fd_less_100kb ", "true");
                         fd_less_100kb =
@@ -130,7 +131,7 @@ public class DownloadActivity extends Activity {
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
                     // File savedir = Environment.getExternalStorageDirectory();
-                    File savedir = new File("/testmindpin/files");
+                    File savedir = new File(stored_dir);
 
                     if (fd_less_1m == null) {
                         Log.i("初始化 fd_less_1m ", "true");
@@ -174,7 +175,7 @@ public class DownloadActivity extends Activity {
                 String path = path_less_5mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
-                    File savedir = new File("/testmindpin/files");
+                    File savedir = new File(stored_dir);
 
                     if (fd_less_5m == null) {
                         Log.i("初始化 fd_less_5m ", "true");
@@ -217,7 +218,7 @@ public class DownloadActivity extends Activity {
                 String path = path_less_10mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
-                    File savedir = new File("/testmindpin/files");
+                    File savedir = new File(stored_dir);
 
                     if (fd_less_10m == null) {
                         Log.i("初始化 fd_less_10m ", "true");
@@ -262,7 +263,7 @@ public class DownloadActivity extends Activity {
                 String path = path_above_10mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
-                    File savedir = new File("/testmindpin/files");
+                    File savedir = new File(stored_dir);
 
                     if (fd_more_10m == null) {
                         Log.i("初始化 fd_more_10m ", "true");
@@ -309,7 +310,7 @@ public class DownloadActivity extends Activity {
         Bundle b = new Bundle();
         b.putString("param_name1", "param_value1");
         fd.set_notification(TargetActivity.class, b);
-
+        downloaded_file = fd.get_file_name();
         try {
             fd.download(new ProgressUpdateListener(){
                 public void on_update(int downloaded_size) {

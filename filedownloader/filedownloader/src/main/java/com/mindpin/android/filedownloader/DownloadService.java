@@ -157,6 +157,8 @@ public class DownloadService extends Service {
             in.putExtra("activity_class", file_downloader.activity_class.getName());
         }
 
+        in.putExtra("store_file", file_downloader.save_file.toString());
+        Log.i("store_file 值 ", file_downloader.save_file.toString());
         in.putExtra("filename", file_downloader.get_file_name());
         in.putExtra("file_size", show_human_size(file_downloader.file_size));
         getApplicationContext().sendBroadcast(in);
@@ -289,11 +291,11 @@ public class DownloadService extends Service {
                                 notification_service_bar.
                                         handle_notification(download_manager, notice_id);
 
-                                if (download_manager.listener != null) {
-                                    Log.i("从 service 中传 listener 进度条 ", "true");
-                                    // publishProgress(download_manager);
-
-                                }
+//                                if (download_manager.listener != null) {
+//                                    Log.i("从 service 中传 listener 进度条 ", "true");
+//                                    // publishProgress(download_manager);
+//
+//                                }
                                 Intent in = new Intent("app.action.download_listener_receiver");
                                 in.putExtra("download_manager", download_manager);
                                 Log.i("service 中 downloaded_size ", Integer.toString(download_manager.downloaded_size));
@@ -313,20 +315,20 @@ public class DownloadService extends Service {
                         return null;
                     }
 
-                    @Override
-                    protected void onProgressUpdate(FileDownloader... result) {
-                        FileDownloader download_manager = result[0];
-                        Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
-
-                        Intent in = new Intent("app.action.download_listener_receiver");
-                        Log.i("onProgressUpdate fd 文件大小 ",
-                                Integer.toString(download_manager.file_size));
-                        in.putExtra("download_manager", download_manager);
-                        getApplicationContext().sendBroadcast(in);
-
-
-                        download_manager.listener.on_update(download_manager.downloaded_size);
-                    }
+//                    @Override
+//                    protected void onProgressUpdate(FileDownloader... result) {
+//                        FileDownloader download_manager = result[0];
+//                        Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
+//
+//                        Intent in = new Intent("app.action.download_listener_receiver");
+//                        Log.i("onProgressUpdate fd 文件大小 ",
+//                                Integer.toString(download_manager.file_size));
+//                        in.putExtra("download_manager", download_manager);
+//                        getApplicationContext().sendBroadcast(in);
+//
+//
+//                        download_manager.listener.on_update(download_manager.downloaded_size);
+//                    }
 
                     @Override
                     protected void onPostExecute(Void result) {

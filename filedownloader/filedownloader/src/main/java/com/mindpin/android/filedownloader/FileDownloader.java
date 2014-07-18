@@ -153,14 +153,14 @@ public class FileDownloader implements Parcelable  {
 
 
     public int get_file_size() {
-        try {
-            Log.i("bind 中传 obj_id 111 ", Integer.toString(obj_id));
-            Intent download_service = new Intent(context, DownloadService.class);
-            context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
-        } catch (Exception e) {
-            Log.i("bindService 错误 ", e.toString());
-            e.printStackTrace();
-        }
+//        try {
+//            Log.i("bind 中传 obj_id 111 ", Integer.toString(obj_id));
+//            Intent download_service = new Intent(context, DownloadService.class);
+//            context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
+//        } catch (Exception e) {
+//            Log.i("bindService 错误 ", e.toString());
+//            e.printStackTrace();
+//        }
 
         return file_size;
     }
@@ -321,7 +321,11 @@ public class FileDownloader implements Parcelable  {
             public void onReceive(Context ctxt, Intent intent) {
 
                 fd = intent.getParcelableExtra("download_manager");
-                Log.i("接收正在下载的值 ", Integer.toString(fd.downloaded_size));
+                Log.i("接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
+
+                FileDownloader.this.file_size = fd.file_size;
+
+                Log.i("接收正在下载的 file_size 值 ", Integer.toString(fd.file_size));
 
                 FileDownloader.this.listener = listener;
                 FileDownloader.this.listener.on_update(fd.downloaded_size);

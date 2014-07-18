@@ -55,8 +55,9 @@ public class DownloadDoneNotification extends BroadcastReceiver {
 //                PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-        String stored_dir = Environment.getExternalStorageDirectory().toString();
-        String store_file = stored_dir + "/" + filename;
+//        String stored_dir = Environment.getExternalStorageDirectory().toString();
+//        String store_file = stored_dir + "/" + filename;
+        String store_file = intent.getStringExtra("store_file");
         Log.i("要打开的文件 ", store_file);
         File file = new File(store_file);
 
