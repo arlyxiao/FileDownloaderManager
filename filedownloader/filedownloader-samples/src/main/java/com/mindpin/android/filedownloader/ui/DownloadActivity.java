@@ -25,9 +25,12 @@ import java.util.Scanner;
 
 
 public class DownloadActivity extends Activity {
-    public TextView result_view;
+    public TextView result_view, result_view1,
+    result_view2, result_view3, result_view4, result_view5;
+
     private TextView downloaded_file_view;
-    public ProgressBar progress_bar;
+    public ProgressBar progress_bar, progress_bar1,
+            progress_bar2, progress_bar3, progress_bar4, progress_bar5;
     String downloaded_file;
     String stored_dir;
 
@@ -58,7 +61,21 @@ public class DownloadActivity extends Activity {
 
 
         progress_bar = (ProgressBar) this.findViewById(R.id.downloadbar);
+
+        progress_bar1 = (ProgressBar) this.findViewById(R.id.downloadbar1);
+        progress_bar2 = (ProgressBar) this.findViewById(R.id.downloadbar2);
+        progress_bar3 = (ProgressBar) this.findViewById(R.id.downloadbar3);
+        progress_bar4 = (ProgressBar) this.findViewById(R.id.downloadbar4);
+        progress_bar5 = (ProgressBar) this.findViewById(R.id.downloadbar5);
+
         result_view = (TextView) this.findViewById(R.id.result_view);
+
+        result_view1 = (TextView) this.findViewById(R.id.result_view1);
+        result_view2 = (TextView) this.findViewById(R.id.result_view2);
+        result_view3 = (TextView) this.findViewById(R.id.result_view3);
+        result_view4 = (TextView) this.findViewById(R.id.result_view4);
+        result_view5 = (TextView) this.findViewById(R.id.result_view5);
+
         downloaded_file_view = (TextView) this.findViewById(R.id.downloaded_file);
 
         // 100kb 以下
@@ -75,7 +92,7 @@ public class DownloadActivity extends Activity {
                         fd_less_100kb =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    run_download(fd_less_100kb);
+                    run_download(fd_less_100kb, result_view1, progress_bar1);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -98,6 +115,8 @@ public class DownloadActivity extends Activity {
             @Override
             public void onClick(View v) {
                 fd_less_100kb.stop_download();
+                progress_bar1.setProgress(0);
+                result_view1.setText("0%");
             }
         });
 
@@ -118,7 +137,7 @@ public class DownloadActivity extends Activity {
                         fd_less_1m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    run_download(fd_less_1m);
+                    run_download(fd_less_1m, result_view2, progress_bar2);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -140,6 +159,8 @@ public class DownloadActivity extends Activity {
             @Override
             public void onClick(View v) {
                 fd_less_1m.stop_download();
+                progress_bar2.setProgress(0);
+                result_view2.setText("0%");
             }
         });
 
@@ -160,7 +181,7 @@ public class DownloadActivity extends Activity {
                         fd_less_5m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    run_download(fd_less_5m);
+                    run_download(fd_less_5m, result_view3, progress_bar3);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -182,6 +203,8 @@ public class DownloadActivity extends Activity {
             @Override
             public void onClick(View v) {
                 fd_less_5m.stop_download();
+                progress_bar3.setProgress(0);
+                result_view3.setText("0%");
             }
         });
 
@@ -201,7 +224,7 @@ public class DownloadActivity extends Activity {
                         fd_less_10m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    run_download(fd_less_10m);
+                    run_download(fd_less_10m, result_view4, progress_bar4);
 
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
@@ -216,6 +239,8 @@ public class DownloadActivity extends Activity {
             @Override
             public void onClick(View v) {
                 fd_less_10m.pause_download();
+                progress_bar4.setProgress(0);
+                result_view4.setText("0%");
             }
         });
 
@@ -244,7 +269,7 @@ public class DownloadActivity extends Activity {
                         fd_more_10m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    run_download(fd_more_10m);
+                    run_download(fd_more_10m, result_view5, progress_bar5);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -257,6 +282,8 @@ public class DownloadActivity extends Activity {
             @Override
             public void onClick(View v) {
                 fd_more_10m.pause_download();
+                progress_bar5.setProgress(0);
+                result_view5.setText("0%");
             }
         });
 
@@ -275,7 +302,9 @@ public class DownloadActivity extends Activity {
 
 
 
-    public void run_download(final FileDownloader fd){
+    public void run_download(final FileDownloader fd,
+                             final TextView result_view,
+                             final ProgressBar progress_bar){
 
         Bundle b = new Bundle();
         b.putString("param_name1", "param_value1");

@@ -216,6 +216,13 @@ public class NotificationServiceBar {
 //                file_downloader.downloaded_size, false);
 
 
+        if (file_downloader.activity_class == null) {
+            Log.i("调试 activity_class 为 null", "true");
+        }
+
+        if (file_downloader.context == null) {
+            Log.i("调试 context 为 null", "true");
+        }
 
         final ComponentName receiver = new ComponentName(file_downloader.context,
                 file_downloader.activity_class);

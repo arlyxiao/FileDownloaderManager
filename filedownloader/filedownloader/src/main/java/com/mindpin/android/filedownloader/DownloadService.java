@@ -291,8 +291,13 @@ public class DownloadService extends Service {
 
                                 if (download_manager.listener != null) {
                                     Log.i("从 service 中传 listener 进度条 ", "true");
-                                    publishProgress(download_manager);
+                                    // publishProgress(download_manager);
+
                                 }
+                                Intent in = new Intent("app.action.download_listener_receiver");
+                                in.putExtra("download_manager", download_manager);
+                                Log.i("service 中 downloaded_size ", Integer.toString(download_manager.downloaded_size));
+                                getApplicationContext().sendBroadcast(in);
 
 
                             }

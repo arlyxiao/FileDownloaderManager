@@ -9,6 +9,7 @@ import android.util.Log;
 public class DownloadListenerReceiver extends BroadcastReceiver {
     public FileDownloader fd;
     public int file_size = 0;
+    public int downloaded_size = 0;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -17,5 +18,8 @@ public class DownloadListenerReceiver extends BroadcastReceiver {
         fd = intent.getParcelableExtra("download_manager");
         Log.i("接收最新 fd file_size ", Integer.toString(fd.file_size));
         file_size = fd.file_size;
+
+        Log.i("接收最新 fd downloaded_size ", Integer.toString(fd.downloaded_size));
+        downloaded_size = fd.downloaded_size;
     }
 }

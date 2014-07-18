@@ -41,151 +41,217 @@
 
 
 
-    <TableRow
-        android:id="@+id/tableRow2"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dip" >
-
-        <Button
-            android:layout_width="wrap_content"
+        <TableRow
+            android:id="@+id/tableRow2"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="100K 以下"
-            android:id="@+id/less_100kb_btn" />
+            android:padding="10dip" >
 
-        <Button
-            android:layout_width="wrap_content"
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100K 以下"
+                android:id="@+id/less_100kb_btn" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暂停"
+                android:id="@+id/less_100kb_btn_pause" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="停止"
+                android:id="@+id/less_100kb_btn_stop" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:id="@+id/result_view1" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+
+                android:layout_width="95dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/downloadbar1" />
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/tableRow3"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="暂停"
-            android:id="@+id/less_100kb_btn_pause" />
+            android:padding="10dip" >
 
-        <Button
-            android:layout_width="wrap_content"
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1M 以下"
+                android:id="@+id/less_1m_btn" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暂停"
+                android:id="@+id/less_1m_btn_pause" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="停止"
+                android:id="@+id/less_1m_btn_stop" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:id="@+id/result_view2" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+
+                android:layout_width="95dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/downloadbar2" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow4"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="停止"
-            android:id="@+id/less_100kb_btn_stop" />
-    </TableRow>
+            android:padding="10dip" >
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5M 以下"
+                android:id="@+id/less_5m_btn" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暂停"
+                android:id="@+id/less_5m_btn_pause" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="停止"
+                android:id="@+id/less_5m_btn_stop" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:id="@+id/result_view3" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+
+                android:layout_width="95dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/downloadbar3" />
+        </TableRow>
 
 
-    <TableRow
-        android:id="@+id/tableRow3"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dip" >
 
-        <Button
-            android:layout_width="wrap_content"
+        <TableRow
+            android:id="@+id/tableRow5"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="1M 以下"
-            android:id="@+id/less_1m_btn" />
+            android:padding="10dip" >
 
-        <Button
-            android:layout_width="wrap_content"
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10M 以下"
+                android:id="@+id/less_10m_btn" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暂停"
+                android:id="@+id/less_10m_btn_pause" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="停止"
+                android:id="@+id/less_10m_btn_stop" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:id="@+id/result_view4" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+
+                android:layout_width="95dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/downloadbar4" />
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/tableRow6"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="暂停"
-            android:id="@+id/less_1m_btn_pause" />
+            android:padding="10dip" >
 
-        <Button
-            android:layout_width="wrap_content"
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10M 以上"
+                android:id="@+id/more_10m_btn" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暂停"
+                android:id="@+id/more_10m_btn_pause" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="停止"
+                android:id="@+id/more_10m_btn_stop" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:id="@+id/result_view5" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+
+                android:layout_width="95dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/downloadbar5" />
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/tableRow7"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="停止"
-            android:id="@+id/less_1m_btn_stop" />
-    </TableRow>
-
-    <TableRow
-        android:id="@+id/tableRow4"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dip" >
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="5M 以下"
-            android:id="@+id/less_5m_btn" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="暂停"
-            android:id="@+id/less_5m_btn_pause" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="停止"
-            android:id="@+id/less_5m_btn_stop" />
-    </TableRow>
+            android:padding="10dip" >
 
 
-
-    <TableRow
-        android:id="@+id/tableRow5"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dip" >
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="10M 以下"
-            android:id="@+id/less_10m_btn" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="暂停"
-            android:id="@+id/less_10m_btn_pause" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="停止"
-            android:id="@+id/less_10m_btn_stop" />
-    </TableRow>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="file"
+                android:id="@+id/downloaded_file" />
 
 
-    <TableRow
-        android:id="@+id/tableRow6"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dip" >
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="10M 以上"
-            android:id="@+id/more_10m_btn" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="暂停"
-            android:id="@+id/more_10m_btn_pause" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="停止"
-            android:id="@+id/more_10m_btn_stop" />
-    </TableRow>
-
-
-    <TableRow
-        android:id="@+id/tableRow7"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dip" >
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="file"
-            android:id="@+id/downloaded_file" />
-
-
-    </TableRow>
+        </TableRow>
 
 
     </LinearLayout>

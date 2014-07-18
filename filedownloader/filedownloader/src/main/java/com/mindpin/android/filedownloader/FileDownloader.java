@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.app.DownloadManager;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -53,7 +54,7 @@ public class FileDownloader implements Parcelable  {
     Class activity_class;
     Bundle intent_extras;
 
-    public static ProgressUpdateListener listener;
+    public ProgressUpdateListener listener;
 
     URL url;
     boolean is_finished = false;
@@ -114,6 +115,7 @@ public class FileDownloader implements Parcelable  {
         dest.writeInt(obj_id);
         dest.writeInt(notice_id);
         dest.writeInt(file_size);
+        dest.writeInt(downloaded_size);
     }
 
 
@@ -128,6 +130,7 @@ public class FileDownloader implements Parcelable  {
         obj_id = in.readInt();
         notice_id = in.readInt();
         file_size = in.readInt();
+        downloaded_size = in.readInt();
 
     }
 
@@ -144,6 +147,9 @@ public class FileDownloader implements Parcelable  {
     public int get_thread_size() {
         return threads.length;
     }
+
+
+
 
 
     public int get_file_size() {
@@ -190,8 +196,6 @@ public class FileDownloader implements Parcelable  {
             set_obj_id();
             Log.i("生成 obj_id ", Integer.toString(obj_id));
         }
-
-
 
     }
 
@@ -294,19 +298,17 @@ public class FileDownloader implements Parcelable  {
 
 
 
-    public void download(ProgressUpdateListener listener) throws Exception{
-        this.listener = listener;
 
-//        IntentFilter filter = new IntentFilter();
-//        context.registerReceiver(download_listener_receiver, filter);
+
+    public void download(final ProgressUpdateListener listener) throws Exception{
+
+
 
         NotificationServiceBar notification_service_bar =
                 new NotificationServiceBar(context);
 
         notification_service_bar.
-                wait_notification(FileDownloader.this, notice_id);
-
-
+                wait_notification(this, notice_id);
 
 
         Intent download_service = new Intent(context, DownloadService.class);
@@ -314,11 +316,20 @@ public class FileDownloader implements Parcelable  {
         download_service.putExtra("download_manager", this);
         context.startService(download_service);
 
-//        if (m_bound) {
-//            Log.i("已经绑定 ", "true");
-//            return;
-//        }
-        // context.bindService(download_service, m_connection, Context.BIND_AUTO_CREATE);
+        BroadcastReceiver progress_listener_receiver = new DownloadListenerReceiver() {
+            @Override
+            public void onReceive(Context ctxt, Intent intent) {
+
+                fd = intent.getParcelableExtra("download_manager");
+                Log.i("接收正在下载的值 ", Integer.toString(fd.downloaded_size));
+
+                FileDownloader.this.listener = listener;
+                FileDownloader.this.listener.on_update(fd.downloaded_size);
+            }
+        };
+
+        context.registerReceiver(progress_listener_receiver,
+                new IntentFilter("app.action.download_listener_receiver"));
 
     }
 
