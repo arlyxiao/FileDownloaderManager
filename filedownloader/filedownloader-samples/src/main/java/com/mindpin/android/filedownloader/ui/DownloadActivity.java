@@ -61,7 +61,7 @@ public class DownloadActivity extends Activity {
         stored_dir = "/testmindpin/files";
 
 
-        progress_bar = (ProgressBar) this.findViewById(R.id.downloadbar);
+        // progress_bar = (ProgressBar) this.findViewById(R.id.downloadbar);
 
         progress_bar1 = (ProgressBar) this.findViewById(R.id.downloadbar1);
         progress_bar2 = (ProgressBar) this.findViewById(R.id.downloadbar2);
@@ -69,7 +69,7 @@ public class DownloadActivity extends Activity {
         progress_bar4 = (ProgressBar) this.findViewById(R.id.downloadbar4);
         progress_bar5 = (ProgressBar) this.findViewById(R.id.downloadbar5);
 
-        result_view = (TextView) this.findViewById(R.id.result_view);
+        // result_view = (TextView) this.findViewById(R.id.result_view);
 
         result_view1 = (TextView) this.findViewById(R.id.result_view1);
         result_view2 = (TextView) this.findViewById(R.id.result_view2);
