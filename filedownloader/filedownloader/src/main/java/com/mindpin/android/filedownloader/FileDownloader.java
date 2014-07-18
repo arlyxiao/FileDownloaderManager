@@ -179,8 +179,7 @@ public class FileDownloader implements Parcelable  {
                           File file_save_dir,
                           int thread_num) {
 
-
-        // FileDownloader.context = context;
+        file_save_dir = create_dir(file_save_dir);
         this.context = context;
         this.download_url = download_url;
         this.save_file = file_save_dir;
@@ -191,6 +190,8 @@ public class FileDownloader implements Parcelable  {
             set_obj_id();
             Log.i("生成 obj_id ", Integer.toString(obj_id));
         }
+
+
 
     }
 
@@ -233,6 +234,30 @@ public class FileDownloader implements Parcelable  {
         }
 
         return filename;
+    }
+
+
+    private File create_dir(File file_dir) {
+        file_dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                + file_dir.getPath());
+        if (file_dir.exists()) {
+            Log.i("目录已经存在 ", file_dir.getAbsolutePath());
+            return file_dir;
+        }
+
+        Log.i("目录不存在 开始创建目录 ", "true");
+
+        try{
+            boolean result = file_dir.mkdirs();
+            if (result) {
+                Log.i("目录创建成功 ", "true");
+                return file_dir;
+            }
+        } catch(SecurityException se){
+            Log.i("目录创建失败 ", se.toString());
+        }
+
+        return null;
     }
 
 

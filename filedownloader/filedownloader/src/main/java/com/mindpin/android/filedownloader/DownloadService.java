@@ -81,19 +81,12 @@ public class DownloadService extends Service {
 
 
 
-
-
-
-
-
-
-
-        should_stop_foreground = intent.getBooleanExtra("should_stop_foreground", false);
-        if (should_stop_foreground) {
-            Log.i("需要把服务放到后台运行 ", "true");
-
-            // stop_forground_notification();
-        }
+//        should_stop_foreground = intent.getBooleanExtra("should_stop_foreground", false);
+//        if (should_stop_foreground) {
+//            Log.i("需要把服务放到后台运行 ", "true");
+//
+//            // stop_forground_notification();
+//        }
 
         return START_REDELIVER_INTENT;
     }

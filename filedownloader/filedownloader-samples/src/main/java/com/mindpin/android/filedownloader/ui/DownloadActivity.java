@@ -1,6 +1,7 @@
 package com.mindpin.android.filedownloader.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,40 +45,6 @@ public class DownloadActivity extends Activity {
     FileDownloader fd_more_10m;
 
 
-    private Handler handler = new Handler(){
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 1:
-
-
-
-                    if(progress_bar.getProgress()== progress_bar.getMax()){
-                        Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
-                        downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
-
-
-//                        try {
-//                            Intent intent = new Intent(Intent.ACTION_VIEW);
-//                            File file = new File(stored_dir + "/" + downloaded_file);
-//                            intent.setAction(android.content.Intent.ACTION_VIEW);
-//                            intent.setDataAndType(Uri.fromFile(file),getMimeType(file.getAbsolutePath()));
-//                            startActivity(intent);
-//                        } catch (Exception e) {
-//                            Log.i("文件打开错误 ", e.getMessage());
-//                        }
-
-
-                    }
-                    break;
-
-                case -1:
-                    Toast.makeText(DownloadActivity.this, R.string.error, 1).show();
-                    break;
-            }
-        }
-    };
 
 
     @Override
@@ -102,13 +69,13 @@ public class DownloadActivity extends Activity {
                 String path = path_less_100kb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", stored_dir);
-                    File savedir = Environment.getExternalStorageDirectory();
+                    File savedir = new File("/testmindpin/files");
                     if (fd_less_100kb == null) {
                         Log.i("初始化 fd_less_100kb ", "true");
                         fd_less_100kb =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    download(fd_less_100kb);
+                    run_download(fd_less_100kb);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -143,14 +110,15 @@ public class DownloadActivity extends Activity {
                 String path = path_less_1mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
-                    File savedir = Environment.getExternalStorageDirectory();
+                    // File savedir = Environment.getExternalStorageDirectory();
+                    File savedir = new File("/testmindpin/files");
 
                     if (fd_less_1m == null) {
                         Log.i("初始化 fd_less_1m ", "true");
                         fd_less_1m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    download(fd_less_1m);
+                    run_download(fd_less_1m);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -185,14 +153,14 @@ public class DownloadActivity extends Activity {
                 String path = path_less_5mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
-                    File savedir = Environment.getExternalStorageDirectory();
+                    File savedir = new File("/testmindpin/files");
 
                     if (fd_less_5m == null) {
                         Log.i("初始化 fd_less_5m ", "true");
                         fd_less_5m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    download(fd_less_5m);
+                    run_download(fd_less_5m);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -226,14 +194,14 @@ public class DownloadActivity extends Activity {
                 String path = path_less_10mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
-                    File savedir = Environment.getExternalStorageDirectory();
+                    File savedir = new File("/testmindpin/files");
 
                     if (fd_less_10m == null) {
                         Log.i("初始化 fd_less_10m ", "true");
                         fd_less_10m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    download(fd_less_10m);
+                    run_download(fd_less_10m);
 
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
@@ -269,14 +237,14 @@ public class DownloadActivity extends Activity {
                 String path = path_above_10mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                     Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
-                    File savedir = Environment.getExternalStorageDirectory();
+                    File savedir = new File("/testmindpin/files");
 
                     if (fd_more_10m == null) {
                         Log.i("初始化 fd_more_10m ", "true");
                         fd_more_10m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    download(fd_more_10m);
+                    run_download(fd_more_10m);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -306,59 +274,42 @@ public class DownloadActivity extends Activity {
     }
 
 
-    private void download(final FileDownloader fd) {
 
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-                Bundle b = new Bundle();
-                b.putString("param_name1", "param_value1");
-                fd.set_notification(TargetActivity.class, b);
-                downloaded_file = fd.get_file_name();
-                try {
-                    Log.i("activity 中取下载URL ", fd.download_url);
-                    progress_bar.setMax(0);
-                    progress_bar.setProgress(0);
-                    fd.download(new ProgressUpdateListener () {
-                        @Override
-                        public void on_update(int downloaded_size) {
+    public void run_download(final FileDownloader fd){
 
-                            Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
-                            Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
-                            Log.i("文件总大小 ", Integer.toString(fd.get_file_size()));
+        Bundle b = new Bundle();
+        b.putString("param_name1", "param_value1");
+        fd.set_notification(TargetActivity.class, b);
 
-                            progress_bar.setMax(fd.get_file_size());
-                            progress_bar.setProgress(downloaded_size);
+        try {
+            fd.download(new ProgressUpdateListener(){
+                public void on_update(int downloaded_size) {
+                    Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
+                    Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
+                    Log.i("文件总大小 ", Integer.toString(fd.get_file_size()));
 
-                            Log.i("正在进行的进度条大小 ", Integer.toString(progress_bar.getProgress()));
-                            Log.i("进度条最大大小 ", Integer.toString(progress_bar.getMax()));
+                    progress_bar.setMax(fd.get_file_size());
+                    progress_bar.setProgress(downloaded_size);
 
-                            float num = (float) progress_bar.getProgress()/(float) progress_bar.getMax();
-                            int result = (int)(num*100);
-                            Log.i("百分比 ", Integer.toString(result));
-                            result_view.setText(Integer.toString(result) + "%");
+                    Log.i("正在进行的进度条大小 ", Integer.toString(progress_bar.getProgress()));
+                    Log.i("进度条最大大小 ", Integer.toString(progress_bar.getMax()));
 
-                            if(progress_bar.getProgress()== progress_bar.getMax()){
-                                // Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
-                                downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
+                    float num = (float) progress_bar.getProgress()/(float) progress_bar.getMax();
+                    int result = (int)(num*100);
+                    Log.i("百分比 ", Integer.toString(result));
+                    result_view.setText(Integer.toString(result) + "%");
 
-                            }
+                    if(progress_bar.getProgress()== progress_bar.getMax()){
+                        // Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
+                        downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
 
-//                    Message msg = new Message();
-//                    msg.what = 1;
-//                    msg.getData().putInt("size", downloaded_size);
-//                    handler.sendMessage(msg);
-                        }
-                    });
-                } catch (Exception e) {
-                    handler.obtainMessage(-1).sendToTarget();
-                    Log.i("下载错误 ", e.getMessage());
-                    Log.i("下载错误 ", e.toString());
-                    e.printStackTrace();
+                    }
                 }
-//            }
-//        }).start();
-
+            });
+        } catch (Exception e) {
+            Log.i("下载错误 ", e.toString());
+            e.printStackTrace();
+        }
 
     }
 }
