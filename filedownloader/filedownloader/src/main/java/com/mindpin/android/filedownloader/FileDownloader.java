@@ -5,7 +5,9 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -302,8 +304,6 @@ public class FileDownloader implements Parcelable  {
 
     public void download(final ProgressUpdateListener listener) throws Exception{
 
-
-
         NotificationServiceBar notification_service_bar =
                 new NotificationServiceBar(context);
 
@@ -316,7 +316,7 @@ public class FileDownloader implements Parcelable  {
         download_service.putExtra("download_manager", this);
         context.startService(download_service);
 
-        BroadcastReceiver progress_listener_receiver = new DownloadListenerReceiver() {
+        final BroadcastReceiver progress_listener_receiver = new DownloadListenerReceiver() {
             @Override
             public void onReceive(Context ctxt, Intent intent) {
 
@@ -329,6 +329,8 @@ public class FileDownloader implements Parcelable  {
 
                 FileDownloader.this.listener = listener;
                 FileDownloader.this.listener.on_update(fd.downloaded_size);
+
+
             }
         };
 

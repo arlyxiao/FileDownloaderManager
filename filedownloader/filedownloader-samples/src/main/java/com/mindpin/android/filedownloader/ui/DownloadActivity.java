@@ -93,7 +93,8 @@ public class DownloadActivity extends Activity {
                         fd_less_100kb =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    run_download(fd_less_100kb, result_view1, progress_bar1);
+                    // run_download(fd_less_100kb, result_view1, progress_bar1);
+                    run_download_1();
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -139,6 +140,7 @@ public class DownloadActivity extends Activity {
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
                     run_download(fd_less_1m, result_view2, progress_bar2);
+                    run_download_2();
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -330,6 +332,88 @@ public class DownloadActivity extends Activity {
                     result_view.setText(Integer.toString(result) + "%");
 
                     if(progress_bar.getProgress()== progress_bar.getMax()){
+                        // Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
+                        downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
+
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Log.i("下载错误 ", e.toString());
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+
+    public void run_download_1(){
+
+        Bundle b = new Bundle();
+        b.putString("param_name1", "param_value1");
+        fd_less_100kb.set_notification(TargetActivity.class, b);
+        downloaded_file = fd_less_100kb.get_file_name();
+        try {
+            fd_less_100kb.download(new ProgressUpdateListener(){
+                public void on_update(int downloaded_size) {
+                    Log.i("正在运行 run_download_1 ", "true");
+                    Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
+                    Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
+                    Log.i("文件总大小 ", Integer.toString(fd_less_100kb.get_file_size()));
+
+                    progress_bar1.setMax(fd_less_100kb.get_file_size());
+                    progress_bar1.setProgress(downloaded_size);
+
+                    Log.i("正在进行的进度条大小 ", Integer.toString(progress_bar1.getProgress()));
+                    Log.i("进度条最大大小 ", Integer.toString(progress_bar1.getMax()));
+
+                    float num = (float) progress_bar1.getProgress()/(float) progress_bar1.getMax();
+                    int result = (int)(num*100);
+                    Log.i("百分比 ", Integer.toString(result));
+                    result_view1.setText(Integer.toString(result) + "%");
+
+                    if(progress_bar1.getProgress()== progress_bar1.getMax()){
+                        // Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
+                        downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
+
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Log.i("下载错误 ", e.toString());
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public void run_download_2(){
+
+        Bundle b = new Bundle();
+        b.putString("param_name1", "param_value1");
+        fd_less_1m.set_notification(TargetActivity.class, b);
+        downloaded_file = fd_less_1m.get_file_name();
+        try {
+            fd_less_1m.download(new ProgressUpdateListener(){
+                public void on_update(int downloaded_size) {
+                    Log.i("正在运行 run_download_2 ", "true");
+                    Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
+                    Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
+                    Log.i("文件总大小 ", Integer.toString(fd_less_1m.get_file_size()));
+
+                    progress_bar2.setMax(fd_less_1m.get_file_size());
+                    progress_bar2.setProgress(downloaded_size);
+
+                    Log.i("正在进行的进度条大小 ", Integer.toString(progress_bar2.getProgress()));
+                    Log.i("进度条最大大小 ", Integer.toString(progress_bar2.getMax()));
+
+                    float num = (float) progress_bar2.getProgress()/(float) progress_bar2.getMax();
+                    int result = (int)(num*100);
+                    Log.i("百分比 ", Integer.toString(result));
+                    result_view2.setText(Integer.toString(result) + "%");
+
+                    if(progress_bar2.getProgress()== progress_bar2.getMax()){
                         // Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
                         downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
 
