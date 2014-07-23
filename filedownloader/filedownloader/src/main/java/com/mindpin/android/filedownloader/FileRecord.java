@@ -31,7 +31,7 @@ public class FileRecord {
             data.put(cursor.getInt(0), cursor.getInt(1));
         }
         cursor.close();
-        db.close();
+        // db.close();
         return data;
     }
     /**
@@ -51,7 +51,7 @@ public class FileRecord {
         }finally{
             db.endTransaction();
         }
-        db.close();
+        // db.close();
     }
     /**
      * 实时更新每条线程已经下载的文件长度
@@ -82,7 +82,7 @@ public class FileRecord {
         }finally{
             db.endTransaction();
         }
-        db.close();
+        // db.close();
     }
     /**
      * 当文件下载完成后，删除对应的下载记录
@@ -92,7 +92,7 @@ public class FileRecord {
         try {
             SQLiteDatabase db = db_open_helper.getWritableDatabase();
             db.execSQL("delete from filedownlog where downpath=?", new Object[]{path});
-            db.close();
+            // db.close();
         } catch (Exception e) {
             Log.i("数据库删除错误 ", e.toString());
             e.printStackTrace();
