@@ -76,7 +76,7 @@ public class DownloadThread extends Thread {
 
                     if (downloader.should_pause) {
                         Log.i("线程可以停止运行了 ", "true");
-                        // this.interrupt();
+                        this.interrupt();
                         return;
                     }
 

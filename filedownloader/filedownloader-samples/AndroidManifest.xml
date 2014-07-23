@@ -61,6 +61,15 @@
         </receiver>
 
         <receiver
+            android:name=".DownloadPauseReceiver"
+            android:label="DownloadPauseReceiver" >
+            <intent-filter>
+                <action android:name="app.action.download_pause_receiver" />
+            </intent-filter>
+
+        </receiver>
+
+        <receiver
             android:name=".DownloadListenerReceiver"
             android:label="DownloadListenerReceiver" >
             <intent-filter>

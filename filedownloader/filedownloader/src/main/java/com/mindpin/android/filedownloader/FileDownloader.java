@@ -200,22 +200,18 @@ public class FileDownloader implements Parcelable  {
 
     }
 
-//    @Override
-//    public void on_update(int downloaded_size) {
-//        Log.i("实现接口 onupdate 输出测试 ", "true");
-//    }
 
-
-//    private BroadcastReceiver download_listener_receiver =
-//        new BroadcastReceiver() {
-//
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                Log.i("接收最新 fd ", "true");
-//
-//                fd = intent.getParcelableExtra("download_manager");
-//            }
-//        };
+    public void recover() {
+        this.file_record = null;
+        this.downloaded_size = 0;
+        this.file_size = 0;
+        this.save_file = null;
+        this.block = 0;
+        this.thread_data = null;
+        this.threads = null;
+        this.thread_num = 0;
+        this.download_url = null;
+    }
 
 
     public void set_notification(Class activity_class, Bundle intent_extras) {
@@ -314,69 +310,89 @@ public class FileDownloader implements Parcelable  {
         download_service.putExtra("download_manager", this);
         context.startService(download_service);
 
+
+        register_listener_receiver(listener);
+        register_done_receiver();
+        register_pause_receiver();
+    }
+
+
+    private void register_pause_receiver() {
+        final BroadcastReceiver download_pause_receiver = new DownloadPauseReceiver() {
+            @Override
+            public void onReceive(Context ctxt, Intent intent) {
+
+                fd = intent.getParcelableExtra("download_manager");
+
+                if (fd.get_obj_id() == FileDownloader.this.get_obj_id()) {
+                    Log.i("调试 pause 接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
+                    FileDownloader.this.downloaded_size = 0;
+
+                    FileDownloader.this.file_size = 0;
+                    Log.i("调试 pause 接收正在下载的 file_size 值 ", Integer.toString(fd.file_size));
+                } else {
+                    Log.i("调试 广播接收到不同的 obj_id 3 ", Integer.toString(fd.get_obj_id()));
+                }
+
+            }
+        };
+
+        context.registerReceiver(download_pause_receiver,
+                new IntentFilter("app.action.download_pause_receiver"));
+    }
+
+
+    private void register_done_receiver() {
+        final BroadcastReceiver download_done_receiver = new DownloadDoneNotification() {
+            @Override
+            public void onReceive(Context ctxt, Intent intent) {
+
+                fd = intent.getParcelableExtra("download_manager");
+
+                if (fd.get_obj_id() == FileDownloader.this.get_obj_id()) {
+                    Log.i("调试 接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
+                    FileDownloader.this.downloaded_size = 0;
+
+                    FileDownloader.this.file_size = 0;
+                    Log.i("调试 接收正在下载的 file_size 值 ", Integer.toString(fd.file_size));
+                } else {
+                    Log.i("调试 广播接收到不同的 obj_id 2 ", Integer.toString(fd.get_obj_id()));
+                }
+
+            }
+        };
+
+        context.registerReceiver(download_done_receiver,
+                new IntentFilter("app.action.download_done_notification"));
+    }
+
+
+    private void register_listener_receiver(final ProgressUpdateListener listener) {
         final BroadcastReceiver progress_listener_receiver = new DownloadListenerReceiver() {
             @Override
             public void onReceive(Context ctxt, Intent intent) {
 
                 fd = intent.getParcelableExtra("download_manager");
-                Log.i("接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
-                FileDownloader.this.downloaded_size = fd.downloaded_size;
 
-                FileDownloader.this.file_size = fd.file_size;
+                if (fd.get_obj_id() == FileDownloader.this.get_obj_id()) {
+                    Log.i("接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
+                    FileDownloader.this.downloaded_size = fd.downloaded_size;
 
-                Log.i("接收正在下载的 file_size 值 ", Integer.toString(fd.file_size));
+                    FileDownloader.this.file_size = fd.file_size;
 
-                FileDownloader.this.listener = listener;
-                FileDownloader.this.listener.on_update(fd.downloaded_size);
+                    Log.i("接收正在下载的 file_size 值 ", Integer.toString(fd.file_size));
+
+                    FileDownloader.this.listener = listener;
+                    FileDownloader.this.listener.on_update(fd.downloaded_size);
+                } else {
+                    Log.i("调试 广播接收到不同的 obj_id 1 ", Integer.toString(fd.get_obj_id()));
+                }
+
             }
         };
 
         context.registerReceiver(progress_listener_receiver,
                 new IntentFilter("app.action.download_listener_receiver"));
-
-
-//        StartServiceThread start_thread = new StartServiceThread(this, listener);
-//        start_thread.run();
-
-
-//        if (received_queue.size() == 0) {
-//            StartServiceThread start_thread = new StartServiceThread(this, listener);
-//            Log.i("添加下载1 ", Integer.toString(this.get_obj_id()));
-//            start_thread.run();
-//            received_queue.offer(start_thread);
-//        } else {
-//            StartServiceThread start_thread = new StartServiceThread(this, listener);
-//            Log.i("添加下载2 ", Integer.toString(this.get_obj_id()));
-//            received_queue.offer(start_thread);
-//        }
-
-
-
-
-//        Intent download_service = new Intent(context, DownloadService.class);
-//        Log.i("启动服务前取下载URL ", download_url);
-//        download_service.putExtra("download_manager", this);
-//        context.startService(download_service);
-//
-//        final BroadcastReceiver progress_listener_receiver = new DownloadListenerReceiver() {
-//            @Override
-//            public void onReceive(Context ctxt, Intent intent) {
-//
-//                fd = intent.getParcelableExtra("download_manager");
-//                Log.i("接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
-//
-//                FileDownloader.this.file_size = fd.file_size;
-//
-//                Log.i("接收正在下载的 file_size 值 ", Integer.toString(fd.file_size));
-//
-//                FileDownloader.this.listener = listener;
-//                FileDownloader.this.listener.on_update(fd.downloaded_size);
-//            }
-//        };
-//
-//        context.registerReceiver(progress_listener_receiver,
-//                new IntentFilter("app.action.download_listener_receiver"));
-
     }
 
 
@@ -623,7 +639,7 @@ public class FileDownloader implements Parcelable  {
                 Log.i("threads 为空  ", "true");
             }
             Log.i("threads length ", Integer.toString(this.threads.length));
-            Log.i("thread id ", Long.toString(this.threads[i].getId()));
+            // Log.i("thread id ", Long.toString(this.threads[i].getId()));
 
 
             if (should_pause || should_stop) {

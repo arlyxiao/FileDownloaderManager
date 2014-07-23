@@ -20,6 +20,10 @@ import java.util.Random;
 
 
 public class DownloadDoneNotification extends BroadcastReceiver {
+    public FileDownloader fd;
+    public int file_size = 0;
+    public int downloaded_size = 0;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i("已经下载完成 停止服务后 显示的通知 ", "true");
