@@ -139,7 +139,7 @@ public class DownloadActivity extends Activity {
                         fd_less_1m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    run_download(fd_less_1m, result_view2, progress_bar2);
+                    // run_download(fd_less_1m, result_view2, progress_bar2);
                     run_download_2();
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
@@ -241,6 +241,9 @@ public class DownloadActivity extends Activity {
         less_10m_btn_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (fd_less_10m == null) {
+                    Log.i("调试 fd_less_10m 为 null ", "true");
+                }
                 fd_less_10m.pause_download();
                 progress_bar4.setProgress(0);
                 result_view4.setText("0%");

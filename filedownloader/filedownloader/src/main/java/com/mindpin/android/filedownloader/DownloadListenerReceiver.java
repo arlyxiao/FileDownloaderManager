@@ -10,6 +10,7 @@ public class DownloadListenerReceiver extends BroadcastReceiver {
     public FileDownloader fd;
     public int file_size = 0;
     public int downloaded_size = 0;
+    // public boolean is_received = false;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -21,5 +22,6 @@ public class DownloadListenerReceiver extends BroadcastReceiver {
 
         Log.i("接收最新 fd downloaded_size ", Integer.toString(fd.downloaded_size));
         downloaded_size = fd.downloaded_size;
+
     }
 }

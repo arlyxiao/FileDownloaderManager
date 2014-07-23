@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.app.DownloadManager;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -22,7 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -60,6 +58,7 @@ public class FileDownloader implements Parcelable  {
 
     URL url;
     boolean is_finished = false;
+    public static Queue received_queue = new LinkedList();
 
 //    public FileDownloader current = this;
 //
@@ -312,7 +311,6 @@ public class FileDownloader implements Parcelable  {
 
 
         Intent download_service = new Intent(context, DownloadService.class);
-        Log.i("启动服务前取下载URL ", download_url);
         download_service.putExtra("download_manager", this);
         context.startService(download_service);
 
@@ -322,6 +320,7 @@ public class FileDownloader implements Parcelable  {
 
                 fd = intent.getParcelableExtra("download_manager");
                 Log.i("接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
+                FileDownloader.this.downloaded_size = fd.downloaded_size;
 
                 FileDownloader.this.file_size = fd.file_size;
 
@@ -329,32 +328,85 @@ public class FileDownloader implements Parcelable  {
 
                 FileDownloader.this.listener = listener;
                 FileDownloader.this.listener.on_update(fd.downloaded_size);
-
-
             }
         };
 
         context.registerReceiver(progress_listener_receiver,
                 new IntentFilter("app.action.download_listener_receiver"));
 
+
+//        StartServiceThread start_thread = new StartServiceThread(this, listener);
+//        start_thread.run();
+
+
+//        if (received_queue.size() == 0) {
+//            StartServiceThread start_thread = new StartServiceThread(this, listener);
+//            Log.i("添加下载1 ", Integer.toString(this.get_obj_id()));
+//            start_thread.run();
+//            received_queue.offer(start_thread);
+//        } else {
+//            StartServiceThread start_thread = new StartServiceThread(this, listener);
+//            Log.i("添加下载2 ", Integer.toString(this.get_obj_id()));
+//            received_queue.offer(start_thread);
+//        }
+
+
+
+
+//        Intent download_service = new Intent(context, DownloadService.class);
+//        Log.i("启动服务前取下载URL ", download_url);
+//        download_service.putExtra("download_manager", this);
+//        context.startService(download_service);
+//
+//        final BroadcastReceiver progress_listener_receiver = new DownloadListenerReceiver() {
+//            @Override
+//            public void onReceive(Context ctxt, Intent intent) {
+//
+//                fd = intent.getParcelableExtra("download_manager");
+//                Log.i("接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
+//
+//                FileDownloader.this.file_size = fd.file_size;
+//
+//                Log.i("接收正在下载的 file_size 值 ", Integer.toString(fd.file_size));
+//
+//                FileDownloader.this.listener = listener;
+//                FileDownloader.this.listener.on_update(fd.downloaded_size);
+//            }
+//        };
+//
+//        context.registerReceiver(progress_listener_receiver,
+//                new IntentFilter("app.action.download_listener_receiver"));
+
     }
+
+
 
     public void pause_download() {
 
 
         // context.stopService(download_service);
+        try {
+            if (downloaded_size == 0) {
+                return;
+            }
 
-        should_pause = true;
+            Log.i("调试 正在下载的大小 ", Integer.toString(downloaded_size));
 
-        Log.i("暂停下载 ", "true");
-        Log.i("obj_id ", Integer.toString(this.hashCode()));
+            should_pause = true;
 
-        Intent download_service = new Intent(context, DownloadService.class);
+            Log.i("暂停下载 ", "true");
+            Log.i("obj_id ", Integer.toString(this.hashCode()));
 
-        download_service.putExtra("download_manager", this);
-        context.startService(download_service);
+            Intent download_service = new Intent(context, DownloadService.class);
 
-        should_pause = false;
+            download_service.putExtra("download_manager", this);
+            context.startService(download_service);
+
+            should_pause = false;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void stop_download() {
@@ -443,7 +495,7 @@ public class FileDownloader implements Parcelable  {
             this.threads = new DownloadThread[thread_num];
             Log.i("调试2 ", "true");
             this.conn = (HttpURLConnection) url.openConnection();
-            this.conn.setConnectTimeout(5*1000);
+            this.conn.setConnectTimeout(5 * 1000);
             this.conn.setRequestMethod("GET");
             this.conn.setRequestProperty("Accept", "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
             this.conn.setRequestProperty("Accept-Language", "zh-CN");
@@ -602,4 +654,8 @@ public class FileDownloader implements Parcelable  {
         }
 
     }
+
+
+
+
 }

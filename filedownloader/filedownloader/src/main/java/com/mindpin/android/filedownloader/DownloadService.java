@@ -74,7 +74,9 @@ public class DownloadService extends Service {
 
         FileTaskThread file_task_thread =
                 new FileTaskThread(intent, download_manager, download_manager.notice_id);
-        file_task_thread.run();
+
+        Thread t = new Thread( file_task_thread );
+        t.start();
 
 
 
@@ -214,7 +216,7 @@ public class DownloadService extends Service {
 
 
 
-    private class FileTaskThread extends Thread {
+    private class FileTaskThread implements Runnable {
         Intent intent;
         FileDownloader download_manager;
         int notice_id;
@@ -228,7 +230,7 @@ public class DownloadService extends Service {
             this.notice_id = notice_id;
 
             if (download_manager.should_pause || download_manager.should_stop) {
-                this.setPriority(MAX_PRIORITY);
+                // this.setPriority(MAX_PRIORITY);
                 Log.i("设置成最大优先级 ", "true");
             }
         }
@@ -250,108 +252,175 @@ public class DownloadService extends Service {
             save_download_manager(download_manager);
 
 
-                new AsyncTask<Void, FileDownloader, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... objects) {
+            try {
 
-                        try {
+                download_manager.init_connection(context);
+                file_size = download_manager.file_size;
+                download_manager.save_thread_data();
 
-                            download_manager.init_connection(context);
-                            file_size = download_manager.file_size;
-                            download_manager.save_thread_data();
+                download_manager.is_finished = false;
+                while (!download_manager.is_finished) {
+                    Thread.sleep(900);
 
-                            download_manager.is_finished = false;
-                            while (!download_manager.is_finished) {
-                                Thread.sleep(900);
-
-                                // 停止下载
-                                if (get_download_store(obj_id).should_stop) {
-                                    download_manager.should_stop = true;
-                                    Log.i("should_stop true", "true");
-                                    return null;
-                                } else {
-                                    Log.i("should_stop false", "false");
-                                }
-
-                                // 暂停下载
-                                if (get_download_store(obj_id).should_pause) {
-                                    download_manager.should_pause = true;
-                                    Log.i("should_pause为 true", "true");
-                                    return null;
-                                } else {
-                                    Log.i("should_pause为 false", "false");
-                                }
-
-
-
-                                download_manager.is_finished = true;
-                                download_manager.continue_download_with_thread();
-
-
-                                notification_service_bar.
-                                        handle_notification(download_manager, notice_id);
-
-//                                if (download_manager.listener != null) {
-//                                    Log.i("从 service 中传 listener 进度条 ", "true");
-//                                    // publishProgress(download_manager);
-//
-//                                }
-                                Intent in = new Intent("app.action.download_listener_receiver");
-                                in.putExtra("download_manager", download_manager);
-                                Log.i("service 中 downloaded_size ", Integer.toString(download_manager.downloaded_size));
-                                getApplicationContext().sendBroadcast(in);
-
-
-                            }
-
-                            return null;
-
-                        } catch (Exception e) {
-                            Log.i("下载有错误 ", e.toString());
-                            e.printStackTrace();
-                        }
-
-
-                        return null;
+                    // 停止下载
+                    if (get_download_store(obj_id).should_stop) {
+                        download_manager.should_stop = true;
+                        Log.i("should_stop true", "true");
+                        return;
+                    } else {
+                        Log.i("should_stop false", "false");
                     }
 
+                    // 暂停下载
+                    if (get_download_store(obj_id).should_pause) {
+                        download_manager.should_pause = true;
+                        Log.i("should_pause为 true", "true");
+                        return;
+                    } else {
+                        Log.i("should_pause为 false", "false");
+                    }
+
+
+
+                    download_manager.is_finished = true;
+                    download_manager.continue_download_with_thread();
+
+
+                    notification_service_bar.
+                            handle_notification(download_manager, notice_id);
+
+                    Intent in = new Intent("app.action.download_listener_receiver");
+                    in.putExtra("download_manager", download_manager);
+                    Log.i("service 中 downloaded_size ", Integer.toString(download_manager.downloaded_size));
+                    getApplicationContext().sendBroadcast(in);
+
+
+                }
+                build_download_done_notification(download_manager);
+                clear_notice_bar(notice_id);
+                clear_local_thread_data(download_manager);
+                stop_service();
+
+                return;
+
+            } catch (Exception e) {
+                Log.i("下载有错误 ", e.toString());
+                e.printStackTrace();
+            }
+
+
+
+//                new AsyncTask<Void, FileDownloader, Void>() {
 //                    @Override
-//                    protected void onProgressUpdate(FileDownloader... result) {
-//                        FileDownloader download_manager = result[0];
-//                        Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
+//                    protected Void doInBackground(Void... objects) {
 //
-//                        Intent in = new Intent("app.action.download_listener_receiver");
-//                        Log.i("onProgressUpdate fd 文件大小 ",
-//                                Integer.toString(download_manager.file_size));
-//                        in.putExtra("download_manager", download_manager);
-//                        getApplicationContext().sendBroadcast(in);
+//                        try {
+//
+//                            download_manager.init_connection(context);
+//                            file_size = download_manager.file_size;
+//                            download_manager.save_thread_data();
+//
+//                            download_manager.is_finished = false;
+//                            while (!download_manager.is_finished) {
+//                                Thread.sleep(900);
+//
+//                                // 停止下载
+//                                if (get_download_store(obj_id).should_stop) {
+//                                    download_manager.should_stop = true;
+//                                    Log.i("should_stop true", "true");
+//                                    return null;
+//                                } else {
+//                                    Log.i("should_stop false", "false");
+//                                }
+//
+//                                // 暂停下载
+//                                if (get_download_store(obj_id).should_pause) {
+//                                    download_manager.should_pause = true;
+//                                    Log.i("should_pause为 true", "true");
+//                                    return null;
+//                                } else {
+//                                    Log.i("should_pause为 false", "false");
+//                                }
 //
 //
-//                        download_manager.listener.on_update(download_manager.downloaded_size);
+//
+//                                download_manager.is_finished = true;
+//                                download_manager.continue_download_with_thread();
+//
+//
+//                                notification_service_bar.
+//                                        handle_notification(download_manager, notice_id);
+//
+////                                if (download_manager.listener != null) {
+////                                    Log.i("从 service 中传 listener 进度条 ", "true");
+////                                    // publishProgress(download_manager);
+////
+////                                }
+//                                Intent in = new Intent("app.action.download_listener_receiver");
+//                                in.putExtra("download_manager", download_manager);
+//                                Log.i("service 中 downloaded_size ", Integer.toString(download_manager.downloaded_size));
+//                                getApplicationContext().sendBroadcast(in);
+//
+//
+//                            }
+//
+//                            return null;
+//
+//                        } catch (Exception e) {
+//                            Log.i("下载有错误 ", e.toString());
+//                            e.printStackTrace();
+//                        }
+//
+//
+//                        return null;
 //                    }
-
-                    @Override
-                    protected void onPostExecute(Void result) {
-
-                        if (download_manager.should_stop) {
-                            Log.i("整个停止下载 ", "true");
-                            clear_notice_bar(notice_id);
-                            clear_local_thread_data(download_manager);
-                            stop_service();
-                            return;
-                        }
-
-                        if (download_manager.should_pause) {
-                            Log.i("线程停止 ", "true");
-                            return;
-                        }
-
-                        build_download_done_notification(download_manager);
-                        clear_notice_bar(notice_id);
-                        clear_local_thread_data(download_manager);
-                        stop_service();
-                    }
-                }.execute();
+//
+////                    @Override
+////                    protected void onProgressUpdate(FileDownloader... result) {
+////                        FileDownloader download_manager = result[0];
+////                        Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
+////
+////                        Intent in = new Intent("app.action.download_listener_receiver");
+////                        Log.i("onProgressUpdate fd 文件大小 ",
+////                                Integer.toString(download_manager.file_size));
+////                        in.putExtra("download_manager", download_manager);
+////                        getApplicationContext().sendBroadcast(in);
+////
+////
+////                        download_manager.listener.on_update(download_manager.downloaded_size);
+////                    }
+//
+//                    @Override
+//                    protected void onPostExecute(Void result) {
+//                        if (download_manager.should_stop) {
+//                            Log.i("整个停止下载 ", "true");
+//                            clear_notice_bar(notice_id);
+//                            clear_local_thread_data(download_manager);
+//                            stop_service();
+//                            return;
+//                        }
+//
+//                        if (download_manager.should_pause) {
+//                            Log.i("线程停止 ", "true");
+//                            return;
+//                        }
+//
+//                        build_download_done_notification(download_manager);
+//                        clear_notice_bar(notice_id);
+//                        clear_local_thread_data(download_manager);
+//                        stop_service();
+//
+//
+////                        download_manager.received_queue.poll();
+////                        StartServiceThread t =
+////                                (StartServiceThread)download_manager.received_queue.poll();
+////
+////                        if (t != null) {
+////                            Log.i("另外一个下载开始 ", "true");
+////                            t.run();
+////                        }
+//                    }
+//                }.execute();
 
 //            } finally {
 //                Log.i("FileTaskThread 终止 ", "true");

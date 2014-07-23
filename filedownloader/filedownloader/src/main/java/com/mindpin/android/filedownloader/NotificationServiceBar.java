@@ -7,11 +7,13 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 
 public class NotificationServiceBar {
     private static final Class[] start_signature = new Class[] {
@@ -116,6 +118,7 @@ public class NotificationServiceBar {
                 .setAutoCancel(true)
                 .setWhen(System.currentTimeMillis());
         Notification notification = mBuilder.getNotification();
+
 
         RemoteViews content_view = new RemoteViews(context.getPackageName(), R.layout.custom_notification_layout);
         content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
