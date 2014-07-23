@@ -201,17 +201,17 @@ public class FileDownloader implements Parcelable  {
     }
 
 
-    public void recover() {
-        this.file_record = null;
-        this.downloaded_size = 0;
-        this.file_size = 0;
-        this.save_file = null;
-        this.block = 0;
-        this.thread_data = null;
-        this.threads = null;
-        this.thread_num = 0;
-        this.download_url = null;
-    }
+//    public void recover() {
+//        this.file_record = null;
+//        this.downloaded_size = 0;
+//        this.file_size = 0;
+//        this.save_file = null;
+//        this.block = 0;
+//        this.thread_data = null;
+//        this.threads = null;
+//        this.thread_num = 0;
+//        this.download_url = null;
+//    }
 
 
     public void set_notification(Class activity_class, Bundle intent_extras) {
@@ -474,30 +474,30 @@ public class FileDownloader implements Parcelable  {
     boolean m_bound = false;
 
 
-    private ServiceConnection m_connection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
-            m_service = binder.getService();
-
-            Log.i("bind 中传 obj_id 222 ", Integer.toString(obj_id));
-            file_size = m_service.get_download_store(obj_id).file_size;
-            Log.i("bind 中传 file_size 222 ", Integer.toString(file_size));
-
-
-
-            m_bound = true;
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            // m_bound = false;
-            Log.i("下载完毕 ", "true");
-        }
-    };
+//    private ServiceConnection m_connection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName className,
+//                                       IBinder service) {
+//            DownloadService.LocalBinder binder = (DownloadService.LocalBinder) service;
+//            m_service = binder.getService();
+//
+//            Log.i("bind 中传 obj_id 222 ", Integer.toString(obj_id));
+//            file_size = m_service.get_download_store(obj_id).file_size;
+//            Log.i("bind 中传 file_size 222 ", Integer.toString(file_size));
+//
+//
+//
+//            m_bound = true;
+//
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName arg0) {
+//            // m_bound = false;
+//            Log.i("下载完毕 ", "true");
+//        }
+//    };
 
 
 

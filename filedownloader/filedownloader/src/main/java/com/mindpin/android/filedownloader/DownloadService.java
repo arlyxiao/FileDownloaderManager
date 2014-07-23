@@ -15,13 +15,7 @@ import java.util.ArrayList;
 
 public class DownloadService extends Service {
     Context context;
-    Boolean should_stop_foreground = false;
-    // URL url;
     ArrayList<FileDownloader> download_store_list = new ArrayList<FileDownloader>();
-    // ArrayList<Integer> file_task_threads = new ArrayList<Integer>();
-
-    public int file_size;
-
 
     @Override
     public void onCreate() {
@@ -55,23 +49,6 @@ public class DownloadService extends Service {
         }
 
 
-//        if (get_download_store(download_manager.get_obj_id()) == null ||
-//                (download_manager.should_pause == false &&
-//                download_manager.should_stop == false)
-//                ) {
-//            save_download_manager(download_manager);
-//
-//
-//            FileTaskThread file_task_thread =
-//                    new FileTaskThread(intent, download_manager, download_manager.notice_id);
-//            file_task_thread.run();
-//
-//
-//
-//            Log.i("初始化 thread ", "true");
-//        }
-        // save_download_manager(download_manager);
-
         if (get_download_store(download_manager.get_obj_id()) == null) {
             FileTaskThread file_task_thread =
                     new FileTaskThread(intent, download_manager, download_manager.notice_id);
@@ -83,20 +60,6 @@ public class DownloadService extends Service {
         }
 
 
-
-
-
-
-
-
-
-
-//        should_stop_foreground = intent.getBooleanExtra("should_stop_foreground", false);
-//        if (should_stop_foreground) {
-//            Log.i("需要把服务放到后台运行 ", "true");
-//
-//            // stop_forground_notification();
-//        }
 
         return START_REDELIVER_INTENT;
     }
@@ -115,25 +78,6 @@ public class DownloadService extends Service {
         return m_binder;
     }
 
-//    @Override
-//    public boolean onUnbind(Intent intent) {
-//
-//        Log.i("服务解决绑定callback ", "true");
-//
-//        FileDownloader download_manager =
-//                intent.getParcelableExtra("download_manager");
-//        Log.i("传整个对象给 service, 测试输出 ", download_manager.get_test());
-//
-//        FileTaskThread file_task_thread =
-//                new FileTaskThread(intent, download_manager, download_manager.notice_id);
-//        file_task_thread.run();
-//
-//        stop_service();
-//        clear_local_thread_data(download_manager);
-//        clear_notice_bar(download_manager.notice_id);
-//
-//        return true;
-//    }
 
 
 
@@ -218,22 +162,6 @@ public class DownloadService extends Service {
     }
 
 
-//    private void stop_forground_notification() {
-//        Intent i = new Intent(file_downloader.context, file_downloader.activity_class);
-//        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        i.putExtras(file_downloader.intent_extras);
-//        startActivity(i);
-//
-//
-//        notification_service_bar.stop_foreground(notice_id);
-//
-//        NotificationManager notice_manager =
-//                (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-//        notice_manager.cancelAll();
-//    }
-
-
-
 
 
     public String show_human_size(long bytes) {
@@ -286,7 +214,6 @@ public class DownloadService extends Service {
             try {
 
                 download_manager.init_connection(context);
-                file_size = download_manager.file_size;
                 download_manager.save_thread_data();
 
                 download_manager.is_finished = false;
@@ -356,128 +283,6 @@ public class DownloadService extends Service {
                 Log.i("下载有错误 ", e.toString());
                 e.printStackTrace();
             }
-
-
-
-//                new AsyncTask<Void, FileDownloader, Void>() {
-//                    @Override
-//                    protected Void doInBackground(Void... objects) {
-//
-//                        try {
-//
-//                            download_manager.init_connection(context);
-//                            file_size = download_manager.file_size;
-//                            download_manager.save_thread_data();
-//
-//                            download_manager.is_finished = false;
-//                            while (!download_manager.is_finished) {
-//                                Thread.sleep(900);
-//
-//                                // 停止下载
-//                                if (get_download_store(obj_id).should_stop) {
-//                                    download_manager.should_stop = true;
-//                                    Log.i("should_stop true", "true");
-//                                    return null;
-//                                } else {
-//                                    Log.i("should_stop false", "false");
-//                                }
-//
-//                                // 暂停下载
-//                                if (get_download_store(obj_id).should_pause) {
-//                                    download_manager.should_pause = true;
-//                                    Log.i("should_pause为 true", "true");
-//                                    return null;
-//                                } else {
-//                                    Log.i("should_pause为 false", "false");
-//                                }
-//
-//
-//
-//                                download_manager.is_finished = true;
-//                                download_manager.continue_download_with_thread();
-//
-//
-//                                notification_service_bar.
-//                                        handle_notification(download_manager, notice_id);
-//
-////                                if (download_manager.listener != null) {
-////                                    Log.i("从 service 中传 listener 进度条 ", "true");
-////                                    // publishProgress(download_manager);
-////
-////                                }
-//                                Intent in = new Intent("app.action.download_listener_receiver");
-//                                in.putExtra("download_manager", download_manager);
-//                                Log.i("service 中 downloaded_size ", Integer.toString(download_manager.downloaded_size));
-//                                getApplicationContext().sendBroadcast(in);
-//
-//
-//                            }
-//
-//                            return null;
-//
-//                        } catch (Exception e) {
-//                            Log.i("下载有错误 ", e.toString());
-//                            e.printStackTrace();
-//                        }
-//
-//
-//                        return null;
-//                    }
-//
-////                    @Override
-////                    protected void onProgressUpdate(FileDownloader... result) {
-////                        FileDownloader download_manager = result[0];
-////                        Log.i("onUpdate 线程ID ", Thread.currentThread().toString());
-////
-////                        Intent in = new Intent("app.action.download_listener_receiver");
-////                        Log.i("onProgressUpdate fd 文件大小 ",
-////                                Integer.toString(download_manager.file_size));
-////                        in.putExtra("download_manager", download_manager);
-////                        getApplicationContext().sendBroadcast(in);
-////
-////
-////                        download_manager.listener.on_update(download_manager.downloaded_size);
-////                    }
-//
-//                    @Override
-//                    protected void onPostExecute(Void result) {
-//                        if (download_manager.should_stop) {
-//                            Log.i("整个停止下载 ", "true");
-//                            clear_notice_bar(notice_id);
-//                            clear_local_thread_data(download_manager);
-//                            stop_service();
-//                            return;
-//                        }
-//
-//                        if (download_manager.should_pause) {
-//                            Log.i("线程停止 ", "true");
-//                            return;
-//                        }
-//
-//                        build_download_done_notification(download_manager);
-//                        clear_notice_bar(notice_id);
-//                        clear_local_thread_data(download_manager);
-//                        stop_service();
-//
-//
-////                        download_manager.received_queue.poll();
-////                        StartServiceThread t =
-////                                (StartServiceThread)download_manager.received_queue.poll();
-////
-////                        if (t != null) {
-////                            Log.i("另外一个下载开始 ", "true");
-////                            t.run();
-////                        }
-//                    }
-//                }.execute();
-
-//            } finally {
-//                Log.i("FileTaskThread 终止 ", "true");
-////                notification_service_bar.
-////                        handle_notification(download_manager, notice_id);
-//            }
-
-
 
         }
     }
