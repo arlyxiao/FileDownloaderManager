@@ -314,6 +314,7 @@ public class FileDownloader implements Parcelable  {
         register_listener_receiver(listener);
         register_done_receiver();
         register_pause_receiver();
+        register_stop_receiver();
     }
 
 
@@ -339,6 +340,30 @@ public class FileDownloader implements Parcelable  {
 
         context.registerReceiver(download_pause_receiver,
                 new IntentFilter("app.action.download_pause_receiver"));
+    }
+
+    private void register_stop_receiver() {
+        final BroadcastReceiver download_stop_receiver = new DownloadStopReceiver() {
+            @Override
+            public void onReceive(Context ctxt, Intent intent) {
+
+                fd = intent.getParcelableExtra("download_manager");
+
+                if (fd.get_obj_id() == FileDownloader.this.get_obj_id()) {
+                    Log.i("调试 stop 接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
+                    FileDownloader.this.downloaded_size = 0;
+
+                    FileDownloader.this.file_size = 0;
+                    Log.i("调试 stop 接收正在下载的 file_size 值 ", Integer.toString(fd.file_size));
+                } else {
+                    Log.i("调试 stop 广播接收到不同的 obj_id 4 ", Integer.toString(fd.get_obj_id()));
+                }
+
+            }
+        };
+
+        context.registerReceiver(download_stop_receiver,
+                new IntentFilter("app.action.download_stop_receiver"));
     }
 
 

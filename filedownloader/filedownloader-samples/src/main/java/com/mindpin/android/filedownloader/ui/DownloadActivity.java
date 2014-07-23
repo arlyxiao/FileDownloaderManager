@@ -245,8 +245,7 @@ public class DownloadActivity extends Activity {
                     Log.i("调试 fd_less_10m 为 null ", "true");
                 }
                 fd_less_10m.pause_download();
-                progress_bar4.setProgress(0);
-                result_view4.setText("0%");
+
             }
         });
 
@@ -256,6 +255,8 @@ public class DownloadActivity extends Activity {
             @Override
             public void onClick(View v) {
                 fd_less_10m.stop_download();
+                progress_bar4.setProgress(0);
+                result_view4.setText("0%");
             }
         });
 
@@ -288,8 +289,7 @@ public class DownloadActivity extends Activity {
             @Override
             public void onClick(View v) {
                 fd_more_10m.pause_download();
-                progress_bar5.setProgress(0);
-                result_view5.setText("0%");
+
             }
         });
 
@@ -299,6 +299,8 @@ public class DownloadActivity extends Activity {
             @Override
             public void onClick(View v) {
                 fd_more_10m.stop_download();
+                progress_bar5.setProgress(0);
+                result_view5.setText("0%");
             }
         });
 

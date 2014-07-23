@@ -78,9 +78,11 @@ public class DownloadService extends Service {
 
             Thread t = new Thread( file_task_thread );
             t.start();
+        } else {
+            save_download_manager(download_manager);
         }
 
-        save_download_manager(download_manager);
+
 
 
 
@@ -149,7 +151,14 @@ public class DownloadService extends Service {
 
     private void stop_service() {
 
-        DownloadService.this.stopSelf();
+        if (download_store_list.size() == 0) {
+            Log.i("已经没有可以下载的了 服务停止 ", Integer.toString(download_store_list.size()));
+            DownloadService.this.stopSelf();
+            return;
+        }
+
+        Log.i("还有可以下载的 服务不能停止 ", Integer.toString(download_store_list.size()));
+
     }
 
 
@@ -176,6 +185,13 @@ public class DownloadService extends Service {
     private void build_download_pause_receiver(FileDownloader file_downloader) {
 
         Intent in = new Intent("app.action.download_pause_receiver");
+        in.putExtra("download_manager", file_downloader);
+        getApplicationContext().sendBroadcast(in);
+    }
+
+    private void build_download_stop_receiver(FileDownloader file_downloader) {
+
+        Intent in = new Intent("app.action.download_stop_receiver");
         in.putExtra("download_manager", file_downloader);
         getApplicationContext().sendBroadcast(in);
     }
@@ -314,6 +330,7 @@ public class DownloadService extends Service {
 
                 if (download_manager.should_stop) {
                     Log.i("整个停止下载 ", "true");
+                    build_download_stop_receiver(download_manager);
                     clear_notice_bar(notice_id);
                     clear_local_thread_data(download_manager);
                     remove_download_store(download_manager);
