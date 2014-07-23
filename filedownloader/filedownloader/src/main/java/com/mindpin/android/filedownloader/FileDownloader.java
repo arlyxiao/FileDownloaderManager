@@ -69,6 +69,7 @@ public class FileDownloader implements Parcelable  {
 
     private int obj_id = 0;
     public int notice_id = new Random().nextInt(999999999);
+    public long when = System.currentTimeMillis();
 
     // Intent download_service;
 
@@ -117,6 +118,7 @@ public class FileDownloader implements Parcelable  {
         dest.writeInt(notice_id);
         dest.writeInt(file_size);
         dest.writeInt(downloaded_size);
+        dest.writeLong(when);
     }
 
 
@@ -132,6 +134,7 @@ public class FileDownloader implements Parcelable  {
         notice_id = in.readInt();
         file_size = in.readInt();
         downloaded_size = in.readInt();
+        when = in.readLong();
 
     }
 

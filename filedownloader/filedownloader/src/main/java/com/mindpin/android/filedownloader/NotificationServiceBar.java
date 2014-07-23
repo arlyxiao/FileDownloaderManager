@@ -116,7 +116,8 @@ public class NotificationServiceBar {
                 .setContentText(Integer.toString(file_downloader.downloaded_size))
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setAutoCancel(true)
-                .setWhen(System.currentTimeMillis());
+                // .setWhen(System.currentTimeMillis());
+                .setWhen(file_downloader.when);
         Notification notification = mBuilder.getNotification();
 
 
