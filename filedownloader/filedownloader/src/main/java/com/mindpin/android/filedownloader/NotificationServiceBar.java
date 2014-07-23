@@ -175,6 +175,11 @@ public class NotificationServiceBar {
         String downloaded_size;
         String file_size;
 
+        if (file_downloader.should_pause || file_downloader.should_stop) {
+            Log.i("不需要进入等待状态 ", "true");
+            return;
+        }
+
         Log.i("等待状态", "true");
 
 //        String downloaded_size = Integer.toString(0);

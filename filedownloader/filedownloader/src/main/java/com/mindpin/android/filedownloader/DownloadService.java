@@ -202,7 +202,8 @@ public class DownloadService extends Service {
                     new NotificationServiceBar(getApplicationContext(),
                             DownloadService.this);
 
-            if (get_download_store(download_manager.get_obj_id()) == null) {
+            FileDownloader current_fd = get_download_store(download_manager.get_obj_id());
+            if ( current_fd == null ) {
                 notification_service_bar.
                         wait_notification(download_manager, notice_id);
             }
