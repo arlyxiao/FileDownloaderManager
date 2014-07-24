@@ -40,6 +40,70 @@ public class FileDownloader{
   // file_save_dir 下载后的文件保存的位置
   // thread_num  启动几个线程进行下载
   public FileDownloader(Context context, String download_url, File file_save_dir, int thread_num);
+}
+```
+
+以上几个参数设置后，就可以给组件设置下载的监视钩子，并开始下载
+```java
+public class FileDownloader{
+  // 开始下载
+  // ProgressUpdateListener 监听下载数量的变化，listener 需要运行在UI线程
+  // 如果不需要监听可以设置为 null
+  public void download(ProgressUpdateListener listener);
+
+  interface ProgressUpdateListener {
+    public void on_update(int downloaded_size);
+  }
+}
+```
+
+开始下载后，需要可以获取到下载的文件的名称和大小
+```java
+public class FileDownloader{
+  // 获取要下载的文件的大小(单位为字节)
+  public int get_file_size();
+
+  // 获取要下载的文件的名字
+  public String get_file_name();
+
+}
+```
+
+下载进行时，通知栏上显示了下载进度等信息，需要给通知栏信息注册一个点击事件，下面这个接口可以让组件的使用者设置点击时要打开的activity，在打开activity时带上 intent_extras 参数
+```java
+public void set_notification(Class activity_class, Bundle intent_extras);
+```
+
+然后下载任务可以暂停
+```java
+public void pause_download();
+```
+
+任务可以删除
+```java
+public void stop_download();
+```
+
+
+Activity onPause 取消广播
+```java
+public void unregister_download_receiver();
+```
+
+
+Activity onResume 激活广播
+```java
+public void register_download_receiver(ProgressUpdateListener listener);
+```
+
+```java
+public class FileDownloader{
+  // 构造函数
+  // context Context 实例，一般为一个 activity 实例
+  // download_url 要下载的 URL
+  // file_save_dir 下载后的文件保存的位置
+  // thread_num  启动几个线程进行下载
+  public FileDownloader(Context context, String download_url, File file_save_dir, int thread_num);
 
   // 获取要下载的文件的大小(单位为字节)
   public int get_file_size();
@@ -58,8 +122,78 @@ public class FileDownloader{
 
   // 设置通知栏信息的点击事件行为
   public void set_notification(Class activity_class, Bundle intent_extras);
+
+  public void pause_download();
+  public void stop_download();
 }
 ```
+
+### 整体在 Activity 中的使用示例如下
+
+```java
+public class MainActivity extends Activity{
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+
+    run_download_1();
+    run_download_2();
+  }
+
+  public void run_download_1(){
+    Context context = this;
+    String url = "http://www.baidu.com/img/bdlogo.gif";
+    File save_dir  = new File("/sd/files");
+    FileDownloader fd = new FileDownloader(context, url, save_dir, 2);
+
+    Bundle b = new Bundle();
+    b.putString("param_name1", "param_value1");
+    fd.set_notification(MainActivity.class, b);
+
+    fd.download(new ProgressUpdateListener(){
+      public void on_update(int downloaded_size){
+        // 这个方法需要运行在UI线程
+        // 比如这里增加逻辑:在主界面显示下载进度条
+        // downloaded_size 单位是字节，表示已经下载了的字节数
+
+        // 获取要下载的文件的大小(单位为字节)
+        fd.get_file_size();
+
+        // 获取要下载的文件的名字
+        fd.get_file_name();
+      }
+    });
+  }
+
+
+  public void run_download_2(){
+    Context context = this;
+    String url = "http://www.google.com/img/logo.gif";
+    File save_dir  = new File("/sd/files");
+    FileDownloader fd1 = new FileDownloader(context, url, save_dir, 2);
+
+    Bundle b = new Bundle();
+    b.putString("param_name1", "param_value1");
+    fd1.set_notification(MainActivity.class, b);
+
+    fd1.download(new ProgressUpdateListener(){
+      public void on_update(int downloaded_size){
+        // 这个方法需要运行在UI线程
+        // 比如这里增加逻辑:在主界面显示下载进度条
+        // downloaded_size 单位是字节，表示已经下载了的字节数
+
+        // 获取要下载的文件的大小(单位为字节)
+        fd1.get_file_size();
+
+        // 获取要下载的文件的名字
+        fd1.get_file_name();
+      }
+    });
+  }
+}
+```
+
 
 
 
@@ -68,10 +202,47 @@ AndroidManiFest 设置
 <service android:name="com.mindpin.android.filedownloader.DownloadService" />
 
 <receiver
-    android:name="com.mindpin.android.filedownloader.DownloadProgressNotificationWidget"
-    android:label="TargetWidget" >
+    android:name=".DownloadProgressNotificationWidget"
+    android:label="DownloadProgressNotificationWidget" >
     <intent-filter>
         <action android:name="app.action.download_progress_notification_widget" />
+    </intent-filter>
+
+</receiver>
+
+
+<receiver
+    android:name=".DownloadDoneNotification"
+    android:label="DownloadDoneNotification" >
+    <intent-filter>
+        <action android:name="app.action.download_done_notification" />
+    </intent-filter>
+
+</receiver>
+
+<receiver
+    android:name=".DownloadPauseReceiver"
+    android:label="DownloadPauseReceiver" >
+    <intent-filter>
+        <action android:name="app.action.download_pause_receiver" />
+    </intent-filter>
+
+</receiver>
+
+<receiver
+    android:name=".DownloadStopReceiver"
+    android:label="DownloadStopReceiver" >
+    <intent-filter>
+        <action android:name="app.action.download_stop_receiver" />
+    </intent-filter>
+
+</receiver>
+
+<receiver
+    android:name=".DownloadListenerReceiver"
+    android:label="DownloadListenerReceiver" >
+    <intent-filter>
+        <action android:name="app.action.download_listener_receiver" />
     </intent-filter>
 
 </receiver>
