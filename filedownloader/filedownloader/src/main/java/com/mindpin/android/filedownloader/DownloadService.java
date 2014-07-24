@@ -219,7 +219,7 @@ public class DownloadService extends Service {
 
                 download_manager.is_finished = false;
                 while (!download_manager.is_finished) {
-                    Thread.sleep(900);
+
 
                     // 停止下载
                     if (get_download_store(obj_id).should_stop) {
@@ -252,6 +252,9 @@ public class DownloadService extends Service {
                     in.putExtra("download_manager", download_manager);
                     Log.i("service 中 downloaded_size ", Integer.toString(download_manager.downloaded_size));
                     getApplicationContext().sendBroadcast(in);
+
+
+                    Thread.sleep(800);
 
 
                 }

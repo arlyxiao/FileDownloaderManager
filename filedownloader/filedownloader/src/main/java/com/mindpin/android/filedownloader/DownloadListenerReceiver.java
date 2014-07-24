@@ -10,7 +10,6 @@ public class DownloadListenerReceiver extends BroadcastReceiver {
     public FileDownloader fd;
     public int file_size = 0;
     public int downloaded_size = 0;
-    // public boolean is_received = false;
 
     @Override
     public void onReceive(Context context, Intent intent) {
