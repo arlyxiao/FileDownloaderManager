@@ -314,15 +314,23 @@ public class FileDownloader implements Parcelable  {
         context.startService(download_service);
 
 
-        register_listener_receiver(listener);
-        register_done_receiver();
-        register_pause_receiver();
-        register_stop_receiver();
+//        register_listener_receiver(listener);
+//        register_done_receiver();
+//        register_pause_receiver();
+//        register_stop_receiver();
+
+        register_download_receiver(listener);
     }
 
 
+    BroadcastReceiver download_pause_receiver;
+    BroadcastReceiver download_stop_receiver;
+    BroadcastReceiver download_done_receiver;
+    BroadcastReceiver progress_listener_receiver;
+
+
     private void register_pause_receiver() {
-        final BroadcastReceiver download_pause_receiver = new DownloadPauseReceiver() {
+        download_pause_receiver = new DownloadPauseReceiver() {
             @Override
             public void onReceive(Context ctxt, Intent intent) {
 
@@ -345,8 +353,15 @@ public class FileDownloader implements Parcelable  {
                 new IntentFilter("app.action.download_pause_receiver"));
     }
 
+    private void unregister_pause_receiver() {
+        if (download_pause_receiver == null) {
+            return;
+        }
+        context.unregisterReceiver(download_pause_receiver);
+    }
+
     private void register_stop_receiver() {
-        final BroadcastReceiver download_stop_receiver = new DownloadStopReceiver() {
+        download_stop_receiver = new DownloadStopReceiver() {
             @Override
             public void onReceive(Context ctxt, Intent intent) {
 
@@ -369,9 +384,16 @@ public class FileDownloader implements Parcelable  {
                 new IntentFilter("app.action.download_stop_receiver"));
     }
 
+    private void unregister_stop_receiver() {
+        if (download_stop_receiver == null) {
+            return;
+        }
+        context.unregisterReceiver(download_stop_receiver);
+    }
+
 
     private void register_done_receiver() {
-        final BroadcastReceiver download_done_receiver = new DownloadDoneNotification() {
+        download_done_receiver = new DownloadDoneNotification() {
             @Override
             public void onReceive(Context ctxt, Intent intent) {
 
@@ -394,9 +416,16 @@ public class FileDownloader implements Parcelable  {
                 new IntentFilter("app.action.download_done_notification"));
     }
 
+    private void unregister_done_receiver() {
+        if (download_done_receiver == null) {
+            return;
+        }
+        context.unregisterReceiver(download_done_receiver);
+    }
+
 
     private void register_listener_receiver(final ProgressUpdateListener listener) {
-        final BroadcastReceiver progress_listener_receiver = new DownloadListenerReceiver() {
+        progress_listener_receiver = new DownloadListenerReceiver() {
             @Override
             public void onReceive(Context ctxt, Intent intent) {
 
@@ -421,6 +450,40 @@ public class FileDownloader implements Parcelable  {
 
         context.registerReceiver(progress_listener_receiver,
                 new IntentFilter("app.action.download_listener_receiver"));
+    }
+
+    private void unregister_listener_receiver() {
+        if (progress_listener_receiver == null) {
+            return;
+        }
+        context.unregisterReceiver(progress_listener_receiver);
+    }
+
+    public void unregister_download_receiver() {
+        try {
+            unregister_done_receiver();
+            unregister_listener_receiver();
+            unregister_pause_receiver();
+            unregister_stop_receiver();
+        } catch (Exception e) {
+            Log.i("unregister 错误 ", "true");
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public void register_download_receiver(ProgressUpdateListener listener) {
+        try {
+            register_done_receiver();
+            register_listener_receiver(listener);
+            register_pause_receiver();
+            register_stop_receiver();
+        } catch (Exception e) {
+            Log.i("register 错误 ", "true");
+            e.printStackTrace();
+        }
+
     }
 
 

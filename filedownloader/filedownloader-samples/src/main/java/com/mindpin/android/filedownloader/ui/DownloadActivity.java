@@ -48,6 +48,13 @@ public class DownloadActivity extends Activity {
     FileDownloader fd_more_10m;
 
 
+    ProgressUpdateListener listener_less_100kb;
+    ProgressUpdateListener listener_less_1m;
+    ProgressUpdateListener listener_less_5m;
+    ProgressUpdateListener listener_less_10m;
+    ProgressUpdateListener listener_more_10m;
+
+
 
 
     @Override
@@ -93,8 +100,10 @@ public class DownloadActivity extends Activity {
                         fd_less_100kb =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    // run_download(fd_less_100kb, result_view1, progress_bar1);
-                    run_download_1();
+                    listener_less_100kb =
+                            new UpdateListener(fd_less_100kb, result_view1, progress_bar1);
+                    run_download(fd_less_100kb, listener_less_100kb);
+                    // run_download_1();
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -139,8 +148,11 @@ public class DownloadActivity extends Activity {
                         fd_less_1m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
+                    listener_less_1m =
+                            new UpdateListener(fd_less_1m, result_view2, progress_bar2);
+                    run_download(fd_less_1m, listener_less_1m);
                     // run_download(fd_less_1m, result_view2, progress_bar2);
-                    run_download_2();
+                    // run_download_2();
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -184,7 +196,9 @@ public class DownloadActivity extends Activity {
                         fd_less_5m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    run_download(fd_less_5m, result_view3, progress_bar3);
+                    listener_less_5m =
+                            new UpdateListener(fd_less_5m, result_view3, progress_bar3);
+                    run_download(fd_less_5m, listener_less_5m);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -227,7 +241,9 @@ public class DownloadActivity extends Activity {
                         fd_less_10m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    run_download(fd_less_10m, result_view4, progress_bar4);
+                    listener_less_10m =
+                            new UpdateListener(fd_less_10m, result_view4, progress_bar4);
+                    run_download(fd_less_10m, listener_less_10m);
 
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
@@ -276,7 +292,9 @@ public class DownloadActivity extends Activity {
                         fd_more_10m =
                                 new FileDownloader(DownloadActivity.this, path, savedir, 2);
                     }
-                    run_download(fd_more_10m, result_view5, progress_bar5);
+                    listener_more_10m =
+                            new UpdateListener(fd_more_10m, result_view5, progress_bar5);
+                    run_download(fd_more_10m, listener_more_10m);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -308,41 +326,153 @@ public class DownloadActivity extends Activity {
 
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (fd_less_100kb != null) {
+            fd_less_100kb.unregister_download_receiver();
+        }
+
+        if (fd_less_1m != null) {
+            fd_less_1m.unregister_download_receiver();
+        }
+
+        if (fd_less_5m != null) {
+            fd_less_5m.unregister_download_receiver();
+        }
+
+        if (fd_less_10m != null) {
+            fd_less_10m.unregister_download_receiver();
+        }
+
+        if (fd_more_10m != null) {
+            fd_more_10m.unregister_download_receiver();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (fd_less_100kb != null) {
+            fd_less_100kb.unregister_download_receiver();
+        }
+
+        if (fd_less_1m != null) {
+            fd_less_1m.unregister_download_receiver();
+        }
+
+        if (fd_less_5m != null) {
+            fd_less_5m.unregister_download_receiver();
+        }
+
+        if (fd_less_10m != null) {
+            fd_less_10m.unregister_download_receiver();
+        }
+
+        if (fd_more_10m != null) {
+            fd_more_10m.unregister_download_receiver();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (fd_less_100kb != null && listener_less_100kb != null) {
+            fd_less_100kb.register_download_receiver(listener_less_100kb);
+        }
+
+        if (fd_less_1m != null && listener_less_1m != null) {
+            Log.i("重新 resume fd_less_1m ", "true");
+            fd_less_1m.register_download_receiver(listener_less_1m);
+        }
+
+        if (fd_less_5m != null && listener_less_5m != null) {
+            fd_less_5m.register_download_receiver(listener_less_5m);
+        }
+
+        if (fd_less_10m != null && listener_less_10m != null) {
+            fd_less_10m.register_download_receiver(listener_less_10m);
+        }
+
+        if (fd_more_10m != null && listener_more_10m != null) {
+            fd_more_10m.register_download_receiver(listener_more_10m);
+        }
+    }
 
 
-    public void run_download(final FileDownloader fd,
-                             final TextView result_view,
-                             final ProgressBar progress_bar){
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (fd_less_100kb != null && listener_less_100kb != null) {
+            fd_less_100kb.register_download_receiver(listener_less_100kb);
+        }
+
+        if (fd_less_1m != null && listener_less_1m != null) {
+            Log.i("重新 start fd_less_1m ", "true");
+            fd_less_1m.register_download_receiver(listener_less_1m);
+        }
+
+        if (fd_less_5m != null && listener_less_5m != null) {
+            fd_less_5m.register_download_receiver(listener_less_5m);
+        }
+
+        if (fd_less_10m != null && listener_less_10m != null) {
+            fd_less_10m.register_download_receiver(listener_less_10m);
+        }
+
+        if (fd_more_10m != null && listener_more_10m != null) {
+            fd_more_10m.register_download_receiver(listener_more_10m);
+        }
+    }
+
+
+    private class UpdateListener implements ProgressUpdateListener {
+        FileDownloader fd;
+        TextView result_view;
+        ProgressBar progress_bar;
+
+        public UpdateListener(FileDownloader fd,
+                                           TextView result_view,
+                                           ProgressBar progress_bar) {
+            this.fd = fd;
+            this.result_view = result_view;
+            this.progress_bar = progress_bar;
+        }
+        public void on_update(int downloaded_size) {
+            Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
+            Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
+            Log.i("文件总大小 ", Integer.toString(fd.get_file_size()));
+
+            progress_bar.setMax(fd.get_file_size());
+            progress_bar.setProgress(downloaded_size);
+
+            Log.i("正在进行的进度条大小 ", Integer.toString(progress_bar.getProgress()));
+            Log.i("进度条最大大小 ", Integer.toString(progress_bar.getMax()));
+
+            float num = (float) progress_bar.getProgress()/(float) progress_bar.getMax();
+            int result = (int)(num*100);
+            Log.i("百分比 ", Integer.toString(result));
+            result_view.setText(Integer.toString(result) + "%");
+
+            if(progress_bar.getProgress()== progress_bar.getMax()){
+                // Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
+                downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
+
+            }
+        }
+    }
+
+
+
+    public void run_download(FileDownloader fd,
+                             ProgressUpdateListener listener){
 
         Bundle b = new Bundle();
         b.putString("param_name1", "param_value1");
         fd.set_notification(TargetActivity.class, b);
         downloaded_file = fd.get_file_name();
         try {
-            fd.download(new ProgressUpdateListener(){
-                public void on_update(int downloaded_size) {
-                    Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
-                    Log.i("已经下载了多大 ", Integer.toString(downloaded_size));
-                    Log.i("文件总大小 ", Integer.toString(fd.get_file_size()));
-
-                    progress_bar.setMax(fd.get_file_size());
-                    progress_bar.setProgress(downloaded_size);
-
-                    Log.i("正在进行的进度条大小 ", Integer.toString(progress_bar.getProgress()));
-                    Log.i("进度条最大大小 ", Integer.toString(progress_bar.getMax()));
-
-                    float num = (float) progress_bar.getProgress()/(float) progress_bar.getMax();
-                    int result = (int)(num*100);
-                    Log.i("百分比 ", Integer.toString(result));
-                    result_view.setText(Integer.toString(result) + "%");
-
-                    if(progress_bar.getProgress()== progress_bar.getMax()){
-                        // Toast.makeText(DownloadActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
-                        downloaded_file_view.setText(stored_dir + "/" + downloaded_file);
-
-                    }
-                }
-            });
+            fd.download(listener);
         } catch (Exception e) {
             Log.i("下载错误 ", e.toString());
             e.printStackTrace();
