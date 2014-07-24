@@ -4,12 +4,10 @@ package com.mindpin.android.filedownloader;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -107,6 +105,13 @@ public class DownloadService extends Service {
 
 
     private void build_download_done_notification(FileDownloader file_downloader) {
+
+        if (file_downloader.downloaded_size != file_downloader.file_size) {
+            Log.i("下载大小跟总大小不相等 downloaded_size ", Integer.toString(file_downloader.downloaded_size));
+            Log.i("下载大小跟总大小不相等 file_size ", Integer.toString(file_downloader.file_size));
+            file_downloader.downloaded_size = file_downloader.file_size;
+        }
+        send_broadcast_with_filedownloader(file_downloader);
 
         Log.i("通知的文件大小 ", Integer.toString(file_downloader.file_size));
         Intent in = new Intent("app.action.download_done_notification");
@@ -248,10 +253,7 @@ public class DownloadService extends Service {
                     notification_service_bar.
                             handle_notification(download_manager, notice_id);
 
-                    Intent in = new Intent("app.action.download_listener_receiver");
-                    in.putExtra("download_manager", download_manager);
-                    Log.i("service 中 downloaded_size ", Integer.toString(download_manager.downloaded_size));
-                    getApplicationContext().sendBroadcast(in);
+                    send_broadcast_with_filedownloader(download_manager);
 
 
                     Thread.sleep(800);
@@ -289,6 +291,13 @@ public class DownloadService extends Service {
             }
 
         }
+    }
+
+    private void send_broadcast_with_filedownloader(FileDownloader download_manager) {
+        Intent in = new Intent("app.action.download_listener_receiver");
+        in.putExtra("download_manager", download_manager);
+        Log.i("service 中 downloaded_size ", Integer.toString(download_manager.downloaded_size));
+        getApplicationContext().sendBroadcast(in);
     }
 
 
