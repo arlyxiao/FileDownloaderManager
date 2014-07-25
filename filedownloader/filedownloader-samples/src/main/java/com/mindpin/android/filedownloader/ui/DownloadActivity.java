@@ -98,7 +98,7 @@ public class DownloadActivity extends Activity {
                     if (fd_less_100kb == null) {
                         Log.i("初始化 fd_less_100kb ", "true");
                         fd_less_100kb =
-                                new FileDownloader(DownloadActivity.this, path, savedir, 2);
+                                new FileDownloader(DownloadActivity.this, path, savedir, 1);
                     }
                     listener_less_100kb =
                             new UpdateListener(fd_less_100kb, result_view1, progress_bar1);
@@ -194,7 +194,7 @@ public class DownloadActivity extends Activity {
                     if (fd_less_5m == null) {
                         Log.i("初始化 fd_less_5m ", "true");
                         fd_less_5m =
-                                new FileDownloader(DownloadActivity.this, path, savedir, 2);
+                                new FileDownloader(DownloadActivity.this, path, savedir, 3);
                     }
                     listener_less_5m =
                             new UpdateListener(fd_less_5m, result_view3, progress_bar3);
@@ -239,7 +239,7 @@ public class DownloadActivity extends Activity {
                     if (fd_less_10m == null) {
                         Log.i("初始化 fd_less_10m ", "true");
                         fd_less_10m =
-                                new FileDownloader(DownloadActivity.this, path, savedir, 2);
+                                new FileDownloader(DownloadActivity.this, path, savedir, 4);
                     }
                     listener_less_10m =
                             new UpdateListener(fd_less_10m, result_view4, progress_bar4);
@@ -290,7 +290,7 @@ public class DownloadActivity extends Activity {
                     if (fd_more_10m == null) {
                         Log.i("初始化 fd_more_10m ", "true");
                         fd_more_10m =
-                                new FileDownloader(DownloadActivity.this, path, savedir, 2);
+                                new FileDownloader(DownloadActivity.this, path, savedir, 5);
                     }
                     listener_more_10m =
                             new UpdateListener(fd_more_10m, result_view5, progress_bar5);
