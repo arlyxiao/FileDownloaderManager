@@ -127,7 +127,7 @@ public class NotificationServiceBar {
         content_view.setTextViewText(R.id.progress_title_text,
                 Tool.regenerate_filename(file_downloader.get_file_name()));
 
-        content_view.setTextViewText(R.id.download_filename, "");
+        // content_view.setTextViewText(R.id.download_filename, "");
 
         content_view.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
         Log.i("显示正在下载的大小 ", Integer.toString(file_downloader.downloaded_size));
@@ -214,7 +214,7 @@ public class NotificationServiceBar {
         }
 
 
-        content_view.setTextViewText(R.id.download_filename, "");
+        // content_view.setTextViewText(R.id.download_filename, "");
         content_view.setTextViewText(R.id.wait_text, "等待下载");
 
         content_view.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
