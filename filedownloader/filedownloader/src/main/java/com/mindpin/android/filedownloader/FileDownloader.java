@@ -145,7 +145,8 @@ public class FileDownloader implements Parcelable  {
     }
 
     public void set_obj_id() {
-        this.obj_id = this.hashCode();
+        // this.obj_id = this.hashCode();
+        this.obj_id = download_url.hashCode();
     }
 
     public int get_thread_size() {
@@ -337,6 +338,7 @@ public class FileDownloader implements Parcelable  {
                 fd = intent.getParcelableExtra("download_manager");
 
                 if (fd.get_obj_id() == FileDownloader.this.get_obj_id()) {
+                // if (fd.download_url == FileDownloader.this.download_url) {
                     Log.i("调试 pause 接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
                     FileDownloader.this.downloaded_size = 0;
 
@@ -368,6 +370,7 @@ public class FileDownloader implements Parcelable  {
                 fd = intent.getParcelableExtra("download_manager");
 
                 if (fd.get_obj_id() == FileDownloader.this.get_obj_id()) {
+                // if (fd.download_url == FileDownloader.this.download_url) {
                     Log.i("调试 stop 接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
                     FileDownloader.this.downloaded_size = 0;
 
@@ -400,6 +403,7 @@ public class FileDownloader implements Parcelable  {
                 fd = intent.getParcelableExtra("download_manager");
 
                 if (fd.get_obj_id() == FileDownloader.this.get_obj_id()) {
+                // if (fd.download_url == FileDownloader.this.download_url) {
                     Log.i("调试 接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
                     FileDownloader.this.downloaded_size = 0;
 
@@ -432,6 +436,7 @@ public class FileDownloader implements Parcelable  {
                 fd = intent.getParcelableExtra("download_manager");
 
                 if (fd.get_obj_id() == FileDownloader.this.get_obj_id()) {
+                // if (fd.download_url == FileDownloader.this.download_url) {
                     Log.i("接收正在下载的 downloaded_size 值 ", Integer.toString(fd.downloaded_size));
                     FileDownloader.this.downloaded_size = fd.downloaded_size;
 
@@ -475,10 +480,10 @@ public class FileDownloader implements Parcelable  {
 
     public void register_download_receiver(ProgressUpdateListener listener) {
         try {
-            register_done_receiver();
-            register_listener_receiver(listener);
             register_pause_receiver();
             register_stop_receiver();
+            register_done_receiver();
+            register_listener_receiver(listener);
         } catch (Exception e) {
             Log.i("register 错误 ", "true");
             e.printStackTrace();

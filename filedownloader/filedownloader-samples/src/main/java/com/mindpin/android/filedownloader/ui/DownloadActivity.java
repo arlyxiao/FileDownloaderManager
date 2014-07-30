@@ -64,46 +64,91 @@ public class DownloadActivity extends Activity {
 
         Log.i("应该是在 当前UI线程 ", Long.toString(Thread.currentThread().getId()));
 
+        init_view();
+
+
         // stored_dir = Environment.getExternalStorageDirectory().toString();
         stored_dir = "/testmindpin/files";
+        Log.i("存储的路径 ", stored_dir);
+        File savedir = new File(stored_dir);
 
 
-        // progress_bar = (ProgressBar) this.findViewById(R.id.downloadbar);
+        if (fd_less_100kb == null) {
+            Log.i("初始化 fd_less_100kb ", "true");
+            fd_less_100kb =
+                    new FileDownloader(DownloadActivity.this, path_less_100kb, savedir, 1);
 
-        progress_bar1 = (ProgressBar) this.findViewById(R.id.downloadbar1);
-        progress_bar2 = (ProgressBar) this.findViewById(R.id.downloadbar2);
-        progress_bar3 = (ProgressBar) this.findViewById(R.id.downloadbar3);
-        progress_bar4 = (ProgressBar) this.findViewById(R.id.downloadbar4);
-        progress_bar5 = (ProgressBar) this.findViewById(R.id.downloadbar5);
+            listener_less_100kb =
+                    new UpdateListener(fd_less_100kb, result_view1, progress_bar1);
 
-        // result_view = (TextView) this.findViewById(R.id.result_view);
+            fd_less_100kb.register_download_receiver(listener_less_100kb);
+        }
 
-        result_view1 = (TextView) this.findViewById(R.id.result_view1);
-        result_view2 = (TextView) this.findViewById(R.id.result_view2);
-        result_view3 = (TextView) this.findViewById(R.id.result_view3);
-        result_view4 = (TextView) this.findViewById(R.id.result_view4);
-        result_view5 = (TextView) this.findViewById(R.id.result_view5);
 
-        downloaded_file_view = (TextView) this.findViewById(R.id.downloaded_file);
+
+
+        if (fd_less_1m == null) {
+            Log.i("初始化 fd_less_1m ", "true");
+            fd_less_1m =
+                    new FileDownloader(DownloadActivity.this, path_less_1mb, savedir, 2);
+
+            listener_less_1m =
+                    new UpdateListener(fd_less_1m, result_view2, progress_bar2);
+
+            fd_less_1m.register_download_receiver(listener_less_1m);
+        }
+
+
+
+
+        if (fd_less_5m == null) {
+            Log.i("初始化 fd_less_5m ", "true");
+            fd_less_5m =
+                    new FileDownloader(DownloadActivity.this, path_less_5mb, savedir, 3);
+
+            listener_less_5m =
+                    new UpdateListener(fd_less_5m, result_view3, progress_bar3);
+
+            fd_less_5m.register_download_receiver(listener_less_5m);
+        }
+
+
+
+        if (fd_less_10m == null) {
+            Log.i("初始化 fd_less_10m ", "true");
+            fd_less_10m =
+                    new FileDownloader(DownloadActivity.this, path_less_10mb, savedir, 4);
+
+            listener_less_10m =
+                    new UpdateListener(fd_less_10m, result_view4, progress_bar4);
+
+            fd_less_10m.register_download_receiver(listener_less_10m);
+        }
+
+
+
+        if (fd_more_10m == null) {
+            Log.i("初始化 fd_more_10m ", "true");
+            fd_more_10m =
+                    new FileDownloader(DownloadActivity.this, path_above_10mb, savedir, 5);
+
+            listener_more_10m =
+                    new UpdateListener(fd_more_10m, result_view5, progress_bar5);
+
+            fd_more_10m.register_download_receiver(listener_more_10m);
+        }
+
+
+
 
         // 100kb 以下
         Button less_100kb_btn = (Button) this.findViewById(R.id.less_100kb_btn);
         less_100kb_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String path = path_less_100kb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-                    Log.i("存储的路径 ", stored_dir);
-                    File savedir = new File(stored_dir);
-                    if (fd_less_100kb == null) {
-                        Log.i("初始化 fd_less_100kb ", "true");
-                        fd_less_100kb =
-                                new FileDownloader(DownloadActivity.this, path, savedir, 1);
-                    }
-                    listener_less_100kb =
-                            new UpdateListener(fd_less_100kb, result_view1, progress_bar1);
+
                     run_download(fd_less_100kb, listener_less_100kb);
-                    // run_download_1();
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -137,22 +182,8 @@ public class DownloadActivity extends Activity {
         less_1m_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String path = path_less_1mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-                    Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
-                    // File savedir = Environment.getExternalStorageDirectory();
-                    File savedir = new File(stored_dir);
-
-                    if (fd_less_1m == null) {
-                        Log.i("初始化 fd_less_1m ", "true");
-                        fd_less_1m =
-                                new FileDownloader(DownloadActivity.this, path, savedir, 2);
-                    }
-                    listener_less_1m =
-                            new UpdateListener(fd_less_1m, result_view2, progress_bar2);
                     run_download(fd_less_1m, listener_less_1m);
-                    // run_download(fd_less_1m, result_view2, progress_bar2);
-                    // run_download_2();
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
                 }
@@ -186,18 +217,7 @@ public class DownloadActivity extends Activity {
         less_5m_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String path = path_less_5mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-                    Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
-                    File savedir = new File(stored_dir);
-
-                    if (fd_less_5m == null) {
-                        Log.i("初始化 fd_less_5m ", "true");
-                        fd_less_5m =
-                                new FileDownloader(DownloadActivity.this, path, savedir, 3);
-                    }
-                    listener_less_5m =
-                            new UpdateListener(fd_less_5m, result_view3, progress_bar3);
                     run_download(fd_less_5m, listener_less_5m);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
@@ -231,18 +251,8 @@ public class DownloadActivity extends Activity {
         less_10m_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String path = path_less_10mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-                    Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
-                    File savedir = new File(stored_dir);
 
-                    if (fd_less_10m == null) {
-                        Log.i("初始化 fd_less_10m ", "true");
-                        fd_less_10m =
-                                new FileDownloader(DownloadActivity.this, path, savedir, 4);
-                    }
-                    listener_less_10m =
-                            new UpdateListener(fd_less_10m, result_view4, progress_bar4);
                     run_download(fd_less_10m, listener_less_10m);
 
                 }else{
@@ -282,18 +292,7 @@ public class DownloadActivity extends Activity {
         more_10m_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String path = path_above_10mb;
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-                    Log.i("存储的路径 ", Environment.getExternalStorageDirectory().toString());
-                    File savedir = new File(stored_dir);
-
-                    if (fd_more_10m == null) {
-                        Log.i("初始化 fd_more_10m ", "true");
-                        fd_more_10m =
-                                new FileDownloader(DownloadActivity.this, path, savedir, 5);
-                    }
-                    listener_more_10m =
-                            new UpdateListener(fd_more_10m, result_view5, progress_bar5);
                     run_download(fd_more_10m, listener_more_10m);
                 }else{
                     Toast.makeText(DownloadActivity.this, R.string.sdcarderror, 1).show();
@@ -373,6 +372,7 @@ public class DownloadActivity extends Activity {
             fd_more_10m.unregister_download_receiver();
         }
     }
+
 
     @Override
     public void onResume() {
@@ -560,5 +560,22 @@ public class DownloadActivity extends Activity {
             e.printStackTrace();
         }
 
+    }
+
+    private void init_view() {
+        progress_bar1 = (ProgressBar) this.findViewById(R.id.downloadbar1);
+        progress_bar2 = (ProgressBar) this.findViewById(R.id.downloadbar2);
+        progress_bar3 = (ProgressBar) this.findViewById(R.id.downloadbar3);
+        progress_bar4 = (ProgressBar) this.findViewById(R.id.downloadbar4);
+        progress_bar5 = (ProgressBar) this.findViewById(R.id.downloadbar5);
+
+
+        result_view1 = (TextView) this.findViewById(R.id.result_view1);
+        result_view2 = (TextView) this.findViewById(R.id.result_view2);
+        result_view3 = (TextView) this.findViewById(R.id.result_view3);
+        result_view4 = (TextView) this.findViewById(R.id.result_view4);
+        result_view5 = (TextView) this.findViewById(R.id.result_view5);
+
+        downloaded_file_view = (TextView) this.findViewById(R.id.downloaded_file);
     }
 }
