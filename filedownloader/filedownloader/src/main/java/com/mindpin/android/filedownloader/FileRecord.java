@@ -43,7 +43,7 @@ public class FileRecord {
         }finally{
             db.endTransaction();
         }
-        // db.close();
+        db.close();
     }
 
 
@@ -74,7 +74,7 @@ public class FileRecord {
         }finally{
             db.endTransaction();
         }
-        // db.close();
+        db.close();
     }
 
 
@@ -82,7 +82,7 @@ public class FileRecord {
         try {
             SQLiteDatabase db = db_open_helper.getWritableDatabase();
             db.execSQL("delete from filedownlog where downpath=?", new Object[]{path});
-            // db.close();
+            db.close();
         } catch (Exception e) {
             Log.i("数据库删除错误 ", e.toString());
             e.printStackTrace();
