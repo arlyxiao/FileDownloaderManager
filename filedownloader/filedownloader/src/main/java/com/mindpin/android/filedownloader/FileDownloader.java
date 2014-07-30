@@ -569,6 +569,13 @@ public class FileDownloader implements Parcelable  {
 
     public void init_connection(Context context) {
 
+//        try {
+//            this.file_record = new FileRecord(context);
+//        } catch (java.lang.VerifyError e) {
+//            Log.i("VerifyError 错误 ", e.getMessage());
+//            e.printStackTrace();
+//        }
+
         if (intent_extras != null) {
             Log.i("intent_extras 取得值 ", intent_extras.getString("param_name1"));
             // return;

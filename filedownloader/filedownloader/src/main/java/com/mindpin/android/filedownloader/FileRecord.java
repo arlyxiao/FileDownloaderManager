@@ -8,21 +8,16 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-/**
- * 业务bean
- *
- */
+
 public class FileRecord {
     private DBOpenHelper db_open_helper;
 
     public FileRecord(Context context) {
+        Log.i("调试db ", "true");
         db_open_helper = new DBOpenHelper(context);
     }
-    /**
-     * 获取每条线程已经下载的文件长度
-     * @param path
-     * @return
-     */
+
+
     public Map<Integer, Integer> get_data(String path){
         SQLiteDatabase db = db_open_helper.getReadableDatabase();
         Cursor cursor = db.rawQuery("select threadid, downlength from filedownlog where downpath=?", new String[]{path});
@@ -34,11 +29,8 @@ public class FileRecord {
         // db.close();
         return data;
     }
-    /**
-     * 保存每条线程已经下载的文件长度
-     * @param path
-     * @param map
-     */
+
+
     public void save(String path,  Map<Integer, Integer> map){//int threadid, int position
         SQLiteDatabase db = db_open_helper.getWritableDatabase();
         db.beginTransaction();
@@ -53,20 +45,20 @@ public class FileRecord {
         }
         // db.close();
     }
-    /**
-     * 实时更新每条线程已经下载的文件长度
-     * @param path
-     * @param map
-     */
+
+
     public void update(String path, Map<Integer, Integer> map){
         SQLiteDatabase db;
         try {
             db = db_open_helper.getWritableDatabase();
-        } catch (android.database.sqlite.SQLiteDatabaseLockedException e) {
+        } catch (Exception e) {
+        // } catch (android.database.sqlite.SQLiteDatabaseLockedException e) {
             Log.i("getWritableDatabase 错误 ", e.toString());
             e.printStackTrace();
             return;
         }
+
+//        db = db_open_helper.getWritableDatabase();
 
         if (db == null) {
             return;
@@ -84,10 +76,8 @@ public class FileRecord {
         }
         // db.close();
     }
-    /**
-     * 当文件下载完成后，删除对应的下载记录
-     * @param path
-     */
+
+
     public void delete(String path){
         try {
             SQLiteDatabase db = db_open_helper.getWritableDatabase();

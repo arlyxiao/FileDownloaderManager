@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class DownloadService extends Service {
     Context context;
-    ArrayList<FileDownloader> download_store_list = new ArrayList<FileDownloader>();
+    public ArrayList<FileDownloader> download_store_list = new ArrayList<FileDownloader>();
 
     @Override
     public void onCreate() {

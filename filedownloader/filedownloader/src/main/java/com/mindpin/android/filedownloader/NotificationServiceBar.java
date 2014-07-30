@@ -122,12 +122,12 @@ public class NotificationServiceBar {
 
 
         RemoteViews content_view = new RemoteViews(context.getPackageName(), R.layout.custom_notification_layout);
-        content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
+        content_view.setImageViewResource(R.id.progress_download_image, R.drawable.ic_launcher);
 
         content_view.setTextViewText(R.id.progress_title_text,
                 Tool.regenerate_filename(file_downloader.get_file_name()));
 
-        content_view.setTextViewText(R.id.download_filename, "");
+        // content_view.setTextViewText(R.id.download_filename, "");
 
         content_view.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
         Log.i("显示正在下载的大小 ", Integer.toString(file_downloader.downloaded_size));
@@ -198,7 +198,7 @@ public class NotificationServiceBar {
         Notification notification = mBuilder.getNotification();
 
         RemoteViews content_view = new RemoteViews(context.getPackageName(), R.layout.wait_notification_layout);
-        content_view.setImageViewResource(R.id.progress_notify_image, R.drawable.ic_launcher);
+        content_view.setImageViewResource(R.id.progress_wait_image, R.drawable.ic_launcher);
         content_view.setTextViewText(R.id.progress_title_text,
                 Tool.regenerate_filename(file_downloader.get_file_name()));
 
@@ -214,7 +214,7 @@ public class NotificationServiceBar {
         }
 
 
-        content_view.setTextViewText(R.id.download_filename, "");
+        // content_view.setTextViewText(R.id.download_filename, "");
         content_view.setTextViewText(R.id.wait_text, "等待下载");
 
         content_view.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);

@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <ImageView android:id="@+id/progress_notify_image"
+    <ImageView android:id="@+id/progress_wait_image"
         android:layout_width="wrap_content"
         android:layout_height="400dp"
         android:layout_margin="10dp">
@@ -14,14 +14,14 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_marginTop="10dp"
-        android:layout_toRightOf="@+id/progress_notify_image">
+        android:layout_toRightOf="@+id/progress_wait_image">
 
         <TextView android:id="@+id/progress_title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Title"
             android:textStyle="bold"
-            android:textSize="15dp"
+            android:textSize="@dimen/text_size"
             android:textColor="#fff">
         </TextView>
 
@@ -32,7 +32,7 @@
             android:layout_marginRight="5dp"
             android:text="100 / 100"
             android:textStyle="normal"
-            android:textSize="15dp"
+            android:textSize="@dimen/text_size"
             android:textColor="#fff">
         </TextView>
 
@@ -45,7 +45,7 @@
             android:layout_marginTop="3dp"
             android:text="等待下载"
             android:textStyle="normal"
-            android:textSize="15dp"
+            android:textSize="@dimen/text_size"
             android:textColor="#fff">
         </TextView>
 
