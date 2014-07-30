@@ -68,7 +68,7 @@ public class FileDownloader implements Parcelable  {
     public boolean should_stop = false;
 
     private int obj_id = 0;
-    public int notice_id = new Random().nextInt(999999999);
+    public int notice_id = 0;
     public long when = System.currentTimeMillis();
 
     // Intent download_service;
@@ -200,6 +200,11 @@ public class FileDownloader implements Parcelable  {
         if (this.obj_id == 0) {
             set_obj_id();
             Log.i("生成 obj_id ", Integer.toString(obj_id));
+        }
+
+        if (this.notice_id == 0) {
+            this.notice_id = get_obj_id();
+            Log.i("生成 notice_id ", Integer.toString(notice_id));
         }
 
     }
