@@ -81,6 +81,7 @@ public class DownloadDoneNotification extends BroadcastReceiver {
                 .setContentText("下载完成 " + file_size)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentIntent(p_intent)
+
                 .setAutoCancel(true).getNotification();
 
 
