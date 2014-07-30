@@ -26,7 +26,7 @@ public class FileRecord {
             data.put(cursor.getInt(0), cursor.getInt(1));
         }
         cursor.close();
-        // db.close();
+        db.close();
         return data;
     }
 

@@ -90,7 +90,7 @@ public class DownloadActivity extends Activity {
         if (fd_less_1m == null) {
             Log.i("初始化 fd_less_1m ", "true");
             fd_less_1m =
-                    new FileDownloader(DownloadActivity.this, path_less_1mb, savedir, 2);
+                    new FileDownloader(DownloadActivity.this, path_less_1mb, savedir, 6);
 
             listener_less_1m =
                     new UpdateListener(fd_less_1m, result_view2, progress_bar2);
@@ -117,7 +117,7 @@ public class DownloadActivity extends Activity {
         if (fd_less_10m == null) {
             Log.i("初始化 fd_less_10m ", "true");
             fd_less_10m =
-                    new FileDownloader(DownloadActivity.this, path_less_10mb, savedir, 4);
+                    new FileDownloader(DownloadActivity.this, path_less_10mb, savedir, 2);
 
             listener_less_10m =
                     new UpdateListener(fd_less_10m, result_view4, progress_bar4);

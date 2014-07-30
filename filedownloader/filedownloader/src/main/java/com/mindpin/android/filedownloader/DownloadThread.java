@@ -50,8 +50,8 @@ public class DownloadThread extends Thread {
                 int start_pos = block * (thread_id - 1) + downloaded_length;
                 int end_pos = block * thread_id - 1;
 
-                if (downloader.file_size == end_pos) {
-                    end_pos = end_pos - 1;
+                if (downloader.file_size <= end_pos) {
+                    end_pos = downloader.file_size - 1;
                 }
 
                 //设置获取实体数据的范围
