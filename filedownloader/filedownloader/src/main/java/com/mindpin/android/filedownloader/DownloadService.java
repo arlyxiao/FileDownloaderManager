@@ -207,14 +207,17 @@ public class DownloadService extends Service {
                     new NotificationServiceBar(getApplicationContext(),
                             DownloadService.this);
 
-            FileDownloader current_fd = get_download_store(download_manager.get_obj_id());
-            if ( current_fd == null ) {
-                notification_service_bar.
-                        wait_notification(download_manager, notice_id);
-            }
+//            FileDownloader current_fd = get_download_store(download_manager.get_obj_id());
+//            if ( current_fd == null ) {
+//                notification_service_bar.
+//                        wait_notification(download_manager, notice_id);
+//            }
 
 
             save_download_manager(download_manager);
+
+            notification_service_bar.
+                    update_notification(download_store_list, notice_id);
 
 
             try {
@@ -249,9 +252,9 @@ public class DownloadService extends Service {
                     download_manager.is_finished = true;
                     download_manager.continue_download_with_thread();
 
-
                     notification_service_bar.
                             handle_notification(download_manager, notice_id);
+
 
                     send_broadcast_with_filedownloader(download_manager);
 
@@ -260,6 +263,8 @@ public class DownloadService extends Service {
 
 
                 }
+
+
 
                 if (download_manager.should_stop) {
                     Log.i("整个停止下载 ", "true");

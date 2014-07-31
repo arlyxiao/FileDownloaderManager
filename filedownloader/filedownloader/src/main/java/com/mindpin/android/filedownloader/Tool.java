@@ -13,4 +13,15 @@ public class Tool {
                 filename.substring(size - 5);
         return short_filename;
     }
+
+
+    public static String get_prefix_filename(String filename) {
+        int size = filename.length();
+        if (size <= 16) {
+            return filename;
+        }
+
+        String short_filename = filename.substring(0, 8) + "...";
+        return short_filename;
+    }
 }

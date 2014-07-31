@@ -7,12 +7,12 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 
 public class NotificationServiceBar {
@@ -101,6 +101,10 @@ public class NotificationServiceBar {
 
 
     public void handle_notification(FileDownloader file_downloader, int notice_id) {
+        if (download_service.download_store_list.size() > 1) {
+            return;
+        }
+
         String downloaded_size = download_service.show_human_size(file_downloader.downloaded_size);
         String file_size = download_service.show_human_size(file_downloader.file_size);
 
@@ -121,7 +125,7 @@ public class NotificationServiceBar {
         Notification notification = mBuilder.getNotification();
 
 
-        RemoteViews content_view = new RemoteViews(context.getPackageName(), R.layout.custom_notification_layout);
+        RemoteViews content_view = new RemoteViews(context.getPackageName(), R.layout.single_download_notification);
         content_view.setImageViewResource(R.id.progress_download_image, R.drawable.ic_launcher);
 
         content_view.setTextViewText(R.id.progress_title_text,
@@ -167,7 +171,8 @@ public class NotificationServiceBar {
         notification.contentView = content_view;
 
 
-        start_foreground(notice_id, notification);
+        /// start_foreground(notice_id, notification);
+        download_service.startForeground(notice_id, notification);
 
     }
 
@@ -258,6 +263,54 @@ public class NotificationServiceBar {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
         notificationManager.notify(notice_id, notification);
+
+    }
+
+
+    public void update_notification(ArrayList<FileDownloader> download_store_list,
+                                     int notice_id) {
+
+        int length = download_store_list.size();
+
+        if (length == 1) {
+            return;
+        }
+        FileDownloader file_downloader =
+                download_store_list.get(length - 1);
+
+        android.support.v4.app.NotificationCompat.Builder mBuilder =
+                new android.support.v4.app.NotificationCompat.Builder(context);
+        mBuilder.setContentTitle(Tool.get_prefix_filename(file_downloader.get_file_name()))
+                .setContentText("多个文件正在下载")
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis());
+        Notification notification = mBuilder.getNotification();
+
+
+
+
+        final ComponentName receiver = new ComponentName(file_downloader.context,
+                file_downloader.activity_class);
+        Intent notice_intent = new Intent(file_downloader.context.getClass().getName() +
+                System.currentTimeMillis());
+        notice_intent.setComponent(receiver);
+
+
+
+        String param_name1 = file_downloader.intent_extras.getString("param_name1");
+        Log.i("notification bar 测试值  ", param_name1);
+        if (file_downloader.intent_extras != null) {
+            notice_intent.putExtras(file_downloader.intent_extras);
+        }
+
+
+        PendingIntent p_intent = PendingIntent.getActivity(file_downloader.context,
+                0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        notification.contentIntent = p_intent;
+
+
+        download_service.startForeground(notice_id, notification);
 
     }
 

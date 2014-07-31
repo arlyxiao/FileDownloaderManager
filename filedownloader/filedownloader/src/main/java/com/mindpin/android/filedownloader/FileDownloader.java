@@ -308,11 +308,11 @@ public class FileDownloader implements Parcelable  {
 
     public void download(final ProgressUpdateListener listener) throws Exception{
 
-        NotificationServiceBar notification_service_bar =
-                new NotificationServiceBar(context);
-
-        notification_service_bar.
-                wait_notification(this, notice_id);
+//        NotificationServiceBar notification_service_bar =
+//                new NotificationServiceBar(context);
+//
+//        notification_service_bar.
+//                wait_notification(this, notice_id);
 
 
         Intent download_service = new Intent(context, DownloadService.class);
