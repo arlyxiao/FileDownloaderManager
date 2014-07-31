@@ -1,16 +1,10 @@
 package com.mindpin.android.filedownloader.ui;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -21,7 +15,6 @@ import com.mindpin.android.filedownloader.ProgressUpdateListener;
 import com.mindpin.android.filedownloader.R;
 
 import java.io.File;
-import java.util.Scanner;
 
 
 public class DownloadActivity extends Activity {
@@ -170,7 +163,7 @@ public class DownloadActivity extends Activity {
         less_100kb_btn_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fd_less_100kb.stop_download();
+                fd_less_100kb.destroy_download();
                 progress_bar1.setProgress(0);
                 result_view1.setText("0%");
             }
@@ -204,7 +197,7 @@ public class DownloadActivity extends Activity {
         less_1m_btn_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fd_less_1m.stop_download();
+                fd_less_1m.destroy_download();
                 progress_bar2.setProgress(0);
                 result_view2.setText("0%");
             }
@@ -239,7 +232,7 @@ public class DownloadActivity extends Activity {
         less_5m_btn_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fd_less_5m.stop_download();
+                fd_less_5m.destroy_download();
                 progress_bar3.setProgress(0);
                 result_view3.setText("0%");
             }
@@ -280,7 +273,7 @@ public class DownloadActivity extends Activity {
         less_10m_btn_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fd_less_10m.stop_download();
+                fd_less_10m.destroy_download();
                 progress_bar4.setProgress(0);
                 result_view4.setText("0%");
             }
@@ -315,7 +308,7 @@ public class DownloadActivity extends Activity {
         more_10m_btn_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fd_more_10m.stop_download();
+                fd_more_10m.destroy_download();
                 progress_bar5.setProgress(0);
                 result_view5.setText("0%");
             }

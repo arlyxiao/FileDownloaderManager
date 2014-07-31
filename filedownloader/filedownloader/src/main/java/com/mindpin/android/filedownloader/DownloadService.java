@@ -38,7 +38,7 @@ public class DownloadService extends Service {
         Log.i("传整个对象给 service, 测试输出 ", download_manager.get_test());
 
         Log.i("对象 has_code ", Integer.toString(download_manager.get_obj_id()));
-        if (download_manager.should_stop) {
+        if (download_manager.should_destroy) {
             Log.i("调试 应该要停止 ", "true");
         }
 
@@ -159,11 +159,19 @@ public class DownloadService extends Service {
 
         try {
             file_downloader.file_record.delete(file_downloader.download_url);
-
-            file_downloader.save_file.delete();
             Log.i("清理 cache 数据　", "true");
         } catch (Exception e) {
             Log.i("清理 cache 数据错误 ", e.toString());
+            e.printStackTrace();
+        }
+    }
+
+    private void delete_file(FileDownloader file_downloader) {
+        try {
+            file_downloader.save_file.delete();
+            Log.i("清理 save_file　", "true");
+        } catch (Exception e) {
+            Log.i("清理 save_file ", e.toString());
             e.printStackTrace();
         }
     }
@@ -195,7 +203,7 @@ public class DownloadService extends Service {
             Log.i("notice_id值 ", Integer.toString(notice_id));
             this.notice_id = notice_id;
 
-            if (download_manager.should_pause || download_manager.should_stop) {
+            if (download_manager.should_pause || download_manager.should_destroy) {
                 // this.setPriority(MAX_PRIORITY);
                 Log.i("设置成最大优先级 ", "true");
             }
@@ -232,12 +240,12 @@ public class DownloadService extends Service {
 
 
                     // 停止下载
-                    if (get_download_store(obj_id).should_stop) {
-                        download_manager.should_stop = true;
-                        Log.i("should_stop true", "true");
+                    if (get_download_store(obj_id).should_destroy) {
+                        download_manager.should_destroy = true;
+                        Log.i("should_destroy true", "true");
                         break;
                     } else {
-                        Log.i("should_stop false", "false");
+                        Log.i("should_destroy false", "false");
                     }
 
                     // 暂停下载
@@ -268,11 +276,12 @@ public class DownloadService extends Service {
 
 
 
-                if (download_manager.should_stop) {
+                if (download_manager.should_destroy) {
                     Log.i("整个停止下载 ", "true");
                     build_download_stop_receiver(download_manager);
                     clear_notice_bar(notice_id);
                     clear_local_thread_data(download_manager);
+                    delete_file(download_manager);
                     remove_download_store(download_manager);
 
                     stop_service();
@@ -346,10 +355,10 @@ public class DownloadService extends Service {
 
         // download_store.should_pause = fd.should_pause;
 
-        if (fd.should_stop) {
+        if (fd.should_destroy) {
             Log.i("存储停止 ", "true");
         }
-        // download_store.should_stop = fd.should_stop;
+        // download_store.should_destroy = fd.should_destroy;
     }
 
     private void remove_download_store(FileDownloader fd) {

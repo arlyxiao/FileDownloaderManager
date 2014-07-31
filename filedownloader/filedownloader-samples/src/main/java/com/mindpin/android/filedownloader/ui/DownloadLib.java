@@ -308,7 +308,7 @@ public class DownloadLib {
 
     public int get_filesize() {
         int size = -1;
-        // if (stop_download) return size;
+        // if (destroy_download) return size;
         int[] bytes_and_status = get_bytes_and_status();
 
         Log.i("内部总大小 ", Integer.toString(bytes_and_status[1]));

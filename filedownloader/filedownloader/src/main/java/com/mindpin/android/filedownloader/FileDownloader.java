@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -16,14 +15,11 @@ import java.util.regex.Pattern;
 
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -65,7 +61,7 @@ public class FileDownloader implements Parcelable  {
 //    Intent download_service;
 
     public boolean should_pause = false;
-    public boolean should_stop = false;
+    public boolean should_destroy = false;
 
     private int obj_id = 0;
     public int notice_id = 0;
@@ -113,7 +109,7 @@ public class FileDownloader implements Parcelable  {
         dest.writeValue(activity_class);
 
         dest.writeByte((byte) (should_pause ? 1 : 0));
-        dest.writeByte((byte) (should_stop ? 1 : 0));
+        dest.writeByte((byte) (should_destroy ? 1 : 0));
         dest.writeInt(obj_id);
         dest.writeInt(notice_id);
         dest.writeInt(file_size);
@@ -129,7 +125,7 @@ public class FileDownloader implements Parcelable  {
         save_file = (File)in.readValue(getClass().getClassLoader());
         activity_class = (Class)in.readValue(getClass().getClassLoader());
         should_pause = in.readByte() != 0;
-        should_stop = in.readByte() != 0;
+        should_destroy = in.readByte() != 0;
         obj_id = in.readInt();
         notice_id = in.readInt();
         file_size = in.readInt();
@@ -526,9 +522,9 @@ public class FileDownloader implements Parcelable  {
 
     }
 
-    public void stop_download() {
+    public void destroy_download() {
 
-        should_stop = true;
+        should_destroy = true;
 
         Log.i("停止下载 ", "true");
         Log.i("obj_id ", Integer.toString(this.hashCode()));
@@ -536,7 +532,7 @@ public class FileDownloader implements Parcelable  {
         download_service.putExtra("download_manager", this);
         context.startService(download_service);
 
-        should_stop = false;
+        should_destroy = false;
 
         NotificationManager nm =
                 (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
@@ -750,7 +746,7 @@ public class FileDownloader implements Parcelable  {
             // Log.i("thread id ", Long.toString(this.threads[i].getId()));
 
 
-            if (should_pause || should_stop) {
+            if (should_pause || should_destroy) {
                 Log.i("service中的线程可以停止loop了 ", "true");
                 return;
             }
