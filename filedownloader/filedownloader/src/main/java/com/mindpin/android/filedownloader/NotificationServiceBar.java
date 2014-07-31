@@ -315,4 +315,70 @@ public class NotificationServiceBar {
     }
 
 
+    public void pause_notification(ArrayList<FileDownloader> download_store_list,
+                                   FileDownloader file_downloader,
+                                    int notice_id) {
+
+        int length = download_store_list.size();
+
+        if (length > 0) {
+            return;
+        }
+
+        String downloaded_size = download_service.show_human_size(file_downloader.downloaded_size);
+        String file_size = download_service.show_human_size(file_downloader.file_size);
+
+
+        android.support.v4.app.NotificationCompat.Builder mBuilder =
+                new android.support.v4.app.NotificationCompat.Builder(context);
+        mBuilder.setContentTitle("Download")
+                .setContentText(Integer.toString(file_downloader.downloaded_size))
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis());
+        Notification notification = mBuilder.getNotification();
+
+
+        RemoteViews content_view = new RemoteViews(context.getPackageName(), R.layout.single_pause_notification);
+        content_view.setImageViewResource(R.id.progress_pause_image, R.drawable.ic_launcher);
+
+        content_view.setTextViewText(R.id.progress_title_text,
+                Tool.regenerate_filename(file_downloader.get_file_name()));
+
+
+        content_view.setTextViewText(R.id.progress_percentage, downloaded_size + " / " + file_size);
+        content_view.setTextViewText(R.id.wait_text, "下载暂停");
+
+
+
+
+        final ComponentName receiver = new ComponentName(file_downloader.context,
+                file_downloader.activity_class);
+        Intent notice_intent = new Intent(file_downloader.context.getClass().getName() +
+                System.currentTimeMillis());
+        notice_intent.setComponent(receiver);
+
+
+
+        String param_name1 = file_downloader.intent_extras.getString("param_name1");
+        Log.i("notification bar 测试值  ", param_name1);
+        if (file_downloader.intent_extras != null) {
+            notice_intent.putExtras(file_downloader.intent_extras);
+        }
+
+
+        PendingIntent p_intent = PendingIntent.getActivity(file_downloader.context,
+                0, notice_intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        notification.contentIntent = p_intent;
+
+        content_view.setOnClickPendingIntent(R.id.progress_content_pause, p_intent);
+
+        notification.contentView = content_view;
+
+
+        download_service.startForeground(notice_id, notification);
+
+    }
+
+
 }

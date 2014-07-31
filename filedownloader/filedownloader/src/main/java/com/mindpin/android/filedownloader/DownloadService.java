@@ -272,6 +272,7 @@ public class DownloadService extends Service {
                     clear_notice_bar(notice_id);
                     clear_local_thread_data(download_manager);
                     remove_download_store(download_manager);
+
                     stop_service();
                     return;
                 }
@@ -279,6 +280,8 @@ public class DownloadService extends Service {
                 if (download_manager.should_pause) {
                     Log.i("线程暂停 ", "true");
                     remove_download_store(download_manager);
+                    notification_service_bar.pause_notification(download_store_list,
+                            download_manager, notice_id);
                     build_download_pause_receiver(download_manager);
                     return;
                 }
