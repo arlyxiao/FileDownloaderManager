@@ -159,6 +159,8 @@ public class DownloadService extends Service {
 
         try {
             file_downloader.file_record.delete(file_downloader.download_url);
+
+            file_downloader.save_file.delete();
             Log.i("清理 cache 数据　", "true");
         } catch (Exception e) {
             Log.i("清理 cache 数据错误 ", e.toString());
