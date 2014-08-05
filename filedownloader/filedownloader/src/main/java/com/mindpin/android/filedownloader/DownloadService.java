@@ -111,7 +111,7 @@ public class DownloadService extends Service {
             Log.i("下载大小跟总大小不相等 file_size ", Integer.toString(file_downloader.file_size));
             file_downloader.downloaded_size = file_downloader.file_size;
         }
-        send_broadcast_with_filedownloader(file_downloader);
+        file_downloader.send_broadcast();
 
         Log.i("通知的文件大小 ", Integer.toString(file_downloader.file_size));
         Intent in = new Intent("app.action.download_done_notification");
@@ -145,36 +145,36 @@ public class DownloadService extends Service {
         getApplicationContext().sendBroadcast(in);
     }
 
-    private void clear_local_thread_data(FileDownloader file_downloader) {
+//    private void clear_local_thread_data(FileDownloader file_downloader) {
+//
+//        if (file_downloader.download_url == null) {
+//            Log.i("清理 cache 数据 download_url 为空　", "true");
+//        }
+//
+//        if (file_downloader.file_record == null) {
+//            Log.i("清理 cache 数据 file_record 为空　", "true");
+//            return;
+//        }
+//
+//
+//        try {
+//            file_downloader.file_record.delete(file_downloader.download_url);
+//            Log.i("清理 cache 数据　", "true");
+//        } catch (Exception e) {
+//            Log.i("清理 cache 数据错误 ", e.toString());
+//            e.printStackTrace();
+//        }
+//    }
 
-        if (file_downloader.download_url == null) {
-            Log.i("清理 cache 数据 download_url 为空　", "true");
-        }
-
-        if (file_downloader.file_record == null) {
-            Log.i("清理 cache 数据 file_record 为空　", "true");
-            return;
-        }
-
-
-        try {
-            file_downloader.file_record.delete(file_downloader.download_url);
-            Log.i("清理 cache 数据　", "true");
-        } catch (Exception e) {
-            Log.i("清理 cache 数据错误 ", e.toString());
-            e.printStackTrace();
-        }
-    }
-
-    private void delete_file(FileDownloader file_downloader) {
-        try {
-            file_downloader.save_file.delete();
-            Log.i("清理 save_file　", "true");
-        } catch (Exception e) {
-            Log.i("清理 save_file ", e.toString());
-            e.printStackTrace();
-        }
-    }
+//    private void delete_file(FileDownloader file_downloader) {
+//        try {
+//            file_downloader.save_file.delete();
+//            Log.i("清理 save_file　", "true");
+//        } catch (Exception e) {
+//            Log.i("清理 save_file ", e.toString());
+//            e.printStackTrace();
+//        }
+//    }
 
 
 
@@ -233,7 +233,9 @@ public class DownloadService extends Service {
             try {
 
                 download_manager.init_connection(context);
+
                 download_manager.save_thread_data();
+
 
                 download_manager.is_finished = false;
                 while (!download_manager.is_finished) {
@@ -266,10 +268,10 @@ public class DownloadService extends Service {
                             handle_notification(download_manager, notice_id);
 
 
-                    send_broadcast_with_filedownloader(download_manager);
+                    download_manager.send_broadcast();
 
 
-                    Thread.sleep(800);
+                    Thread.sleep(900);
 
 
                 }
@@ -280,8 +282,8 @@ public class DownloadService extends Service {
                     Log.i("整个停止下载 ", "true");
                     build_download_stop_receiver(download_manager);
                     clear_notice_bar(notice_id);
-                    clear_local_thread_data(download_manager);
-                    delete_file(download_manager);
+                    download_manager.clear_local_thread_data();
+                    download_manager.delete_file();
                     remove_download_store(download_manager);
 
                     stop_service();
@@ -294,11 +296,11 @@ public class DownloadService extends Service {
                     notification_service_bar.pause_notification(download_store_list,
                             download_manager, notice_id);
                     build_download_pause_receiver(download_manager);
+
                     return;
                 }
                 build_download_done_notification(download_manager);
                 clear_notice_bar(notice_id);
-                clear_local_thread_data(download_manager);
                 remove_download_store(download_manager);
                 stop_service();
 
@@ -312,12 +314,6 @@ public class DownloadService extends Service {
         }
     }
 
-    private void send_broadcast_with_filedownloader(FileDownloader download_manager) {
-        Intent in = new Intent("app.action.download_listener_receiver");
-        in.putExtra("download_manager", download_manager);
-        Log.i("service 中 downloaded_size ", Integer.toString(download_manager.downloaded_size));
-        getApplicationContext().sendBroadcast(in);
-    }
 
 
     public FileDownloader get_download_store(int obj_id) {

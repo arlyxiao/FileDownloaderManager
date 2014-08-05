@@ -87,7 +87,6 @@ public class DownloadThread extends Thread {
                     downloader.append(offset);
 
 
-
                     Log.i("线程" + this.thread_id + " offset ", Integer.toString(offset));
                     Log.i("线程" + this.thread_id + " loop size ", Integer.toString(downloaded_length));
                 }
